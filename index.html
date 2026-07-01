@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Keluar Masuk Asrama</title>
+    <!-- Library untuk QR Scanner -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <style>
+        #reader { width: 100%; max-width: 500px; margin: auto; }
+        .controls { text-align: center; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+    <h2 style="text-align:center;">Imbas QR Pelajar</h2>
+    <div id="reader"></div>
+
+    <div class="controls">
+        <button onclick="setStatus('Keluar')">Keluar Asrama</button>
+        <button onclick="setStatus('Masuk')">Masuk Asrama</button>
+        <p>Status semasa: <b id="currentStatus">Sila pilih status</b></p>
+    </div>
+
+    <script>
+        let selectedStatus = "";
+
+        function setStatus(status) {
+            selectedStatus = status;
+            document.getElementById("currentStatus").innerText = status;
+        }
+
+        function onScanSuccess(decodedText, decodedResult) {
+            if (!selectedStatus) {
+                alert("Sila pilih status (Keluar/Masuk) terlebih dahulu!");
+                return;
+            }
+
+            // decodedText adalah ID Pelajar yang ada dalam QR
+            hantarKeSheet(decodedText, selectedStatus);
+        }
+
+        function hantarKeSheet(id, status) {
+            const url = "https://script.google.com/macros/s/AKfycbxZ8KDLESOAlcEhxknwzXFGMd-doIEdB6e2HTv0DpnuFGOITYgw70cE1Ze55DqgMRzHcQ/exec"; // TAMPAL URL ANDA DI SINI
+
+            fetch(url, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ studentID: id, status: status, nama: "Pelajar" })
+            }).then(() => {
+                alert("Berjaya: " + id + " (" + status + ")");
+            });
+        }
+
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+        html5QrcodeScanner.render(onScanSuccess);
+    </script>
+</body>
+</html>
