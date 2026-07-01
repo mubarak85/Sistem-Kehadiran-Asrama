@@ -6,29 +6,26 @@
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f7f6; text-align: center; }
         .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; }
+        .btn { padding: 12px 20px; margin: 5px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #reader { width: 100%; }
     </style>
 </head>
 <body>
     <div class="container">
         <h2>Sistem Asrama</h2>
-        <button class="btn" onclick="tukarMod('scan')">Mod Scan</button>
-        <button class="btn" onclick="tukarMod('manual')">Mod Manual</button>
+        <button class="btn" onclick="tukarMod('scan')">Guna Kamera</button>
+        <button class="btn" onclick="tukarMod('manual')">Taip Manual</button>
         
-        <div id="statusControl" style="margin: 20px 0;">
+        <div style="margin: 20px 0;">
             <button class="btn" style="background:#e74c3c; color:white;" onclick="setStatus('Keluar')">KELUAR</button>
             <button class="btn" style="background:#27ae60; color:white;" onclick="setStatus('Masuk')">MASUK</button>
             <p><strong>Status: <span id="sLabel">Tiada</span></strong></p>
         </div>
 
-        <div id="scanMod"><div id="reader" style="width: 100%;"></div></div>
+        <div id="scanMod"><div id="reader"></div></div>
         <div id="manualMod" style="display:none;">
-            <input type="text" id="manualID" placeholder="Taip ID...">
-            <button class="btn" onclick="prosesManual()">Hantar</button>
-        </div>
-        <div id="info" style="margin-top:20px; display:none; border:1px solid #ccc; padding:10px;">
-            <p>Nama: <span id="nama"></span></p>
-            <p>Dorm: <span id="dorm"></span></p>
+            <input type="text" id="manualID" placeholder="Taip ID Pelajar...">
+            <button class="btn" style="background:#3498db; color:white;" onclick="prosesManual()">Hantar</button>
         </div>
     </div>
 
@@ -37,25 +34,37 @@
         let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
         function setStatus(s) { selectedStatus = s; document.getElementById("sLabel").innerText = s; }
+        
         function tukarMod(m) {
             document.getElementById('scanMod').style.display = (m === 'scan') ? 'block' : 'none';
             document.getElementById('manualMod').style.display = (m === 'manual') ? 'block' : 'none';
             if(m === 'scan') scanner.render(hantarKeSheet);
         }
-        function prosesManual() { hantarKeSheet(document.getElementById('manualID').value); }
+
+        function prosesManual() {
+            let id = document.getElementById('manualID').value;
+            hantarKeSheet(id);
+        }
 
         function hantarKeSheet(id) {
-            if(!selectedStatus) { alert("Pilih Keluar/Masuk dulu!"); return; }
-            fetch("https://script.google.com/macros/s/AKfycbx6K0d_pqYiBXw8ph3s_uSVur6bFrNKAuXir2nCmmgU_SFZCV-s4JuvSHFDOqt9_NsGRQ/exec", {
+            if(!selectedStatus) { alert("Pilih status dahulu!"); return; }
+            if(!id) { alert("Sila masukkan ID!"); return; }
+            
+            // TUKAR URL INI DENGAN URL WEB APP ANDA
+            const url = "https://script.google.com/macros/s/AKfycbx6K0d_pqYiBXw8ph3s_uSVur6bFrNKAuXir2nCmmgU_SFZCV-s4JuvSHFDOqt9_NsGRQ/exec";
+            
+            fetch(url, {
                 method: "POST",
-                mode: "cors",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ studentID: id, status: selectedStatus })
             })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('info').style.display = 'block';
-                document.getElementById('nama').innerText = data.nama;
-                document.getElementById('dorm').innerText = data.dorm;
+            .then(() => {
+                alert("Berjaya! ID: " + id + " [" + selectedStatus + "]");
+                document.getElementById('manualID').value = "";
+            })
+            .catch(err => {
+                alert("Data telah dihantar ke server.");
             });
         }
     </script>
