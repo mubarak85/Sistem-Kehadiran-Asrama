@@ -9,22 +9,39 @@
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; text-align: center; padding: 20px; }
         .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         #reader { width: 100%; border-radius: 15px; overflow: hidden; }
-        .controls { margin-top: 25px; }
-        button { padding: 15px 30px; margin: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .controls, .mode-switcher { margin-top: 20px; }
+        button { padding: 12px 20px; margin: 5px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-mode { background-color: #3498db; color: white; }
         .btn-keluar { background-color: #e74c3c; color: white; }
         .btn-masuk { background-color: #27ae60; color: white; }
+        #manualMod input { padding: 12px; width: 80%; margin-top: 10px; border-radius: 8px; border: 1px solid #ccc; }
         #infoPelajar { display: none; background: #e8f4fd; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h2>Sistem Asrama</h2>
-        <div id="reader"></div>
+        <h2>Sistem Kehadiran Asrama</h2>
+        
+        <div class="mode-switcher">
+            <button class="btn-mode" onclick="tukarMod('scan')">Mod Scan</button>
+            <button class="btn-mode" onclick="tukarMod('manual')">Mod Manual</button>
+        </div>
+
         <div class="controls">
             <button class="btn-keluar" onclick="setStatus('Keluar')">KELUAR</button>
             <button class="btn-masuk" onclick="setStatus('Masuk')">MASUK</button>
             <p id="statusDisplay">Status: Sila pilih status</p>
+        </div>
+
+        <div id="scanMod">
+            <div id="reader"></div>
+        </div>
+
+        <div id="manualMod" style="display:none;">
+            <input type="text" id="manualID" placeholder="Masukkan ID Pelajar...">
+            <br>
+            <button class="btn-mode" style="margin-top:10px;" onclick="prosesManual()">Hantar ID</button>
         </div>
 
         <div id="infoPelajar">
@@ -38,23 +55,36 @@
 
     <script>
         let selectedStatus = "";
+        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
 
         function setStatus(status) {
             selectedStatus = status;
             document.getElementById("statusDisplay").innerText = "Status: " + status;
         }
 
+        function tukarMod(mod) {
+            document.getElementById('scanMod').style.display = (mod === 'scan') ? 'block' : 'none';
+            document.getElementById('manualMod').style.display = (mod === 'manual') ? 'block' : 'none';
+            if(mod === 'scan') html5QrcodeScanner.render(onScanSuccess);
+        }
+
         function onScanSuccess(decodedText) {
-            if (!selectedStatus) { alert("Sila pilih status terlebih dahulu!"); return; }
             hantarKeSheet(decodedText, selectedStatus);
         }
 
+        function prosesManual() {
+            let id = document.getElementById('manualID').value;
+            hantarKeSheet(id, selectedStatus);
+        }
+
         function hantarKeSheet(id, status) {
+            if (!status) { alert("Sila pilih status dahulu!"); return; }
+            
             const url = "https://script.google.com/macros/s/AKfycbxZ8KDLESOAlcEhxknwzXFGMd-doIEdB6e2HTv0DpnuFGOITYgw70cE1Ze55DqgMRzHcQ/exec"; 
             
             fetch(url, {
                 method: "POST",
-                mode: "cors", // Tukar ke 'cors' jika anda sudah set header di Apps Script
+                mode: "cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ studentID: id, status: status })
             })
@@ -66,11 +96,9 @@
                 document.getElementById("kelasP").innerText = data.kelas;
                 document.getElementById("dormP").innerText = data.dorm;
                 document.getElementById("jantinaP").innerText = data.jantina;
-            });
+            })
+            .catch(() => alert("Ralat: ID tidak ditemui atau sistem sibuk."));
         }
-
-        let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess);
     </script>
 </body>
 </html>
