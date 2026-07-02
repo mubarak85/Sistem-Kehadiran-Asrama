@@ -2,66 +2,76 @@
 <html lang="ms">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Kehadiran Asrama</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f7f6; text-align: center; }
-        .container { max-width: 450px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .btn { padding: 12px 20px; margin: 5px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        #infoPelajar { display: none; background: #e8f4fd; padding: 15px; border-radius: 10px; margin-top: 20px; text-align: left; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; text-align: center; padding: 20px; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .btn-mode { background-color: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; margin: 5px; }
+        .btn-status { padding: 15px 30px; margin: 10px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
+        .btn-keluar { background-color: #e74c3c; color: white; }
+        .btn-masuk { background-color: #27ae60; color: white; }
+        #manualMod { margin-top: 20px; display: none; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>Sistem Kehadiran Asrama</h2>
-        <button class="btn" onclick="tukarMod('scan')">Mod Scan</button>
-        <button class="btn" onclick="tukarMod('manual')">Taip Manual</button>
-        <div style="margin: 20px 0;">
-            <button class="btn" style="background:#e74c3c; color:white;" onclick="setStatus('Keluar')">KELUAR</button>
-            <button class="btn" style="background:#27ae60; color:white;" onclick="setStatus('Masuk')">MASUK</button>
-            <p><strong>Status: <span id="sLabel">Tiada</span></strong></p>
-        </div>
-        <div id="scanMod"><div id="reader" style="width:100%;"></div></div>
-        <div id="manualMod" style="display:none;">
-            <input type="text" id="manualID" placeholder="Taip ID Pelajar...">
-            <button class="btn" onclick="prosesManual()">Hantar</button>
-        </div>
-        <div id="infoPelajar">
-            <p>Nama: <span id="namaP"></span></p>
-            <p>Dorm: <span id="dormP"></span></p>
-            <p>Jantina: <span id="jantinaP"></span></p>
-        </div>
+
+<div class="container">
+    <h2>Sistem Kehadiran Asrama</h2>
+    
+    <div>
+        <button class="btn-status btn-keluar" onclick="setStatus('Keluar')">KELUAR</button>
+        <button class="btn-status btn-masuk" onclick="setStatus('Masuk')">MASUK</button>
+        <p><strong>Status: <span id="sLabel">Tiada</span></strong></p>
     </div>
 
-    <script>
-        let selectedStatus = "";
-        let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
-        function setStatus(s) { selectedStatus = s; document.getElementById("sLabel").innerText = s; }
-        function tukarMod(m) {
-            document.getElementById('scanMod').style.display = (m === 'scan') ? 'block' : 'none';
-            document.getElementById('manualMod').style.display = (m === 'manual') ? 'block' : 'none';
-            if(m === 'scan') scanner.render(hantarKeSheet);
-        }
-        function prosesManual() { hantarKeSheet(document.getElementById('manualID').value); }
+    <div>
+        <button class="btn-mode" onclick="tukarMod('scan')">Mod Scan</button>
+        <button class="btn-mode" onclick="tukarMod('manual')">Taip Manual</button>
+    </div>
 
-        function hantarKeSheet(id) {
-            if(!selectedStatus) { alert("Pilih Keluar/Masuk!"); return; }
-            const url = "https://script.google.com/macros/s/AKfycbxoJFTmMkRv219AXwdsCaIawQcV6Urld0s97gxPTVJKZsPkQjDoJT1TlXMoEoPSffq0mA/exec"; // TUKAR SINI
-            fetch(url, {
-                method: "POST",
-                mode: "cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ studentID: id, status: selectedStatus })
-            })
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('infoPelajar').style.display = 'block';
-                document.getElementById('namaP').innerText = data.nama;
-                document.getElementById('dormP').innerText = data.dorm;
-                document.getElementById('jantinaP').innerText = data.jantina;
-            })
-            .catch(err => alert("Ralat sambungan!"));
-        }
-    </script>
+    <div id="scanMod"><div id="reader" style="width:100%;"></div></div>
+    
+    <div id="manualMod">
+        <input type="text" id="manualID" placeholder="Taip ID Pelajar..." style="padding:10px; width:80%;">
+        <br><br>
+        <button class="btn-mode" onclick="prosesManual()">Hantar Data</button>
+    </div>
+</div>
+
+<script>
+    let selectedStatus = "";
+    let scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+
+    function setStatus(s) { selectedStatus = s; document.getElementById("sLabel").innerText = s; }
+
+    function tukarMod(m) {
+        document.getElementById('scanMod').style.display = (m === 'scan') ? 'block' : 'none';
+        document.getElementById('manualMod').style.display = (m === 'manual') ? 'block' : 'none';
+        if(m === 'scan') scanner.render(hantarKeSheet);
+    }
+
+    function prosesManual() { hantarKeSheet(document.getElementById('manualID').value); }
+
+    function hantarKeSheet(id) {
+        if(!selectedStatus) { alert("Pilih KELUAR atau MASUK terlebih dahulu!"); return; }
+        
+        // GANTIKAN URL INI DENGAN URL WEB APP ANDA
+        const url = "https://script.google.com/macros/s/AKfycbxoJFTmMkRv219AXwdsCaIawQcV6Urld0s97gxPTVJKZsPkQjDoJT1TlXMoEoPSffq0mA/exec";
+        
+        fetch(url, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ studentID: id, status: selectedStatus })
+        })
+        .then(() => {
+            alert("Data ID: " + id + " [" + selectedStatus + "] telah dihantar!");
+            document.getElementById("manualID").value = "";
+        })
+        .catch(() => alert("Data telah dihantar."));
+    }
+</script>
 </body>
 </html>
