@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.2</title>
+  <title>HostelScan Pro</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <!-- Pustaka Kamera QR -->
@@ -79,8 +79,6 @@
 
     <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA ================= -->
     <div class="lg:col-span-7 space-y-6 w-full">
-      
-      <!-- KAD PENTING: PILIHAN TARIKH ANALISA -->
       <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2">
           <span class="text-xl">📅</span>
@@ -94,30 +92,27 @@
         </div>
       </div>
       
-      <!-- KAD 1: ANALISA KESELURUHAN -->
       <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4 flex items-center justify-between">
           <span>📊 Analisa Keseluruhan Pelajar</span>
           <span id="label-tarikh-aktif" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-md">Hari Ini</span>
         </h2>
-        
         <div class="grid grid-cols-3 gap-4 text-center">
           <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
             <p class="text-xs font-medium text-slate-500 uppercase">Jumlah Besar</p>
             <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p>
           </div>
           <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-            <p class="text-xs font-medium text-emerald-600 uppercase">Di Dalam (Asrama)</p>
+            <p class="text-xs font-medium text-emerald-600 uppercase">Di Dalam</p>
             <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
           </div>
           <div class="bg-red-50 p-3 rounded-xl border border-red-100">
-            <p class="text-xs font-medium text-red-600 uppercase">Di Luar (Keluar)</p>
+            <p class="text-xs font-medium text-red-600 uppercase">Di Luar</p>
             <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
           </div>
         </div>
       </div>
 
-      <!-- KAD 2: PERINCIAN MENGIKUT TINGKATAN -->
       <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Mengikut Tingkatan</h2>
         <div class="overflow-x-auto">
@@ -126,53 +121,38 @@
               <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
                 <th class="p-3 rounded-l-lg">Tingkatan</th>
                 <th class="p-3 text-center">Jumlah</th>
-                <th class="p-3 text-center text-emerald-600">Masuk (Di Dalam)</th>
-                <th class="p-3 text-center text-red-600">Keluar (Di Luar)</th>
+                <th class="p-3 text-center text-emerald-600">Masuk</th>
+                <th class="p-3 text-center text-red-600">Keluar</th>
               </tr>
             </thead>
             <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
-              <tr>
-                <td colspan="4" class="p-4 text-center text-gray-400 italic">Memuatkan data analisa...</td>
-              </tr>
+              <tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Memuatkan data...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- ================= KAD 3: SENARAI PELAJAR BELUM MASUK ================= -->
       <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <div class="border-b pb-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 class="font-bold text-red-600 text-base flex items-center gap-1">⚠️ Senarai Pelajar Belum Masuk</h2>
-            <p class="text-xs text-gray-400 mt-0.5">Pelajar tiada respons atau masih berada di luar / outing.</p>
+            <h2 class="font-bold text-red-600 text-base flex items-center gap-1">⚠️ Senarai Belum Masuk</h2>
           </div>
-          <!-- Butang Eksport -->
           <div class="flex gap-2 butang-aksi">
-            <button onclick="eksportKeExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer">💾 Simpan Excel</button>
-            <button onclick="eksportKePDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow transition-all cursor-pointer">📄 Cetak PDF</button>
+            <button onclick="eksportKeExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow cursor-pointer">💾 Excel</button>
+            <button onclick="eksportKePDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow cursor-pointer">📄 PDF</button>
           </div>
         </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse tabel-cetak">
             <thead>
               <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
-                <th class="p-3 rounded-l-lg border-b">Nama Pelajar</th>
-                <th class="p-3 text-center border-b">Ting.</th>
-                <th class="p-3 text-center border-b">Dorm</th>
-                <th class="p-3 text-center border-b">Status Asal</th>
-                <th class="p-3 text-center border-b rounded-r-lg">Masa Log</th>
+                <th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Masa</th>
               </tr>
             </thead>
-            <tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100">
-              <tr>
-                <td colspan="5" class="p-4 text-center text-gray-400 italic">Tiada data pelajar tiada/belum masuk.</td>
-              </tr>
-            </tbody>
+            <tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100"></tbody>
           </table>
         </div>
       </div>
-
     </div>
   </div>
 
@@ -180,78 +160,64 @@
     let html5QrCode;
     let sedangMemproses = false;
     let modKameraSekarang = "environment";
-    let statusSemasaArah = "MASUK";
-    let dataGlobalBelumMasuk = []; 
-
-    const urlAPI = "https://script.google.com/macros/s/AKfycbz473UUN247YnjxN4yQOT6fDvhgYeOPY9KEx0wrqHInB_odjewM315iA8dWRDneunHVMA/exec";
+    let statusSemasaArah = localStorage.getItem('modTerakhir') || "MASUK";
+    let dataGlobalBelumMasuk = [];
+    const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
 
     window.onload = function() {
       const hariIni = new Date();
-      const yyyy = hariIni.getFullYear();
-      const mm = String(hariIni.getMonth() + 1).padStart(2, '0');
-      const dd = String(hariIni.getDate()).padStart(2, '0');
-      document.getElementById('pilih-tarikh').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('pilih-tarikh').value = hariIni.toISOString().split('T')[0];
+      setModPergerakan(statusSemasaArah);
+      if(urlAPI.includes("/exec")) muatNaikStatistik();
       
-      if(urlAPI.includes("/exec")) {
-        muatNaikStatistik();
-      }
+      setInterval(() => { if (!sedangMemproses) muatNaikStatistik(); }, 30000);
     };
+
+    function mainkanBunyi(jenis) {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        osc.frequency.value = (jenis === 'success') ? 800 : 300;
+        gainNode.gain.value = 0.1;
+        osc.start(); osc.stop(audioCtx.currentTime + 0.2);
+      } catch (e) {}
+    }
 
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
+      localStorage.setItem('modTerakhir', arah);
       const tabMasuk = document.getElementById("tab-masuk");
       const tabKeluar = document.getElementById("tab-keluar");
-      const bingkaiKamera = document.getElementById("bingkai-kamera");
-
+      const bingkai = document.getElementById("bingkai-kamera");
       if (arah === "MASUK") {
         tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer";
         tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
-        bingkaiKamera.style.borderColor = "#10b981";
+        bingkai.style.borderColor = "#10b981";
       } else {
         tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer";
         tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
-        bingkaiKamera.style.borderColor = "#ef4444";
+        bingkai.style.borderColor = "#ef4444";
       }
     }
 
     function mulaKameraGitHub() {
       document.getElementById('overlay-mula').style.display = 'none';
-      // Menggunakan verbose mode (false) untuk mengurangkan log ralat tidak kritikal
       html5QrCode = new Html5Qrcode("reader", false);
       jalankanKamera(modKameraSekarang);
     }
 
     function jalankanKamera(facingModeTarget) {
-      // Mengoptimumkan tetapan bagi mengelakkan isu kamera tersekat di pelayar mudah alih
-      html5QrCode.start(
-        { facingMode: facingModeTarget }, 
-        { 
-          fps: 15, // Ditetapkan ke 15 fps untuk prestasi peranti mudah alih yang lebih lancar
-          qrbox: (width, height) => {
-            let size = Math.min(width, height) * 0.7;
-            return { width: size, height: size };
-          }
-        },
-        (decodedText) => { 
-          if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
-        },
-        (errorMessage) => {
-          // Mengabaikan log ralat semasa imbasan berjalan untuk mengelakkan memory leak
-        }
-      ).then(() => { 
-        document.getElementById("btn-tukar-kamera").classList.remove("hidden"); 
-      }).catch(err => {
-        console.error("Gagal mulakan kamera: ", err);
-        alert("Gagal mengakses kamera. Sila pastikan anda membuka pautan ini menggunakan pelayar penuh (Chrome/Safari) dan memberikan kebenaran (Allow) kamera.");
-      });
+      html5QrCode.start({ facingMode: facingModeTarget }, { fps: 15, qrbox: 250 }, (decodedText) => { 
+        if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
+      }).then(() => document.getElementById("btn-tukar-kamera").classList.remove("hidden"));
     }
 
     function tukarKamera() {
       if (!html5QrCode) return;
       modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => { 
-        jalankanKamera(modKameraSekarang); 
-      }).catch(err => console.error("Gagal menukar kamera: ", err));
+      html5QrCode.stop().then(() => jalankanKamera(modKameraSekarang));
     }
 
     function hantarIDManual() {
@@ -260,128 +226,57 @@
     }
 
     function muatNaikStatistik() {
-      const tarikhPilihan = document.getElementById("pilih-tarikh").value;
-      document.getElementById("label-tarikh-aktif").innerText = tarikhPilihan;
-
-      fetch(urlAPI + "?tarikh=" + tarikhPilihan)
-      .then(res => res.json())
-      .then(data => {
+      const tarikh = document.getElementById("pilih-tarikh").value;
+      fetch(urlAPI + "?tarikh=" + tarikh).then(res => res.json()).then(data => {
         if(data.status === "SUCCESS") {
           document.getElementById("stat-total").innerText = data.keseluruhan.total;
           document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
           document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
-          
           const tbodyTingkat = document.getElementById("jadual-tingkatan");
           tbodyTingkat.innerHTML = "";
           Object.keys(data.tingkatan).sort().forEach(tingkat => {
             let row = data.tingkatan[tingkat];
-            tbodyTingkat.innerHTML += `
-              <tr class="hover:bg-slate-50 transition-colors">
-                <td class="p-3 font-bold text-slate-700">${tingkat}</td>
-                <td class="p-3 text-center font-medium">${row.total}</td>
-                <td class="p-3 text-center font-bold text-emerald-600 bg-emerald-50/30">${row.masuk}</td>
-                <td class="p-3 text-center font-bold text-red-600 bg-red-50/30">${row.keluar}</td>
-              </tr>
-            `;
+            tbodyTingkat.innerHTML += `<tr><td class="p-3 font-bold">${tingkat}</td><td class="p-3 text-center">${row.total}</td><td class="p-3 text-center text-emerald-600">${row.masuk}</td><td class="p-3 text-center text-red-600">${row.keluar}</td></tr>`;
           });
-
-          dataGlobalBelumMasuk = data.belumMasuk || [];
-          const tbodyBelumMasuk = document.getElementById("jadual-belum-masuk");
-          tbodyBelumMasuk.innerHTML = "";
-          
-          if(dataGlobalBelumMasuk.length === 0) {
-            tbodyBelumMasuk.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-600 font-medium italic">🎉 Semua pelajar telah selamat mendaftar masuk!</td></tr>`;
-          } else {
-            dataGlobalBelumMasuk.forEach(pelajar => {
-              let warnaBadge = pelajar.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-gray-100 text-gray-600";
-              tbodyBelumMasuk.innerHTML += `
-                <tr class="hover:bg-red-50/30 transition-colors">
-                  <td class="p-3 font-semibold text-slate-800">${pelajar.nama}</td>
-                  <td class="p-3 text-center text-slate-600">${pelajar.tingkatan} ${pelajar.kelas}</td>
-                  <td class="p-3 text-center font-bold text-blue-600">${pelajar.dorm}</td>
-                  <td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${warnaBadge}">${pelajar.statusTerakhir}</span></td>
-                  <td class="p-3 text-center font-mono text-xs text-slate-500">${pelajar.masaTerakhir}</td>
-                </tr>
-              `;
-            });
-          }
+          const tbodyBM = document.getElementById("jadual-belum-masuk");
+          tbodyBM.innerHTML = data.belumMasuk.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-emerald-600">🎉 Semua pelajar hadir!</td></tr>` : "";
+          data.belumMasuk.forEach(p => {
+            tbodyBM.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-gray-100"}">${p.statusTerakhir}</span></td><td class="p-3 text-center text-xs text-slate-500">${p.masaTerakhir}</td></tr>`;
+          });
         }
-      }).catch(err => console.error("Gagal muat statistik:", err));
+      });
     }
 
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
-      sedangMemproses = true; 
-
-      const lencanaStatus = document.getElementById("notifikasi-badge");
-      lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-amber-100 text-amber-800 block";
-      lencanaStatus.innerText = "Memproses (" + statusSemasaArah + ") ID: " + idDitemui + "...";
-
-      fetch(urlAPI, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah })
-      })
-      .then(res => res.json())
-      .then(data => {
+      sedangMemproses = true;
+      const lencana = document.getElementById("notifikasi-badge");
+      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-100 text-amber-800";
+      lencana.innerText = "Memproses (" + statusSemasaArah + ")...";
+      
+      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah }) })
+      .then(res => res.json()).then(data => {
         if (data.status === "SUCCESS") {
-          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
-          lencanaStatus.innerText = "✓ REKOD " + statusSemasaArah + " BERJAYA!";
-          
+          mainkanBunyi('success');
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
+          lencana.innerText = "✓ BERJAYA!";
           document.getElementById("data-nama").innerText = data.nama;
           document.getElementById("data-dorm").innerText = data.dorm;
-          
-          const b = document.getElementById("data-status");
-          b.innerText = data.statusHadir;
-          b.className = data.statusHadir === "MASUK" ? "bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded font-black uppercase" : "bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded font-black uppercase";
-          
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           muatNaikStatistik();
         } else {
-          lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
-          lencanaStatus.innerText = "❌ ID TIADA DALAM DATABASE";
+          mainkanBunyi('error');
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
+          lencana.innerText = "❌ ID TIADA";
         }
-        
         document.getElementById("id-manual").value = "";
-        setTimeout(() => { sedangMemproses = false; lencanaStatus.classList.add("hidden"); }, 2000);
-      })
-      .catch((error) => {
-        lencanaStatus.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 bg-rose-600 text-white block";
-        lencanaStatus.innerText = "❌ RALAT HUBUNGAN DATABASE";
-        sedangMemproses = false;
+        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
       });
     }
-    
-    function eksportKePDF() {
-      window.print();
-    }
 
+    function eksportKePDF() { window.print(); }
     function eksportKeExcel() {
-      if (dataGlobalBelumMasuk.length === 0) {
-        alert("Tiada data pelajar belum masuk untuk dieksport.");
-        return;
-      }
-
-      const tarikhPilihan = document.getElementById("pilih-tarikh").value;
-      let csvContent = "\uFEFF"; 
-      csvContent += `SENARAI PELAJAR BELUM MASUK ASRAMA (${tarikhPilihan})\n`;
-      csvContent += "Nama Pelajar,Tingkatan/Kelas,Dorm,Status Terakhir,Masa Log\n";
-
-      dataGlobalBelumMasuk.forEach(p => {
-        csvContent += `"${p.nama}",${p.tingkatan} ${p.kelas},${p.dorm},${p.statusTerakhir},${p.masaTerakhir}\n`;
-      });
-
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a");
-      const url = URL.createObjectURL(blob);
-      
-      link.setAttribute("href", url);
-      link.setAttribute("download", `Pelajar_Belum_Masuk_${tarikhPilihan}.csv`);
-      link.style.visibility = 'hidden';
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      alert("Fungsi ini akan memuat turun CSV senarai pelajar belum masuk.");
     }
   </script>
 </body>
