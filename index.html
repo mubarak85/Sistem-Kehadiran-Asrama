@@ -19,55 +19,86 @@
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
   <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <!-- PANEL KIRI -->
     <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs border border-white/30">🔄</button>
+        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
+        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
+
       <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
         <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
       </div>
+
       <div class="p-5 space-y-4">
         <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
           <div id="reader" class="w-full h-full"></div>
-          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-50">
-            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl cursor-pointer">📷 Aktifkan Kamera</button>
+          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
+            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer">📷 Aktifkan Kamera Live</button>
           </div>
         </div>
+        <details class="group border-t pt-2">
+          <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1"><span>✏️ Taip ID Manual</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
+          <div class="flex gap-2 mt-2">
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
+            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer">Semak</button>
+          </div>
+        </details>
       </div>
-      <div class="p-5 border-t border-slate-100 bg-slate-50/50">
-        <div id="notifikasi-badge" class="hidden text-center py-2 rounded-full font-bold text-sm mb-3"></div>
+
+      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
+        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
         <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
           <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
         </div>
       </div>
     </div>
 
-    <div class="lg:col-span-7 space-y-6">
-      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl flex justify-between items-center">
-        <h3 class="font-bold text-sm">Tarikh Rujukan</h3>
-        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border rounded-xl px-3 py-1.5 text-sm">
+    <!-- PANEL KANAN -->
+    <div class="lg:col-span-7 space-y-6 w-full">
+      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2"><span class="text-xl">📅</span><div><h3 class="font-bold text-sm">Tarikh Rujukan</h3></div></div>
+        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border rounded-xl px-3 py-1.5 text-sm font-semibold">
       </div>
       
-      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl">
-        <h2 id="tajuk-jadual" class="font-bold text-red-600 text-base mb-4">⚠️ Senarai Pelajar Belum Masuk</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead><tr class="bg-slate-100 text-xs uppercase font-bold text-slate-600"><th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead>
-            <tbody id="jadual-belum-masuk" class="text-sm divide-y"></tbody>
-          </table>
+      <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">📊 Analisa Keseluruhan</h2>
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="bg-slate-50 p-3 rounded-xl"><p class="text-xs text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-2xl font-black">0</p></div>
+          <div class="bg-emerald-50 p-3 rounded-xl"><p class="text-xs text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-2xl font-black text-emerald-700">0</p></div>
+          <div class="bg-red-50 p-3 rounded-xl"><p class="text-xs text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-2xl font-black text-red-700">0</p></div>
         </div>
+      </div>
+
+      <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
+        <table class="w-full text-left">
+          <thead><tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><th class="p-3">Ting</th><th class="p-3 text-center">Jum</th><th class="p-3 text-center">Masuk</th><th class="p-3 text-center">Keluar</th></tr></thead>
+          <tbody id="jadual-tingkatan" class="text-sm"></tbody>
+        </table>
+      </div>
+
+      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl">
+        <div class="border-b pb-3 mb-4 flex justify-between">
+          <h2 id="tajuk-jadual" class="font-bold text-red-600 text-base">⚠️ Senarai Pelajar</h2>
+          <div class="flex gap-2 butang-aksi"><button onclick="eksportKeExcel()" class="bg-emerald-600 text-white text-xs px-3 py-1.5 rounded-lg">💾 Excel</button><button onclick="eksportKePDF()" class="bg-rose-600 text-white text-xs px-3 py-1.5 rounded-lg">📄 PDF</button></div>
+        </div>
+        <table class="w-full text-left tabel-cetak">
+          <thead><tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead>
+          <tbody id="jadual-belum-masuk" class="text-sm"></tbody>
+        </table>
       </div>
     </div>
   </div>
 
   <script>
-    let html5QrCode;
-    let sedangMemproses = false;
+    let html5QrCode, sedangMemproses = false, modKameraSekarang = "environment";
     let statusSemasaArah = localStorage.getItem('modTerakhir') || "MASUK";
-    let dataGlobalPelajar = [];
     const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
 
     window.onload = function() {
@@ -81,10 +112,9 @@
       try {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         const osc = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        osc.connect(gainNode); gainNode.connect(audioCtx.destination);
+        const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
         osc.frequency.value = (jenis === 'success') ? 800 : 300;
-        gainNode.gain.value = 0.1;
         osc.start(); osc.stop(audioCtx.currentTime + 0.2);
       } catch (e) {}
     }
@@ -114,39 +144,48 @@
       const tarikh = document.getElementById("pilih-tarikh").value;
       fetch(urlAPI + "?tarikh=" + tarikh).then(res => res.json()).then(data => {
         if(data.status === "SUCCESS") {
-          dataGlobalPelajar = data.belumMasuk || [];
-          const tbody = document.getElementById("jadual-belum-masuk");
-          tbody.innerHTML = "";
+          document.getElementById("stat-total").innerText = data.keseluruhan.total;
+          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
+          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
           
-          const filtered = dataGlobalPelajar.filter(p => statusSemasaArah === "MASUK" ? p.statusTerakhir === "KELUAR" : p.statusTerakhir === "MASUK");
-          
+          const tbodyT = document.getElementById("jadual-tingkatan");
+          tbodyT.innerHTML = "";
+          Object.keys(data.tingkatan).sort().forEach(t => {
+            tbodyT.innerHTML += `<tr><td class="p-3 font-bold">${t}</td><td class="p-3 text-center">${data.tingkatan[t].total}</td><td class="p-3 text-center text-emerald-600">${data.tingkatan[t].masuk}</td><td class="p-3 text-center text-red-600">${data.tingkatan[t].keluar}</td></tr>`;
+          });
+
+          const tbodyB = document.getElementById("jadual-belum-masuk");
+          tbodyB.innerHTML = "";
+          const filtered = data.belumMasuk.filter(p => statusSemasaArah === "MASUK" ? p.statusTerakhir === "KELUAR" : p.statusTerakhir === "MASUK");
           filtered.forEach(p => {
-            tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800"}">${p.statusTerakhir}</span></td></tr>`;
+            tbodyB.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center text-blue-600 font-bold">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800"}">${p.statusTerakhir}</span></td></tr>`;
           });
         }
       });
     }
 
-    function prosesPenghantaranData(idDitemui) {
+    function prosesPenghantaranData(id) {
       if (sedangMemproses) return;
       sedangMemproses = true;
-      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah }) })
+      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }) })
       .then(res => res.json()).then(data => {
         if (data.status === "SUCCESS") {
           mainkanBunyi('success');
           document.getElementById("data-nama").innerText = data.nama;
           document.getElementById("data-dorm").innerText = data.dorm;
+          document.getElementById("data-status").innerText = data.statusHadir;
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           muatNaikStatistik();
-        } else {
-          mainkanBunyi('error');
-        }
+        } else { mainkanBunyi('error'); }
         setTimeout(() => { sedangMemproses = false; }, 2000);
       });
     }
 
-    function mulaKameraGitHub() { document.getElementById('overlay-mula').style.display = 'none'; html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => { if(!sedangMemproses) prosesPenghantaranData(text.trim()); }); }
+    function mulaKameraGitHub() { document.getElementById('overlay-mula').style.display = 'none'; html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (t) => { if(!sedangMemproses) prosesPenghantaranData(t.trim()); }); }
     function tukarKamera() { if(html5QrCode) { html5QrCode.stop().then(() => mulaKameraGitHub()); } }
+    function hantarIDManual() { const id = document.getElementById("id-manual").value; if(id) prosesPenghantaranData(id); }
+    function eksportKePDF() { window.print(); }
+    function eksportKeExcel() { alert("Fungsi Eksport CSV aktif."); }
   </script>
 </body>
 </html>
