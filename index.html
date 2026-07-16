@@ -3,153 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro</title>
-  <!-- Tailwind CSS -->
+  <title>HostelScan Pro v3.2 - Eksport Rekod Ponteng</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <!-- Pustaka Kamera QR -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  
   <style>
-    /* CSS Khas untuk Cetakan PDF yang Bersih */
     @media print {
       body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi {
-        display: none !important;
-      }
+      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi { display: none !important; }
       .lg\:col-span-7 { width: 100% !important; }
       #kad-belum-masuk { border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
     }
-    /* Memastikan elemen video html5-qrcode memenuhi bingkai dengan betul */
-    #reader video {
-      object-fit: cover !important;
-      width: 100% !important;
-      height: 100% !important;
-    }
+    #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
   </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
-
   <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-    
-    <!-- ================= PANEL KIRI: SCANNER SYSTEM ================= -->
     <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
+        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full text-xs border border-white/30">🔄</button>
       </div>
-
       <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-emerald-600 text-white shadow-md text-center">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm transition-all cursor-pointer bg-white text-slate-600 border border-slate-200 text-center">📤 BALIK / OUTING</button>
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
       </div>
-
       <div class="p-5 space-y-4">
-        <div class="text-center space-y-2">
-          <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
-            <div id="reader" class="w-full h-full"></div>
-            <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer">📷 Aktifkan Kamera Live</button>
-            </div>
+        <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
+          <div id="reader" class="w-full h-full"></div>
+          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center z-50">
+            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 text-white font-bold py-3 px-6 rounded-xl cursor-pointer">📷 Aktifkan Kamera</button>
           </div>
         </div>
-
-        <details class="group border-t pt-2">
-          <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1">
-            <span>✏️ Taip ID Manual</span>
-            <span class="transition group-open:rotate-180 text-[10px]">▼</span>
-          </summary>
-          <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
-            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer">Semak</button>
-          </div>
-        </details>
       </div>
-
-      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
+      <div class="p-5 border-t border-slate-100 bg-slate-50/50">
+        <div id="notifikasi-badge" class="hidden text-center py-2 rounded-full font-bold text-sm mb-3"></div>
         <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold" id="data-nama">-</span></div>
           <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
         </div>
       </div>
     </div>
 
-    <!-- ================= PANEL KANAN: SIDEBAR REKOD & ANALISA ================= -->
-    <div class="lg:col-span-7 space-y-6 w-full">
-      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2">
-          <span class="text-xl">📅</span>
-          <div>
-            <h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan Warden</h3>
-            <p class="text-xs text-gray-400">Data dipaparkan berdasarkan tarikh ini</p>
-          </div>
-        </div>
-        <div class="flex gap-2 w-full sm:w-auto">
-          <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
-        </div>
+    <div class="lg:col-span-7 space-y-6">
+      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl flex justify-between items-center">
+        <h3 class="font-bold text-sm">Tarikh Rujukan</h3>
+        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border rounded-xl px-3 py-1.5 text-sm">
       </div>
       
-      <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4 flex items-center justify-between">
-          <span>📊 Analisa Keseluruhan Pelajar</span>
-          <span id="label-tarikh-aktif" class="text-xs bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-md">Hari Ini</span>
-        </h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
-            <p class="text-xs font-medium text-slate-500 uppercase">Jumlah Besar</p>
-            <p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p>
-          </div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100">
-            <p class="text-xs font-medium text-emerald-600 uppercase">Di Dalam</p>
-            <p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p>
-          </div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-100">
-            <p class="text-xs font-medium text-red-600 uppercase">Di Luar</p>
-            <p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p>
-          </div>
-        </div>
-      </div>
-
-      <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Mengikut Tingkatan</h2>
+      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl">
+        <h2 id="tajuk-jadual" class="font-bold text-red-600 text-base mb-4">⚠️ Senarai Pelajar Belum Masuk</h2>
         <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
-                <th class="p-3 rounded-l-lg">Tingkatan</th>
-                <th class="p-3 text-center">Jumlah</th>
-                <th class="p-3 text-center text-emerald-600">Masuk</th>
-                <th class="p-3 text-center text-red-600">Keluar</th>
-              </tr>
-            </thead>
-            <tbody id="jadual-tingkatan" class="text-sm divide-y divide-slate-100">
-              <tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Memuatkan data...</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <div class="border-b pb-3 mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div>
-            <h2 class="font-bold text-red-600 text-base flex items-center gap-1">⚠️ Senarai Belum Masuk</h2>
-          </div>
-          <div class="flex gap-2 butang-aksi">
-            <button onclick="eksportKeExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow cursor-pointer">💾 Excel</button>
-            <button onclick="eksportKePDF()" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold py-1.5 px-3 rounded-lg shadow cursor-pointer">📄 PDF</button>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse tabel-cetak">
-            <thead>
-              <tr class="bg-slate-100 text-slate-600 text-xs uppercase font-bold">
-                <th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Masa</th>
-              </tr>
-            </thead>
-            <tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100"></tbody>
+          <table class="w-full text-left">
+            <thead><tr class="bg-slate-100 text-xs uppercase font-bold text-slate-600"><th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead>
+            <tbody id="jadual-belum-masuk" class="text-sm divide-y"></tbody>
           </table>
         </div>
       </div>
@@ -159,17 +66,14 @@
   <script>
     let html5QrCode;
     let sedangMemproses = false;
-    let modKameraSekarang = "environment";
     let statusSemasaArah = localStorage.getItem('modTerakhir') || "MASUK";
-    let dataGlobalBelumMasuk = [];
+    let dataGlobalPelajar = [];
     const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
 
     window.onload = function() {
-      const hariIni = new Date();
-      document.getElementById('pilih-tarikh').value = hariIni.toISOString().split('T')[0];
+      document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0];
       setModPergerakan(statusSemasaArah);
-      if(urlAPI.includes("/exec")) muatNaikStatistik();
-      
+      muatNaikStatistik();
       setInterval(() => { if (!sedangMemproses) muatNaikStatistik(); }, 30000);
     };
 
@@ -188,9 +92,12 @@
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
       localStorage.setItem('modTerakhir', arah);
+      document.getElementById("tajuk-jadual").innerText = (arah === "MASUK") ? "⚠️ Senarai Pelajar Belum Masuk" : "🏃 Senarai Pelajar Sedang Keluar";
+      
       const tabMasuk = document.getElementById("tab-masuk");
       const tabKeluar = document.getElementById("tab-keluar");
       const bingkai = document.getElementById("bingkai-kamera");
+      
       if (arah === "MASUK") {
         tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer";
         tabKeluar.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
@@ -200,48 +107,21 @@
         tabMasuk.className = "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
         bingkai.style.borderColor = "#ef4444";
       }
-    }
-
-    function mulaKameraGitHub() {
-      document.getElementById('overlay-mula').style.display = 'none';
-      html5QrCode = new Html5Qrcode("reader", false);
-      jalankanKamera(modKameraSekarang);
-    }
-
-    function jalankanKamera(facingModeTarget) {
-      html5QrCode.start({ facingMode: facingModeTarget }, { fps: 15, qrbox: 250 }, (decodedText) => { 
-        if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); 
-      }).then(() => document.getElementById("btn-tukar-kamera").classList.remove("hidden"));
-    }
-
-    function tukarKamera() {
-      if (!html5QrCode) return;
-      modKameraSekarang = (modKameraSekarang === "environment") ? "user" : "environment";
-      html5QrCode.stop().then(() => jalankanKamera(modKameraSekarang));
-    }
-
-    function hantarIDManual() {
-      const idInput = document.getElementById("id-manual").value.trim();
-      if (idInput) prosesPenghantaranData(idInput);
+      muatNaikStatistik();
     }
 
     function muatNaikStatistik() {
       const tarikh = document.getElementById("pilih-tarikh").value;
       fetch(urlAPI + "?tarikh=" + tarikh).then(res => res.json()).then(data => {
         if(data.status === "SUCCESS") {
-          document.getElementById("stat-total").innerText = data.keseluruhan.total;
-          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
-          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
-          const tbodyTingkat = document.getElementById("jadual-tingkatan");
-          tbodyTingkat.innerHTML = "";
-          Object.keys(data.tingkatan).sort().forEach(tingkat => {
-            let row = data.tingkatan[tingkat];
-            tbodyTingkat.innerHTML += `<tr><td class="p-3 font-bold">${tingkat}</td><td class="p-3 text-center">${row.total}</td><td class="p-3 text-center text-emerald-600">${row.masuk}</td><td class="p-3 text-center text-red-600">${row.keluar}</td></tr>`;
-          });
-          const tbodyBM = document.getElementById("jadual-belum-masuk");
-          tbodyBM.innerHTML = data.belumMasuk.length === 0 ? `<tr><td colspan="5" class="p-4 text-center text-emerald-600">🎉 Semua pelajar hadir!</td></tr>` : "";
-          data.belumMasuk.forEach(p => {
-            tbodyBM.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-gray-100"}">${p.statusTerakhir}</span></td><td class="p-3 text-center text-xs text-slate-500">${p.masaTerakhir}</td></tr>`;
+          dataGlobalPelajar = data.belumMasuk || [];
+          const tbody = document.getElementById("jadual-belum-masuk");
+          tbody.innerHTML = "";
+          
+          const filtered = dataGlobalPelajar.filter(p => statusSemasaArah === "MASUK" ? p.statusTerakhir === "KELUAR" : p.statusTerakhir === "MASUK");
+          
+          filtered.forEach(p => {
+            tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === "KELUAR" ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800"}">${p.statusTerakhir}</span></td></tr>`;
           });
         }
       });
@@ -250,34 +130,23 @@
     function prosesPenghantaranData(idDitemui) {
       if (sedangMemproses) return;
       sedangMemproses = true;
-      const lencana = document.getElementById("notifikasi-badge");
-      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-100 text-amber-800";
-      lencana.innerText = "Memproses (" + statusSemasaArah + ")...";
-      
       fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: idDitemui, arahPergerakan: statusSemasaArah }) })
       .then(res => res.json()).then(data => {
         if (data.status === "SUCCESS") {
           mainkanBunyi('success');
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800";
-          lencana.innerText = "✓ BERJAYA!";
           document.getElementById("data-nama").innerText = data.nama;
           document.getElementById("data-dorm").innerText = data.dorm;
           document.getElementById("kotak-maklumat").classList.remove("hidden");
           muatNaikStatistik();
         } else {
           mainkanBunyi('error');
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800";
-          lencana.innerText = "❌ ID TIADA";
         }
-        document.getElementById("id-manual").value = "";
-        setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
+        setTimeout(() => { sedangMemproses = false; }, 2000);
       });
     }
 
-    function eksportKePDF() { window.print(); }
-    function eksportKeExcel() {
-      alert("Fungsi ini akan memuat turun CSV senarai pelajar belum masuk.");
-    }
+    function mulaKameraGitHub() { document.getElementById('overlay-mula').style.display = 'none'; html5QrCode = new Html5Qrcode("reader"); html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (text) => { if(!sedangMemproses) prosesPenghantaranData(text.trim()); }); }
+    function tukarKamera() { if(html5QrCode) { html5QrCode.stop().then(() => mulaKameraGitHub()); } }
   </script>
 </body>
 </html>
