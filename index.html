@@ -2,12 +2,15 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <title>HostelScan Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HostelScan Pro v4.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body class="bg-slate-100 p-4">
+
   <div class="max-w-4xl mx-auto">
+    <!-- PANEL SCANNER -->
     <div class="bg-white p-5 rounded-2xl shadow-lg mb-6">
       <h1 class="text-lg font-bold text-center mb-4">HOSTELSCAN PRO v4.0</h1>
       <div id="reader" class="w-full mb-4"></div>
@@ -15,14 +18,34 @@
         <button onclick="statusSemasa='MASUK'" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg font-bold">MASUK</button>
         <button onclick="statusSemasa='KELUAR'" class="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold">KELUAR</button>
       </div>
-    </div>
-    <div class="bg-white p-5 rounded-2xl shadow-lg">
-      <div class="flex gap-2 mb-4">
-        <button onclick="tapis('SEMUA')" class="bg-slate-200 px-3 py-1 rounded-lg text-xs font-bold">Semua</button>
-        <button onclick="tapis('BELUM KELUAR')" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Keluar</button>
-        <button onclick="tapis('TIDAK HADIR')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Hadir</button>
+      
+      <!-- PENGISIAN MANUAL -->
+      <div class="mt-6 pt-6 border-t">
+        <h2 class="text-[10px] font-bold mb-2 text-slate-500 uppercase">Pengisian Manual (Jika QR rosak)</h2>
+        <div class="flex gap-2">
+          <input type="text" id="manual-id" placeholder="ID Pelajar" class="w-full p-2 border rounded-lg text-sm">
+          <button onclick="hantarManual()" class="bg-indigo-600 text-white px-6 py-2 rounded-lg text-xs font-bold">SIMPAN</button>
+        </div>
       </div>
-      <input type="text" id="cari" onkeyup="tapisJadual()" placeholder="🔍 Cari nama..." class="w-full mb-4 p-2 border rounded-lg text-sm">
+    </div>
+
+    <!-- PANEL ANALISA & SENARAI -->
+    <div class="bg-white p-5 rounded-2xl shadow-lg">
+      <!-- ANALISA -->
+      <div class="grid grid-cols-3 gap-2 mb-4 text-center">
+        <div class="bg-red-50 p-2 rounded-lg"><div id="count-tidak-hadir" class="font-bold text-red-600 text-sm">0</div><div class="text-[9px]">Belum Hadir</div></div>
+        <div class="bg-blue-50 p-2 rounded-lg"><div id="count-belum-keluar" class="font-bold text-blue-600 text-sm">0</div><div class="text-[9px]">Belum Keluar</div></div>
+        <div class="bg-slate-50 p-2 rounded-lg"><div id="count-keluar" class="font-bold text-slate-600 text-sm">0</div><div class="text-[9px]">Keluar</div></div>
+      </div>
+
+      <!-- FILTER & CARIAN -->
+      <div class="flex gap-2 mb-4">
+        <button onclick="tapis('SEMUA')" class="bg-slate-200 px-3 py-1 rounded-lg text-[10px] font-bold">Semua</button>
+        <button onclick="tapis('BELUM KELUAR')" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold">Belum Keluar</button>
+        <button onclick="tapis('TIDAK HADIR')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-[10px] font-bold">Belum Hadir</button>
+      </div>
+      <input type="text" id="cari" onkeyup="tapisJadual()" placeholder="🔍 Cari nama pelajar..." class="w-full mb-4 p-2 border rounded-lg text-sm">
+      
       <table class="w-full text-left text-sm">
         <tbody id="jadual-utama"></tbody>
       </table>
@@ -31,12 +54,22 @@
 
   <script>
     let statusSemasa = "MASUK";
-    const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec"; // TUKAR DENGAN URL EXEC ANDA
+    const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec"; // GANTIKAN DENGAN URL WEB APP ANDA
 
+    // Scanner
     new Html5Qrcode("reader").start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
+      hantarData(id);
+    });
+
+    function hantarData(id) {
       fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasa }) })
       .then(() => { new Audio('https://actions.google.com/sounds/v1/ui/beep.ogg').play(); muatData(); });
-    });
+    }
+
+    function hantarManual() {
+      const id = document.getElementById("manual-id").value;
+      if(id) { hantarData(id); document.getElementById("manual-id").value = ""; }
+    }
 
     function muatData() {
       fetch(`${urlAPI}?tarikh=${new Date().toISOString().split('T')[0]}`)
@@ -48,6 +81,10 @@
             <td class="p-2">${p.tingkatan}</td>
             <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${p.status=='Belum Keluar'?'bg-blue-100':p.status=='Keluar'?'bg-slate-100':'bg-red-100'}">${p.status.toUpperCase()}</span></td>
           </tr>`).join('');
+        
+        document.getElementById("count-tidak-hadir").innerText = res.data.filter(p => p.status == "Tidak Hadir").length;
+        document.getElementById("count-belum-keluar").innerText = res.data.filter(p => p.status == "Belum Keluar").length;
+        document.getElementById("count-keluar").innerText = res.data.filter(p => p.status == "Keluar").length;
       });
     }
 
