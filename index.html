@@ -2,7 +2,6 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HostelScan Pro</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
@@ -18,7 +17,12 @@
       </div>
     </div>
     <div class="bg-white p-5 rounded-2xl shadow-lg">
-      <button onclick="tapis('TIDAK HADIR')" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold mb-4">Belum Hadir Sahaja</button>
+      <div class="flex gap-2 mb-4">
+        <button onclick="tapis('SEMUA')" class="bg-slate-200 px-3 py-1 rounded-lg text-xs font-bold">Semua</button>
+        <button onclick="tapis('BELUM KELUAR')" class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Keluar</button>
+        <button onclick="tapis('TIDAK HADIR')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Hadir</button>
+      </div>
+      <input type="text" id="cari" onkeyup="tapisJadual()" placeholder="🔍 Cari nama..." class="w-full mb-4 p-2 border rounded-lg text-sm">
       <table class="w-full text-left text-sm">
         <tbody id="jadual-utama"></tbody>
       </table>
@@ -27,10 +31,9 @@
 
   <script>
     let statusSemasa = "MASUK";
-    const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
+    const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec"; // TUKAR DENGAN URL EXEC ANDA
 
-    const scanner = new Html5Qrcode("reader");
-    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
+    new Html5Qrcode("reader").start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
       fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasa }) })
       .then(() => { new Audio('https://actions.google.com/sounds/v1/ui/beep.ogg').play(); muatData(); });
     });
@@ -43,7 +46,7 @@
           <tr class="border-b">
             <td class="p-2">${p.nama}</td>
             <td class="p-2">${p.tingkatan}</td>
-            <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${p.status=='Hadir'?'bg-emerald-100':p.status=='Keluar'?'bg-blue-100':'bg-red-100'}">${p.status.toUpperCase()}</span></td>
+            <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${p.status=='Belum Keluar'?'bg-blue-100':p.status=='Keluar'?'bg-slate-100':'bg-red-100'}">${p.status.toUpperCase()}</span></td>
           </tr>`).join('');
       });
     }
@@ -51,6 +54,13 @@
     function tapis(f) {
       document.querySelectorAll('#jadual-utama tr').forEach(r => {
         r.style.display = (f=='SEMUA' || r.querySelector('span').innerText==f) ? '' : 'none';
+      });
+    }
+    
+    function tapisJadual() {
+      const v = document.getElementById("cari").value.toUpperCase();
+      document.querySelectorAll('#jadual-utama tr').forEach(r => {
+        r.style.display = r.innerText.toUpperCase().includes(v) ? '' : 'none';
       });
     }
     
