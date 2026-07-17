@@ -2,148 +2,104 @@
 <html lang="ms">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HostelScan Pro v4.0</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  
-  <style>
-    @media print {
-      body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi { display: none !important; }
-      .lg\:col-span-7 { width: 100% !important; }
-      #kad-belum-masuk { border: none !important; box-shadow: none !important; }
-      .tabel-cetak { border: 1px solid #000 !important; }
-    }
-    #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
-  </style>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
+<body class="bg-slate-100 p-4">
 
-  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
-      <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
-      </div>
-
-      <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
-      </div>
-
-      <div class="p-5 space-y-4">
-        <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
-          <div id="reader" class="w-full h-full"></div>
-          <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-            <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer">📷 Aktifkan Kamera</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
-        </div>
+  <div class="max-w-4xl mx-auto">
+    <!-- PANEL SCANNER -->
+    <div class="bg-white p-5 rounded-2xl shadow-lg mb-6">
+      <h1 class="text-lg font-bold text-center mb-4">HOSTELSCAN PRO v4.0</h1>
+      <div id="reader" class="w-full mb-4"></div>
+      <div class="flex gap-2">
+        <button onclick="setMod('MASUK')" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg font-bold">MASUK</button>
+        <button onclick="setMod('KELUAR')" class="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold">KELUAR</button>
       </div>
     </div>
 
-    <div class="lg:col-span-7 space-y-6 w-full">
-      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center justify-between gap-4">
-        <h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan</h3>
-        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-50">
+    <!-- PANEL ANALISA & SENARAI -->
+    <div class="bg-white p-5 rounded-2xl shadow-lg">
+      <div class="flex gap-2 mb-4">
+        <button onclick="tapisStatus('SEMUA')" class="bg-slate-200 px-3 py-1 rounded-lg text-xs font-bold">Semua</button>
+        <button onclick="tapisStatus('TIDAK HADIR')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Hadir Sahaja</button>
       </div>
+      <input type="text" id="input-carian" onkeyup="tapisJadual()" placeholder="🔍 Cari nama pelajar..." class="w-full mb-4 p-2 border rounded-lg text-sm">
       
-      <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div><p class="text-xs uppercase">Jumlah</p><p id="stat-total" class="text-2xl font-black">0</p></div>
-          <div><p class="text-xs uppercase text-emerald-600">Masuk</p><p id="stat-masuk" class="text-2xl font-black text-emerald-700">0</p></div>
-          <div><p class="text-xs uppercase text-red-600">Keluar</p><p id="stat-keluar" class="text-2xl font-black text-red-700">0</p></div>
-        </div>
-      </div>
-
-      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <div class="flex justify-between items-center mb-4 border-b pb-3">
-          <h2 id="tajuk-jadual" class="font-bold text-red-600">⚠️ Senarai Belum Masuk</h2>
-          <div class="flex gap-2 butang-aksi">
-            <button onclick="eksportKeExcel()" class="bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">💾 Excel</button>
-            <button onclick="window.print()" class="bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">📄 PDF</button>
-          </div>
-        </div>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead><tr class="bg-slate-100 text-xs uppercase font-bold text-slate-600"><th class="p-3">Nama</th><th class="p-3 text-center">Ting</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th><th class="p-3 text-center">Masa</th></tr></thead>
-            <tbody id="jadual-belum-masuk" class="text-sm"></tbody>
-          </table>
-        </div>
-      </div>
+      <table class="w-full text-left text-sm">
+        <thead><tr class="text-slate-500 uppercase text-xs"><th>Nama</th><th>Ting</th><th>Status</th></tr></thead>
+        <tbody id="jadual-utama"></tbody>
+      </table>
     </div>
   </div>
 
   <script>
-    let html5QrCode, sedangMemproses = false, statusSemasaArah = localStorage.getItem('modTerakhir') || "MASUK";
+    let statusSemasa = "MASUK";
     const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
 
-    window.onload = () => {
-      document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0];
-      setModPergerakan(statusSemasaArah);
-      muatNaikStatistik();
-    };
-
-    function setModPergerakan(arah) {
-      statusSemasaArah = arah;
-      localStorage.setItem('modTerakhir', arah);
-      document.getElementById("tajuk-jadual").innerText = (arah === "MASUK") ? "⚠️ Senarai Belum Masuk" : "🏃 Senarai Belum Keluar";
-      muatNaikStatistik();
+    // 1. Audio Feedback
+    function bunyiBip(jenis) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      osc.frequency.value = jenis === 'success' ? 880 : 440;
+      osc.connect(ctx.destination);
+      osc.start(); osc.stop(ctx.currentTime + 0.1);
     }
 
-    function muatNaikStatistik() {
-      const tarikh = document.getElementById("pilih-tarikh").value;
-      fetch(urlAPI + "?tarikh=" + tarikh).then(res => res.json()).then(data => {
-        if(data.status === "SUCCESS") {
-          document.getElementById("stat-total").innerText = data.keseluruhan.total;
-          document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
-          document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
-          const tbodyBM = document.getElementById("jadual-belum-masuk");
-          tbodyBM.innerHTML = "";
-          data.belumMasuk.filter(p => statusSemasaArah === "MASUK" ? p.statusTerakhir === "KELUAR" : p.statusTerakhir === "MASUK")
-          .forEach(p => {
-            tbodyBM.innerHTML += `<tr><td class="p-3">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center">${p.dorm}</td><td class="p-3 text-center font-bold text-[10px] uppercase">${p.statusTerakhir}</td><td class="p-3 text-center">${p.masaTerakhir}</td></tr>`;
-          });
-        }
-      });
-    }
+    // 2. Scan Logic
+    const html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
+      hantarData(text);
+    });
 
-    function eksportKeExcel() {
-      let csv = ["Nama,Tingkatan,Dorm,Status,Masa"];
-      document.querySelectorAll("#jadual-belum-masuk tr").forEach(tr => {
-        let td = Array.from(tr.querySelectorAll("td")).map(cell => cell.innerText.replace(/,/g, ""));
-        csv.push(td.join(","));
-      });
-      const blob = new Blob(["\ufeff"+csv.join("\n")], {type: "text/csv;charset=utf-8;"});
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `Laporan_${statusSemasaArah}_${new Date().toISOString().split('T')[0]}.csv`;
-      link.click();
-    }
-
-    function mulaKameraGitHub() {
-      document.getElementById('overlay-mula').style.display = 'none';
-      html5QrCode = new Html5Qrcode("reader");
-      html5QrCode.start({ facingMode: "environment" }, { fps: 15, qrbox: 250 }, (t) => { if(!sedangMemproses) prosesData(t.trim()); });
-    }
-
-    function prosesData(id) {
-      sedangMemproses = true;
-      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }) })
-      .then(res => res.json()).then(data => {
-        alert("Berjaya: " + data.nama);
+    async function hantarData(id) {
+      const response = await fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasa }) });
+      const data = await response.json();
+      if(data.status === "SUCCESS") {
+        bunyiBip('success');
         muatNaikStatistik();
-        sedangMemproses = false;
+      } else {
+        bunyiBip('error');
+      }
+    }
+
+    // 3. Data & Refresh
+    function muatNaikStatistik() {
+      const t = new Date().toISOString().split('T')[0];
+      fetch(`${urlAPI}?tarikh=${t}`)
+      .then(res => res.json())
+      .then(res => {
+        const tbody = document.getElementById("jadual-utama");
+        tbody.innerHTML = "";
+        res.data.forEach(p => {
+          let warna = p.status === "Hadir" ? "bg-emerald-100 text-emerald-800" : (p.status === "Keluar" ? "bg-blue-100 text-blue-800" : "bg-red-100 text-red-800");
+          tbody.innerHTML += `
+            <tr class="border-b">
+              <td class="p-2">${p.nama}</td>
+              <td class="p-2">${p.tingkatan}</td>
+              <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${warna}">${p.status.toUpperCase()}</span></td>
+            </tr>`;
+        });
       });
     }
+
+    // 4. Filter & Auto-Refresh
+    function tapisStatus(filter) {
+      const rows = document.getElementById("jadual-utama").getElementsByTagName("tr");
+      for (let row of rows) {
+        const status = row.querySelector("span").innerText;
+        row.style.display = (filter === 'SEMUA' || (filter === 'TIDAK HADIR' && status === 'TIDAK HADIR')) ? "" : "none";
+      }
+    }
+
+    function tapisJadual() { /* Logik carian teks */ }
+    
+    // Auto-refresh setiap 30 saat
+    setInterval(muatNaikStatistik, 30000);
+    window.onload = muatNaikStatistik;
+    function setMod(m) { statusSemasa = m; }
   </script>
 </body>
 </html>
