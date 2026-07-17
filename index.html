@@ -3,33 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HostelScan Pro v4.0</title>
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <title>HostelScan Pro</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
 </head>
 <body class="bg-slate-100 p-4">
-
   <div class="max-w-4xl mx-auto">
-    <!-- PANEL SCANNER -->
     <div class="bg-white p-5 rounded-2xl shadow-lg mb-6">
       <h1 class="text-lg font-bold text-center mb-4">HOSTELSCAN PRO v4.0</h1>
       <div id="reader" class="w-full mb-4"></div>
       <div class="flex gap-2">
-        <button onclick="setMod('MASUK')" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg font-bold">MASUK</button>
-        <button onclick="setMod('KELUAR')" class="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold">KELUAR</button>
+        <button onclick="statusSemasa='MASUK'" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg font-bold">MASUK</button>
+        <button onclick="statusSemasa='KELUAR'" class="flex-1 py-2 bg-red-600 text-white rounded-lg font-bold">KELUAR</button>
       </div>
     </div>
-
-    <!-- PANEL ANALISA & SENARAI -->
     <div class="bg-white p-5 rounded-2xl shadow-lg">
-      <div class="flex gap-2 mb-4">
-        <button onclick="tapisStatus('SEMUA')" class="bg-slate-200 px-3 py-1 rounded-lg text-xs font-bold">Semua</button>
-        <button onclick="tapisStatus('TIDAK HADIR')" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Belum Hadir Sahaja</button>
-      </div>
-      <input type="text" id="input-carian" onkeyup="tapisJadual()" placeholder="🔍 Cari nama pelajar..." class="w-full mb-4 p-2 border rounded-lg text-sm">
-      
+      <button onclick="tapis('TIDAK HADIR')" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold mb-4">Belum Hadir Sahaja</button>
       <table class="w-full text-left text-sm">
-        <thead><tr class="text-slate-500 uppercase text-xs"><th>Nama</th><th>Ting</th><th>Status</th></tr></thead>
         <tbody id="jadual-utama"></tbody>
       </table>
     </div>
@@ -39,67 +29,33 @@
     let statusSemasa = "MASUK";
     const urlAPI = "https://script.google.com/macros/s/AKfycbzjx7uH6hX4IUV6c2D716uAhDWYHJ7XCHdsSBucoX8HOxhMiggk0hC0BZms-bA6EqVH/exec";
 
-    // 1. Audio Feedback
-    function bunyiBip(jenis) {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
-      const osc = ctx.createOscillator();
-      osc.frequency.value = jenis === 'success' ? 880 : 440;
-      osc.connect(ctx.destination);
-      osc.start(); osc.stop(ctx.currentTime + 0.1);
-    }
-
-    // 2. Scan Logic
-    const html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (text) => {
-      hantarData(text);
+    const scanner = new Html5Qrcode("reader");
+    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (id) => {
+      fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasa }) })
+      .then(() => { new Audio('https://actions.google.com/sounds/v1/ui/beep.ogg').play(); muatData(); });
     });
 
-    async function hantarData(id) {
-      const response = await fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasa }) });
-      const data = await response.json();
-      if(data.status === "SUCCESS") {
-        bunyiBip('success');
-        muatNaikStatistik();
-      } else {
-        bunyiBip('error');
-      }
-    }
-
-    // 3. Data & Refresh
-    function muatNaikStatistik() {
-      const t = new Date().toISOString().split('T')[0];
-      fetch(`${urlAPI}?tarikh=${t}`)
-      .then(res => res.json())
-      .then(res => {
+    function muatData() {
+      fetch(`${urlAPI}?tarikh=${new Date().toISOString().split('T')[0]}`)
+      .then(res => res.json()).then(res => {
         const tbody = document.getElementById("jadual-utama");
-        tbody.innerHTML = "";
-        res.data.forEach(p => {
-          let warna = p.status === "Hadir" ? "bg-emerald-100 text-emerald-800" : (p.status === "Keluar" ? "bg-blue-100 text-blue-800" : "bg-red-100 text-red-800");
-          tbody.innerHTML += `
-            <tr class="border-b">
-              <td class="p-2">${p.nama}</td>
-              <td class="p-2">${p.tingkatan}</td>
-              <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${warna}">${p.status.toUpperCase()}</span></td>
-            </tr>`;
-        });
+        tbody.innerHTML = res.data.map(p => `
+          <tr class="border-b">
+            <td class="p-2">${p.nama}</td>
+            <td class="p-2">${p.tingkatan}</td>
+            <td class="p-2"><span class="px-2 py-1 rounded-full text-[10px] font-bold ${p.status=='Hadir'?'bg-emerald-100':p.status=='Keluar'?'bg-blue-100':'bg-red-100'}">${p.status.toUpperCase()}</span></td>
+          </tr>`).join('');
       });
     }
 
-    // 4. Filter & Auto-Refresh
-    function tapisStatus(filter) {
-      const rows = document.getElementById("jadual-utama").getElementsByTagName("tr");
-      for (let row of rows) {
-        const status = row.querySelector("span").innerText;
-        row.style.display = (filter === 'SEMUA' || (filter === 'TIDAK HADIR' && status === 'TIDAK HADIR')) ? "" : "none";
-      }
+    function tapis(f) {
+      document.querySelectorAll('#jadual-utama tr').forEach(r => {
+        r.style.display = (f=='SEMUA' || r.querySelector('span').innerText==f) ? '' : 'none';
+      });
     }
-
-    function tapisJadual() { /* Logik carian teks */ }
     
-    // Auto-refresh setiap 30 saat
-    setInterval(muatNaikStatistik, 30000);
-    window.onload = muatNaikStatistik;
-    function setMod(m) { statusSemasa = m; }
+    setInterval(muatData, 30000);
+    window.onload = muatData;
   </script>
 </body>
 </html>
