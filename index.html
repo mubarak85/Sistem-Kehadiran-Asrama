@@ -191,7 +191,26 @@
       });
     }
     
-    function eksportKePDF() { window.print(); } function eksportKeExcel() { alert("Fungsi Excel aktif."); }
+    function eksportKeExcel() {
+      const table = document.getElementById("jadual-belum-masuk");
+      let csv = ["Nama,Tingkatan,Dorm,Status"];
+      let rows = table.querySelectorAll("tr");
+      if (rows.length === 0 || rows[0].innerText.includes("Tiada")) { alert("Tiada data untuk dieksport."); return; }
+      for (let i = 0; i < rows.length; i++) {
+        let row = [], cols = rows[i].querySelectorAll("td");
+        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.trim() + '"');
+        csv.push(row.join(","));
+      }
+      const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
+      const downloadLink = document.createElement("a");
+      downloadLink.download = "Senarai_Belum_Masuk_" + new Date().toLocaleDateString() + ".csv";
+      downloadLink.href = window.URL.createObjectURL(csvFile);
+      downloadLink.style.display = "none";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+    }
+    
+    function eksportKePDF() { window.print(); }
   </script>
 </body>
 </html>
