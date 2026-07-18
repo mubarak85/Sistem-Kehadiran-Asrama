@@ -167,14 +167,23 @@
       jalankanKamera(modKameraSekarang);
     }
 
-    function jalankanKamera(facingModeTarget) {
+function jalankanKamera(facingModeTarget) {
       html5QrCode.start(
         { facingMode: facingModeTarget }, 
-        { fps: 10, qrbox: 250, aspectRatio: 1.0, videoConstraints: { facingMode: facingModeTarget } },
+        { 
+          fps: 20, // Tingkatkan FPS untuk imbasan lebih pantas
+          qrbox: { width: 300, height: 300 }, // Saiz kotak yang lebih besar untuk fokus mudah
+          aspectRatio: 1.0,
+          videoConstraints: {
+            facingMode: facingModeTarget,
+            width: { ideal: 1280 }, // Gunakan resolusi HD
+            height: { ideal: 720 }
+          }
+        },
         (decodedText) => { if (!sedangMemproses) prosesPenghantaranData(decodedText.trim()); },
         (err) => {}
       ).then(() => { document.getElementById("btn-tukar-kamera").classList.remove("hidden"); })
-       .catch(err => { alert("Kamera gagal diakses. Sila pastikan kebenaran kamera diberikan."); });
+       .catch(err => { alert("Kamera gagal diakses."); });
     }
 
     function tukarKamera() {
