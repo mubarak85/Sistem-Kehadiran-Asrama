@@ -111,7 +111,11 @@
         gainNode.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.2); 
     }
     
-    window.onload = function() { document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0]; muatNaikStatistik(); };
+    window.onload = function() { 
+        document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0]; 
+        muatNaikStatistik(); 
+        setInterval(muatNaikStatistik, 30000); // Auto-refresh setiap 30 saat
+    };
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
