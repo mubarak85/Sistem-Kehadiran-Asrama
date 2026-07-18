@@ -4,8 +4,22 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HostelScan Pro v3.2</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href='data:application/json;base64,ewogICJuYW1lIjogIkhvc3RlbFNjYW4gUHJvIiwKICAic2hvcnRfbmFtZSI6ICJIb3N0ZWxTY2FuIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZmZmZmZmIiwKICAiZGVzY3JpcHRpb24iOiAiU2lzdGVtIEltYmFzYW4gQXNyYW1hIiwKICAiaWNvbnMiOiBbewogICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuc2VjdXJlZmxhdC5jb20vMTI4LzI5MTkvMjkxOTYxMi5wbmciLAogICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogIH1dCn0K'>
+  <meta name="theme-color" content="#2563eb">
+  
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (event) => {});').catch(err => console.log('SW failed', err));
+      });
+    }
+  </script>
+
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
@@ -145,7 +159,6 @@
           document.getElementById("data-nama").innerText = data.nama; document.getElementById("data-dorm").innerText = data.dorm;
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          // Logik warna status: LEWAT (Oren), MASUK (Hijau), KELUAR (Merah)
           statusEl.className = (data.statusHadir === "LEWAT") 
             ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" 
             : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
