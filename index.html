@@ -9,7 +9,7 @@
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-analisa-dorm, #kad-belum-masuk, .butang-aksi { display: none !important; }
+      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-analisa-dorm, #kad-analisa-setiap-dorm, #kad-belum-masuk, .butang-aksi { display: none !important; }
       .lg\:col-span-4-sidebar { width: 100% !important; border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
     }
@@ -114,6 +114,26 @@
               <div class="flex justify-between"><span>Keluar:</span><span id="aspuri-keluar" class="font-bold text-red-600">0</span></div>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- KAD ANALISA TABURAN KESEMUA DORM (ASPURA & ASPURI) -->
+      <div id="kad-analisa-setiap-dorm" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🚪 Taburan Kesemua Dorm (1L-23L & 1P-24P)</h2>
+        <div class="overflow-x-auto max-h-[400px]">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase text-slate-500 bg-slate-50 sticky top-0">
+              <tr>
+                <th class="p-2">Nama Dorm</th>
+                <th class="p-2 text-center">Jumlah</th>
+                <th class="p-2 text-center">Masuk</th>
+                <th class="p-2 text-center">Keluar</th>
+              </tr>
+            </thead>
+            <tbody id="jadual-setiap-dorm" class="divide-y divide-slate-100">
+              <!-- Data akan dimasukkan secara dinamik -->
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -282,6 +302,36 @@
             document.getElementById("aspuri-total").innerText = data.aspuri.total || 0;
             document.getElementById("aspuri-masuk").innerText = data.aspuri.masuk || 0;
             document.getElementById("aspuri-keluar").innerText = data.aspuri.keluar || 0;
+        }
+
+        const tbodyDorm = document.getElementById("jadual-setiap-dorm");
+        if (tbodyDorm && data.perDorm) {
+            tbodyDorm.innerHTML = "";
+            const senaraiDorm = Object.keys(data.perDorm).sort((a, b) => {
+                let numA = parseInt(a) || 0;
+                let numB = parseInt(b) || 0;
+                let ketA = a.replace(/[0-9]/g, '');
+                let ketB = b.replace(/[0-9]/g, '');
+                
+                if (ketA !== ketB) return ketA.localeCompare(ketB);
+                return numA - numB;
+            });
+
+            senaraiDorm.forEach(namaDorm => {
+                let info = data.perDorm[namaDorm];
+                let labelKategori = namaDorm.endsWith("L") 
+                    ? '<span class="text-[9px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded ml-1 font-bold">L</span>' 
+                    : (namaDorm.endsWith("P") ? '<span class="text-[9px] bg-pink-100 text-pink-800 px-1.5 py-0.5 rounded ml-1 font-bold">P</span>' : '');
+                
+                tbodyDorm.innerHTML += `
+                    <tr>
+                        <td class="p-2 font-bold text-slate-700">${namaDorm} ${labelKategori}</td>
+                        <td class="p-2 text-center font-semibold">${info.total}</td>
+                        <td class="p-2 text-center text-emerald-600 font-bold">${info.masuk}</td>
+                        <td class="p-2 text-center text-red-600 font-bold">${info.keluar}</td>
+                    </tr>
+                `;
+            });
         }
 
         const tbodyTingkat = document.getElementById("jadual-tingkatan"); 
