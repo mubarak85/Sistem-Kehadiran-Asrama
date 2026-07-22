@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.7</title>
+  <title>HostelScan Pro v3.8</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
@@ -22,8 +22,8 @@
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
     <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.7</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan Pantas (Mod Pantas)</p>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.8</h1>
+        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan Pantas</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
 
@@ -104,11 +104,8 @@
         </div>
       </div>
 
-      <!-- KAD RINGKASAN DORM ASPURA & ASPURI -->
       <div id="kad-dorm" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 space-y-6">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3">🏠 Ringkasan Dorm Asrama</h2>
-        
-        <!-- ASPURA -->
         <div>
           <h3 class="font-bold text-blue-700 text-xs uppercase mb-2">🔵 ASPURA (Putera)</h3>
           <div class="overflow-x-auto">
@@ -118,8 +115,6 @@
             </table>
           </div>
         </div>
-
-        <!-- ASPURI -->
         <div class="pt-2 border-t">
           <h3 class="font-bold text-pink-700 text-xs uppercase mb-2">🌸 ASPURI (Puteri)</h3>
           <div class="overflow-x-auto">
@@ -150,9 +145,10 @@
     let modKameraSekarang = "environment"; 
     let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
-    let dataPelajarLokal = {}; // Direktori lokal untuk nama & dorm
+    let dataPelajarLokal = {}; 
     
-    const urlAPI = "https://script.google.com/macros/s/AKfycbzyQ9Iq2tjMrxfv3hhkXqlBJ9k7JGsuWp70zzzc-LYOp5oBJto5_-ehd9FD-PhDHSxBug/exec";
+    // PASTIKAN URL WEB APP TERKINI DIMASUKKAN DI SINI SELEPAS NEW DEPLOYMENT
+    const urlAPI = "https://script.google.com/macros/s/AKfycbzmxxCrMEUqE6ohLS_x26sOemftD4B1uO4gGj0dgVi-8T5eqAZlXt7Yr44K_tJHn8h1vw/exec";
     
     function mainkanBunyi(jenis) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -188,7 +184,6 @@
     
     function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
     
-    // PROSES PENGHANTARAN MOD PANTAS DENGAN PAPARAN NAMA & DORM LOKAL
     function prosesPenghantaranData(id) {
       if (sedangMemproses) return; 
       sedangMemproses = true; 
@@ -198,7 +193,6 @@
       lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; 
       lencana.innerText = "Berjaya Direkod!";
 
-      // Ambil maklumat nama dan dorm dari cache lokal
       let infoPelajar = dataPelajarLokal[id] || { nama: id, dorm: "Dorm Asrama" };
 
       document.getElementById("data-nama").innerText = infoPelajar.nama; 
@@ -209,7 +203,6 @@
       statusEl.className = statusSemasaArah === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800";
       document.getElementById("kotak-maklumat").classList.remove("hidden"); 
 
-      // Hantar data ke latar belakang
       fetch(urlAPI, { 
         method: "POST", 
         body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah })
@@ -235,7 +228,6 @@
       .then(data => {
         if (!data) return;
         
-        // Simpan direktori pelajar lokal untuk rujukan carian pantas
         if (data.direktoriPelajar) {
           dataPelajarLokal = data.direktoriPelajar;
         }
@@ -248,7 +240,6 @@
           document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar;
         }
 
-        // Papar Tingkatan
         const tbodyTingkat = document.getElementById("jadual-tingkatan"); 
         if(tbodyTingkat && data.tingkatan) {
           tbodyTingkat.innerHTML = "";
@@ -258,7 +249,6 @@
           });
         }
 
-        // Papar ASPURA
         const tbodyAspura = document.getElementById("jadual-aspura"); 
         if(tbodyAspura && data.dormKategori && data.dormKategori.ASPURA) {
           tbodyAspura.innerHTML = "";
@@ -270,7 +260,6 @@
           });
         }
 
-        // Papar ASPURI
         const tbodyAspuri = document.getElementById("jadual-aspuri"); 
         if(tbodyAspuri && data.dormKategori && data.dormKategori.ASPURI) {
           tbodyAspuri.innerHTML = "";
@@ -282,7 +271,6 @@
           });
         }
 
-        // Pelajar Belum Masuk
         const tbody = document.getElementById("jadual-belum-masuk"); 
         if(tbody && data.belumMasuk) {
           tbody.innerHTML = "";
@@ -291,7 +279,6 @@
           } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Tiada pelajar belum masuk.</td></tr>`; }
         }
 
-        // Sidebar Log
         const sidebar = document.getElementById("sidebar-log-pergerakan");
         if(sidebar && data.logPergerakan) {
           sidebar.innerHTML = "";
