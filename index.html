@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="ms" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -16,103 +16,103 @@
     #reader video { object-fit: cover !important; width: 100% !important; height: 100% !important; }
   </style>
 </head>
-<body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 lg:p-6 selection:bg-indigo-500 selection:text-white">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
-    <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
-      <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
+    <div class="lg:col-span-4 lg\:col-span-4-kamera bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl shadow-2xl shadow-indigo-500/10 overflow-hidden w-full">
+      <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 p-5 text-white text-center relative">
+        <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm">HOSTELSCAN PRO v3.2</h1>
+        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan & Log Pergerakan</p>
+        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-md backdrop-blur-md">🔄</button>
       </div>
 
-      <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
+      <div id="elemen-cetak-padam" class="p-4 bg-slate-900/50 border-b border-slate-800/80 flex gap-2">
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all">📤 BALIK / OUTING</button>
       </div>
 
       <div class="p-5 space-y-4">
         <div class="text-center space-y-2">
-          <div id="bingkai-kamera" class="relative w-full rounded-xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-sm flex items-center justify-center">
+          <div id="bingkai-kamera" class="relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center">
             <div id="reader" class="w-full h-full"></div>
-            <div id="overlay-mula" class="absolute inset-0 bg-slate-900 flex flex-col items-center justify-center p-6 text-center z-50">
-              <button onclick="mulaKameraGitHub()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-6 rounded-xl shadow-md text-sm cursor-pointer">📷 Aktifkan Kamera Live</button>
+            <div id="overlay-mula" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-50">
+              <button onclick="mulaKameraGitHub()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-6 rounded-2xl shadow-xl shadow-emerald-600/30 text-sm cursor-pointer transition-all transform hover:scale-105">📷 Aktifkan Kamera Live</button>
             </div>
           </div>
         </div>
-        <details class="group border-t pt-2">
-          <summary class="list-none flex justify-between items-center font-semibold text-xs text-gray-400 cursor-pointer py-1"><span>✏️ Taip ID Manual</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
+        <details class="group border-t border-slate-800 pt-2">
+          <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
           <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-1.5 border rounded-lg text-sm uppercase font-mono">
-            <button onclick="hantarIDManual()" class="bg-slate-700 text-white font-bold px-4 py-1.5 rounded-lg text-sm cursor-pointer">Semak</button>
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-sm uppercase font-mono bg-slate-950 text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer transition-all shadow-md">Semak</button>
           </div>
         </details>
       </div>
 
-      <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
+      <div class="p-5 border-t border-slate-800/80 bg-slate-900/30 min-h-[100px]">
+        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg"></div>
+        <div id="kotak-maklumat" class="hidden space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-inner">
+          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Nama</span><span class="col-span-2 font-bold text-slate-200" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Dorm</span><span class="col-span-2 font-bold text-indigo-400" id="data-dorm">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded-md font-black uppercase">-</span></span></div>
         </div>
       </div>
     </div>
 
     <!-- KOLOM 2: SIDEBAR LOG TERKINI -->
-    <div class="lg:col-span-4 lg\:col-span-4-sidebar bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col h-full">
-      <div class="border-b pb-3 mb-4 flex items-center justify-between">
-        <h2 class="font-bold text-slate-800 text-base">📋 Sidebar Log Terkini</h2>
-        <div class="flex gap-1 butang-aksi">
-          <button onclick="eksportLogExcel()" class="bg-emerald-600 text-white text-[10px] font-bold py-1 px-2 rounded-lg cursor-pointer">💾 Excel</button>
-          <button onclick="eksportLogPDF()" class="bg-rose-600 text-white text-[10px] font-bold py-1 px-2 rounded-lg cursor-pointer">📄 PDF</button>
+    <div class="lg:col-span-4 lg\:col-span-4-sidebar bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80 flex flex-col h-full">
+      <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
+        <h2 class="font-bold text-slate-200 text-base">📋 Sidebar Log Terkini</h2>
+        <div class="flex gap-1.5 butang-aksi">
+          <button onclick="eksportLogExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold py-1 px-2.5 rounded-xl cursor-pointer transition-all">💾 Excel</button>
+          <button onclick="eksportLogPDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-[10px] font-bold py-1 px-2.5 rounded-xl cursor-pointer transition-all">📄 PDF</button>
         </div>
       </div>
       <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[550px] pr-1">
-        <p class="text-xs text-gray-400 italic text-center py-6">Memuatkan rekod log...</p>
+        <p class="text-xs text-slate-500 italic text-center py-6">Memuatkan rekod log...</p>
       </div>
     </div>
 
     <!-- KOLOM 3: ANALISIS & RINGKASAN WARDEN -->
     <div class="lg:col-span-4 space-y-6 w-full">
-      <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan Warden</h3></div></div>
-        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-50 w-full sm:w-auto">
+      <div id="kad-tarikh" class="bg-slate-900/80 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-200">Tarikh Rujukan Warden</h3></div></div>
+        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-700 rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 bg-slate-950 focus:outline-none focus:border-indigo-500 w-full sm:w-auto">
       </div>
       
-      <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">📊 Analisa Keseluruhan</h2>
+      <div id="kad-analisa" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
+        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4">📊 Analisa Keseluruhan</h2>
         <div class="grid grid-cols-3 gap-3 text-center mb-3">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[11px] text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-800 mt-1">0</p></div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-[11px] text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-[11px] text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-xl font-black text-red-700 mt-1">0</p></div>
+          <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800"><p class="text-[11px] text-slate-500 uppercase font-semibold">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-200 mt-1">0</p></div>
+          <div class="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/50"><p class="text-[11px] text-emerald-400 uppercase font-semibold">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p></div>
+          <div class="bg-rose-950/40 p-3 rounded-2xl border border-rose-900/50"><p class="text-[11px] text-rose-400 uppercase font-semibold">Keluar</p><p id="stat-keluar" class="text-xl font-black text-rose-400 mt-1">0</p></div>
         </div>
         <div class="grid grid-cols-2 gap-3 text-center">
-          <div class="bg-orange-50 p-3 rounded-xl border border-orange-100"><p class="text-[11px] text-orange-600 uppercase">Baki Masuk</p><p id="stat-baki-masuk" class="text-lg font-black text-orange-700 mt-1">0</p></div>
-          <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><p class="text-[11px] text-blue-600 uppercase">Baki Keluar</p><p id="stat-baki-keluar" class="text-lg font-black text-blue-700 mt-1">0</p></div>
+          <div class="bg-orange-950/35 p-3 rounded-2xl border border-orange-900/40"><p class="text-[11px] text-orange-400 uppercase font-semibold">Baki Masuk</p><p id="stat-baki-masuk" class="text-lg font-black text-orange-400 mt-1">0</p></div>
+          <div class="bg-blue-950/35 p-3 rounded-2xl border border-blue-900/40"><p class="text-[11px] text-blue-400 uppercase font-semibold">Baki Keluar</p><p id="stat-baki-keluar" class="text-lg font-black text-blue-400 mt-1">0</p></div>
         </div>
       </div>
 
-      <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
+      <div id="kad-ringkasan" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
+        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
-            <tbody id="jadual-tingkatan"></tbody>
+            <thead class="uppercase text-slate-500 font-bold"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+            <tbody id="jadual-tingkatan" class="divide-y divide-slate-800/40"></tbody>
           </table>
         </div>
       </div>
 
-      <div id="kad-belum-masuk" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
-        <div class="border-b pb-3 mb-4 flex items-center justify-between">
-          <h2 class="font-bold text-red-600 text-base">⚠️ Senarai Pelajar Belum Masuk</h2>
+      <div id="kad-belum-masuk" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
+        <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
+          <h2 class="font-bold text-rose-400 text-base">⚠️ Senarai Pelajar Belum Masuk</h2>
           <div class="flex gap-2 butang-aksi">
-            <button onclick="eksportKeExcel()" class="bg-emerald-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">💾 Excel</button>
-            <button onclick="eksportKePDF()" class="bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">📄 PDF</button>
+            <button onclick="eksportKeExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">💾 Excel</button>
+            <button onclick="eksportKePDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">📄 PDF</button>
           </div>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><tr><th class="p-3">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-100"></tbody></table></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-950 text-slate-400 text-xs uppercase font-bold"><tr><th class="p-3 rounded-l-xl">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center rounded-r-xl">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-800/40"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -139,8 +139,8 @@
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
-      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all" : "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all";
+      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all" : "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all";
       document.getElementById("bingkai-kamera").style.borderColor = (arah === 'MASUK') ? "#10b981" : "#ef4444";
     }
     
@@ -161,7 +161,7 @@
       sedangMemproses = true; 
       const lencana = document.getElementById("notifikasi-badge"); 
       lencana.classList.remove("hidden"); 
-      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-100 text-blue-800";
+      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-950 text-blue-400 border border-blue-900 shadow-md";
       lencana.innerText = "Memproses...";
 
       const controller = new AbortController();
@@ -177,18 +177,18 @@
         clearTimeout(timeoutId);
         if (data.status === "SUCCESS") {
           mainkanBunyi('BERJAYA'); 
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; 
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-950 text-emerald-400 border border-emerald-900 shadow-md"; 
           lencana.innerText = "Berjaya!";
           document.getElementById("data-nama").innerText = data.nama; 
           document.getElementById("data-dorm").innerText = data.dorm;
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          statusEl.className = data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800";
+          statusEl.className = data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-900" : "text-xs px-2 py-0.5 rounded-md font-black uppercase bg-red-950 text-red-400 border border-red-900";
           document.getElementById("kotak-maklumat").classList.remove("hidden"); 
           muatNaikStatistik();
         } else { 
           mainkanBunyi('GAGAL'); 
-          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; 
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-950 text-rose-400 border border-rose-900 shadow-md"; 
           lencana.innerText = "ID Tiada"; 
         }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
@@ -196,7 +196,7 @@
       .catch(err => {
         clearTimeout(timeoutId);
         mainkanBunyi('GAGAL');
-        lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-100 text-amber-800";
+        lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
         lencana.innerText = "Masalah Rangkaian / Masa Terbuang";
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
       });
@@ -218,13 +218,13 @@
         if (data.tingkatan) {
             Object.keys(data.tingkatan).sort().forEach(tingkat => {
                 let row = data.tingkatan[tingkat];
-                tbodyTingkat.innerHTML += `<tr><td class="p-2 font-bold">${tingkat}</td><td class="p-2 text-center">${row.total}</td><td class="p-2 text-center text-emerald-600">${row.masuk}</td><td class="p-2 text-center text-red-600">${row.keluar}</td></tr>`;
+                tbodyTingkat.innerHTML += `<tr><td class="p-2 font-bold text-slate-300">${tingkat}</td><td class="p-2 text-center text-slate-300">${row.total}</td><td class="p-2 text-center text-emerald-400 font-semibold">${row.masuk}</td><td class="p-2 text-center text-red-400 font-semibold">${row.keluar}</td></tr>`;
             });
         }
         const tbody = document.getElementById("jadual-belum-masuk"); tbody.innerHTML = "";
         if (data.belumMasuk && data.belumMasuk.length > 0) {
-          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center font-bold text-blue-600">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-100' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-100' : 'bg-gray-100')}">${p.statusTerakhir}</span></td></tr>`; });
-        } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Tiada pelajar belum masuk.</td></tr>`; }
+          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold text-slate-300">${p.nama}</td><td class="p-3 text-center text-slate-300">${p.tingkatan}</td><td class="p-3 text-center font-bold text-indigo-400">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-950 text-red-400 border border-red-900' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-950 text-orange-400 border border-orange-900' : 'bg-slate-800 text-slate-400')}">${p.statusTerakhir}</span></td></tr>`; });
+        } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Tiada pelajar belum masuk.</td></tr>`; }
 
         const sidebar = document.getElementById("sidebar-log-pergerakan");
         sidebar.innerHTML = "";
@@ -232,22 +232,22 @@
         if (data.logPergerakan && data.logPergerakan.length > 0) {
             senaraiLogData = data.logPergerakan;
             senaraiLogData.forEach(item => {
-                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800';
+                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-200' : 'bg-red-950/30 border-red-900/50 text-red-200';
                 const ikonArah = (item.arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
                 sidebar.innerHTML += `
-                  <div class="p-3 rounded-xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
+                  <div class="p-3 rounded-2xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
                     <div>
-                      <p class="font-bold text-xs text-slate-800">${item.nama}</p>
-                      <p class="text-[11px] text-slate-600 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
-                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-blue-600">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
+                      <p class="font-bold text-xs text-slate-200">${item.nama}</p>
+                      <p class="text-[11px] text-slate-400 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
+                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-indigo-400">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
                     </div>
-                    <span class="text-[10px] px-2 py-1 rounded-md font-black uppercase bg-white shadow-xs">${ikonArah}</span>
+                    <span class="text-[10px] px-2 py-1 rounded-xl font-black uppercase bg-slate-900 text-slate-200 border border-slate-700 shadow-xs">${ikonArah}</span>
                   </div>
                 `;
             });
         } else {
             senaraiLogData = [];
-            sidebar.innerHTML = `<p class="text-xs text-gray-400 italic text-center py-6">Tiada rekod log untuk tarikh ini.</p>`;
+            sidebar.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">Tiada rekod log untuk tarikh ini.</p>`;
         }
       })
       .catch(err => {
