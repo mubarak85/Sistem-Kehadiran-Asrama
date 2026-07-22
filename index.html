@@ -203,6 +203,7 @@
                   <div class="p-3 rounded-xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
                     <div>
                       <p class="font-bold text-xs text-slate-800">${item.nama}</p>
+                      <p class="text-[11px] text-slate-600 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
                       <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-blue-600">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
                     </div>
                     <span class="text-[10px] px-2 py-1 rounded-md font-black uppercase bg-white shadow-xs">${ikonArah}</span>
@@ -227,9 +228,9 @@
             alert("Tiada rekod log untuk dieksport.");
             return;
         }
-        let csv = ["Nama,Dorm,Status,Masa"];
+        let csv = ["Nama,Kelas,Tingkatan,Dorm,Status,Masa"];
         senaraiLogData.forEach(item => {
-            let row = [`"${item.nama}"`, `"${item.dorm}"`, `"${item.arah}"`, `"${item.masa}"`];
+            let row = [`"${item.nama}"`, `"${item.kelas}"`, `"${item.tingkatan}"`, `"${item.dorm}"`, `"${item.arah}"`, `"${item.masa}"`];
             csv.push(row.join(","));
         });
         const csvContent = "\uFEFF" + csv.join("\n");
