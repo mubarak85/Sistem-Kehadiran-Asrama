@@ -83,10 +83,14 @@
       
       <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">📊 Analisa Keseluruhan</h2>
-        <div class="grid grid-cols-3 gap-3 text-center">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-xs text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-800 mt-1">0</p></div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-xs text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-xs text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-xl font-black text-red-700 mt-1">0</p></div>
+        <div class="grid grid-cols-3 gap-3 text-center mb-3">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-[11px] text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-800 mt-1">0</p></div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-[11px] text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
+          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-[11px] text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-xl font-black text-red-700 mt-1">0</p></div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-center">
+          <div class="bg-orange-50 p-3 rounded-xl border border-orange-100"><p class="text-[11px] text-orange-600 uppercase">Baki Masuk</p><p id="stat-baki-masuk" class="text-lg font-black text-orange-700 mt-1">0</p></div>
+          <div class="bg-blue-50 p-3 rounded-xl border border-blue-100"><p class="text-[11px] text-blue-600 uppercase">Baki Keluar</p><p id="stat-baki-keluar" class="text-lg font-black text-blue-700 mt-1">0</p></div>
         </div>
       </div>
 
@@ -116,7 +120,7 @@
   <script>
     let html5QrCode; let sedangMemproses = false; let modKameraSekarang = "environment"; let statusSemasaArah = "MASUK";
     let senaraiLogData = []; 
-    const urlAPI = "https://script.google.com/macros/s/AKfycbwklruTsv9H8iqxl_dMgOZDh6wy5BYCjbxLVNFS14lJ8QKa9Leow2i4TAer05F6bC_3cw/exec;"
+    const urlAPI = "https://script.google.com/macros/s/AKfycbwklruTsv9H8iqxl_dMgOZDh6wy5BYCjbxLVNFS14lJ8QKa9Leow2i4TAer05F6bC_3cw/exec";
     
     function mainkanBunyi(jenis) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -179,6 +183,9 @@
         document.getElementById("stat-total").innerText = data.keseluruhan.total;
         document.getElementById("stat-masuk").innerText = data.keseluruhan.masuk;
         document.getElementById("stat-keluar").innerText = data.keseluruhan.keluar;
+        document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk;
+        document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar;
+
         const tbodyTingkat = document.getElementById("jadual-tingkatan"); tbodyTingkat.innerHTML = "";
         if (data.tingkatan) {
             Object.keys(data.tingkatan).sort().forEach(tingkat => {
