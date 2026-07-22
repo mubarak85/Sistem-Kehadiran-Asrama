@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.2</title>
+  <title>HostelScan Pro v3.3</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi { display: none !important; }
+      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-dorm, #kad-belum-masuk, .butang-aksi { display: none !important; }
       .lg\:col-span-4-sidebar { width: 100% !important; border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
     }
@@ -22,7 +22,7 @@
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
     <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.3</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
@@ -101,6 +101,33 @@
             <thead class="uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
             <tbody id="jadual-tingkatan"></tbody>
           </table>
+        </div>
+      </div>
+
+      <!-- KAD RINGKASAN DORM ASPURA & ASPURI -->
+      <div id="kad-dorm" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100 space-y-6">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-3">🏠 Ringkasan Dorm Asrama</h2>
+        
+        <!-- ASPURA -->
+        <div>
+          <h3 class="font-bold text-blue-700 text-xs uppercase mb-2">🔵 ASPURA (Putera)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="uppercase text-slate-500 bg-slate-50"><tr><th class="p-2">Dorm</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+              <tbody id="jadual-aspura"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ASPURI -->
+        <div class="pt-2 border-t">
+          <h3 class="font-bold text-pink-700 text-xs uppercase mb-2">🌸 ASPURI (Puteri)</h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="uppercase text-slate-500 bg-slate-50"><tr><th class="p-2">Dorm</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+              <tbody id="jadual-aspuri"></tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -214,6 +241,7 @@
         document.getElementById("stat-baki-masuk").innerText = data.keseluruhan.bakiMasuk;
         document.getElementById("stat-baki-keluar").innerText = data.keseluruhan.bakiKeluar;
 
+        // Papar Tingkatan
         const tbodyTingkat = document.getElementById("jadual-tingkatan"); tbodyTingkat.innerHTML = "";
         if (data.tingkatan) {
             Object.keys(data.tingkatan).sort().forEach(tingkat => {
@@ -221,14 +249,38 @@
                 tbodyTingkat.innerHTML += `<tr><td class="p-2 font-bold">${tingkat}</td><td class="p-2 text-center">${row.total}</td><td class="p-2 text-center text-emerald-600">${row.masuk}</td><td class="p-2 text-center text-red-600">${row.keluar}</td></tr>`;
             });
         }
+
+        // Papar ASPURA
+        const tbodyAspura = document.getElementById("jadual-aspura"); tbodyAspura.innerHTML = "";
+        if (data.dormKategori && data.dormKategori.ASPURA) {
+            let keys = Object.keys(data.dormKategori.ASPURA).sort((a, b) => parseInt(a) - parseInt(b));
+            if(keys.length === 0) tbodyAspura.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-gray-400 italic">Tiada data</td></tr>`;
+            keys.forEach(dorm => {
+                let row = data.dormKategori.ASPURA[dorm];
+                tbodyAspura.innerHTML += `<tr><td class="p-2 font-bold text-slate-700">${dorm}</td><td class="p-2 text-center">${row.total}</td><td class="p-2 text-center text-emerald-600">${row.masuk}</td><td class="p-2 text-center text-red-600">${row.keluar}</td></tr>`;
+            });
+        }
+
+        // Papar ASPURI
+        const tbodyAspuri = document.getElementById("jadual-aspuri"); tbodyAspuri.innerHTML = "";
+        if (data.dormKategori && data.dormKategori.ASPURI) {
+            let keys = Object.keys(data.dormKategori.ASPURI).sort((a, b) => parseInt(a) - parseInt(b));
+            if(keys.length === 0) tbodyAspuri.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-gray-400 italic">Tiada data</td></tr>`;
+            keys.forEach(dorm => {
+                let row = data.dormKategori.ASPURI[dorm];
+                tbodyAspuri.innerHTML += `<tr><td class="p-2 font-bold text-slate-700">${dorm}</td><td class="p-2 text-center">${row.total}</td><td class="p-2 text-center text-emerald-600">${row.masuk}</td><td class="p-2 text-center text-red-600">${row.keluar}</td></tr>`;
+            });
+        }
+
+        // Pelajar Belum Masuk
         const tbody = document.getElementById("jadual-belum-masuk"); tbody.innerHTML = "";
         if (data.belumMasuk && data.belumMasuk.length > 0) {
-          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center font-bold text-blue-600">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-100' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-100' : 'bg-gray-100')}">${p.statusTerakhir}</span></td></tr>`; });
+          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold">${p.nama}</td><td class="p-3 text-center">${p.tingkatan}</td><td class="p-3 text-center font-bold text-blue-600">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-100' : 'bg-gray-100'}">${p.statusTerakhir}</span></td></tr>`; });
         } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-400 italic">Tiada pelajar belum masuk.</td></tr>`; }
 
+        // Sidebar Log
         const sidebar = document.getElementById("sidebar-log-pergerakan");
         sidebar.innerHTML = "";
-        
         if (data.logPergerakan && data.logPergerakan.length > 0) {
             senaraiLogData = data.logPergerakan;
             senaraiLogData.forEach(item => {
@@ -257,55 +309,33 @@
     }
     
     function eksportLogPDF() { window.print(); }
-
     function eksportLogExcel() {
-        if (senaraiLogData.length === 0) {
-            alert("Tiada rekod log untuk dieksport.");
-            return;
-        }
+        if (senaraiLogData.length === 0) { alert("Tiada rekod log."); return; }
         let csv = ["Nama,Kelas,Tingkatan,Dorm,Status,Masa"];
-        senaraiLogData.forEach(item => {
-            let row = [`"${item.nama}"`, `"${item.kelas}"`, `"${item.tingkatan}"`, `"${item.dorm}"`, `"${item.arah}"`, `"${item.masa}"`];
-            csv.push(row.join(","));
-        });
-        const csvContent = "\uFEFF" + csv.join("\n");
-        const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        senaraiLogData.forEach(item => { csv.push([`"${item.nama}"`, `"${item.kelas}"`, `"${item.tingkatan}"`, `"${item.dorm}"`, `"${item.arah}"`, `"${item.masa}"`].join(",")); });
+        const csvFile = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
         const downloadLink = document.createElement("a");
         downloadLink.download = "Log_Imbasan_" + document.getElementById("pilih-tarikh").value + ".csv";
         downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
         downloadLink.click();
-        document.body.removeChild(downloadLink);
     }
     
     function eksportKePDF() { window.print(); } 
-
     function eksportKeExcel() {
         const table = document.getElementById("jadual-belum-masuk");
-        if (!table || table.innerText.includes("Tiada")) {
-            alert("Tiada data pelajar untuk dieksport.");
-            return;
-        }
+        if (!table || table.innerText.includes("Tiada")) { alert("Tiada data."); return; }
         let csv = ["Nama,Tingkatan,Dorm,Status"];
         let rows = table.querySelectorAll("tr");
         for (let i = 0; i < rows.length; i++) {
             let row = [], cols = rows[i].querySelectorAll("td");
-            for (let j = 0; j < cols.length; j++) {
-                let text = cols[j].innerText.trim().replace(/"/g, '""');
-                row.push('"' + text + '"');
-            }
+            for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.trim() + '"');
             if (row.length > 0) csv.push(row.join(","));
         }
-        const csvContent = "\uFEFF" + csv.join("\n");
-        const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const csvFile = new Blob(["\uFEFF" + csv.join("\n")], { type: "text/csv;charset=utf-8;" });
         const downloadLink = document.createElement("a");
-        downloadLink.download = "Senarai_Pelajar_" + document.getElementById("pilih-tarikh").value + ".csv";
+        downloadLink.download = "Pelajar_Belum_Masuk_" + document.getElementById("pilih-tarikh").value + ".csv";
         downloadLink.href = window.URL.createObjectURL(csvFile);
-        downloadLink.style.display = "none";
-        document.body.appendChild(downloadLink);
         downloadLink.click();
-        document.body.removeChild(downloadLink);
     }
   </script>
 </body>
