@@ -68,7 +68,7 @@
         </div>
       </div>
       <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[550px] pr-1">
-        <p class="text-xs text-gray-400 italic text-center py-6">Tiada rekod log.</p>
+        <p class="text-xs text-gray-400 italic text-center py-6">Memuatkan rekod log...</p>
       </div>
     </div>
 
@@ -190,6 +190,7 @@
 
         const sidebar = document.getElementById("sidebar-log-pergerakan");
         sidebar.innerHTML = "";
+        
         if (data.logPergerakan && data.logPergerakan.length > 0) {
             senaraiLogData = data.logPergerakan;
             senaraiLogData.forEach(item => {
