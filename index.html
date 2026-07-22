@@ -19,6 +19,7 @@
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
+    <!-- KOLOM 1: KAMERA & PENGIMBAS -->
     <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
@@ -27,8 +28,8 @@
       </div>
 
       <div id="elemen-cetak-padam" class="p-4 bg-slate-50 border-b border-slate-200 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center">📤 BALIK / OUTING</button>
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer">📤 BALIK / OUTING</button>
       </div>
 
       <div class="p-5 space-y-4">
@@ -59,6 +60,7 @@
       </div>
     </div>
 
+    <!-- KOLOM 2: SIDEBAR LOG TERKINI -->
     <div class="lg:col-span-4 lg\:col-span-4-sidebar bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col h-full">
       <div class="border-b pb-3 mb-4 flex items-center justify-between">
         <h2 class="font-bold text-slate-800 text-base">📋 Sidebar Log Terkini</h2>
@@ -72,6 +74,7 @@
       </div>
     </div>
 
+    <!-- KOLOM 3: ANALISIS & RINGKASAN WARDEN -->
     <div class="lg:col-span-4 space-y-6 w-full">
       <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan Warden</h3></div></div>
@@ -132,8 +135,8 @@
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center";
-      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center";
+      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
+      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center cursor-pointer" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center cursor-pointer";
       document.getElementById("bingkai-kamera").style.borderColor = (arah === 'MASUK') ? "#10b981" : "#ef4444";
     }
     
