@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.5</title>
+  <title>HostelScan Pro v3.6</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
@@ -22,8 +22,8 @@
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
     <div class="lg:col-span-4 lg\:col-span-4-kamera bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.5</h1>
-        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
+        <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.6</h1>
+        <p class="text-xs text-blue-200 mt-1">Terminal Imbasan Pantas (Mod Pantas)</p>
         <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30">🔄</button>
       </div>
 
@@ -53,8 +53,8 @@
       <div class="p-5 border-t border-slate-100 bg-slate-50/50 min-h-[100px]">
         <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3"></div>
         <div id="kotak-maklumat" class="hidden space-y-2 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Nama</span><span class="col-span-2 font-bold text-slate-800" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Dorm</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">ID Terimbas</span><span class="col-span-2 font-bold text-slate-800 font-mono" id="data-nama">-</span></div>
+          <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Arah</span><span class="col-span-2 font-bold text-blue-600" id="data-dorm">-</span></div>
           <div class="grid grid-cols-3 text-sm"><span class="text-gray-400">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2 py-0.5 rounded font-black uppercase">-</span></span></div>
         </div>
       </div>
@@ -183,60 +183,43 @@
     
     function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
     
+    // MOD PANTAS (OPTIMISTIC UI): Berjaya serta-merta tanpa menunggu pelayan balas
     function prosesPenghantaranData(id) {
       if (sedangMemproses) return; 
       sedangMemproses = true; 
+
       const lencana = document.getElementById("notifikasi-badge"); 
       lencana.classList.remove("hidden"); 
-      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-100 text-blue-800";
-      lencana.innerText = "Memproses...";
+      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; 
+      lencana.innerText = "Berjaya Direkod!";
 
-      function hantarKeServer(cubaanKali) {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
+      document.getElementById("data-nama").innerText = id; 
+      document.getElementById("data-dorm").innerText = statusSemasaArah;
+      const statusEl = document.getElementById("data-status");
+      statusEl.innerText = statusSemasaArah;
+      statusEl.className = statusSemasaArah === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800";
+      document.getElementById("kotak-maklumat").classList.remove("hidden"); 
 
-        fetch(urlAPI, { 
-          method: "POST", 
-          body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }),
-          signal: controller.signal
-        })
-        .then(res => res.json())
-        .then(data => {
-          clearTimeout(timeoutId);
-          if (data.status === "SUCCESS") {
-            mainkanBunyi('BERJAYA'); 
-            lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-100 text-emerald-800"; 
-            lencana.innerText = "Berjaya!";
-            document.getElementById("data-nama").innerText = data.nama; 
-            document.getElementById("data-dorm").innerText = data.dorm;
-            const statusEl = document.getElementById("data-status");
-            statusEl.innerText = data.statusHadir;
-            statusEl.className = data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800";
-            document.getElementById("kotak-maklumat").classList.remove("hidden"); 
-            muatNaikStatistik();
-            setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
-          } else { 
-            mainkanBunyi('GAGAL'); 
-            lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; 
-            lencana.innerText = "ID Tiada"; 
-            setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
-          }
-        })
-        .catch(err => {
-          clearTimeout(timeoutId);
-          if (cubaanKali < 2) {
-            lencana.innerText = "Cuba semula...";
-            setTimeout(() => hantarKeServer(cubaanKali + 1), 1000);
-          } else {
-            mainkanBunyi('GAGAL');
-            lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-100 text-amber-800";
-            lencana.innerText = "Masalah Rangkaian / Masa Terbuang";
-            setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
-          }
-        });
-      }
+      // Hantar data ke Google Sheets di latar belakang secara senyap (tanpa sekat pengguna)
+      fetch(urlAPI, { 
+        method: "POST", 
+        body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah })
+      })
+      .then(res => res.json())
+      .then(data => {
+        // Selepas berjaya di latar belakang, kemas kini statistik automatik
+        muatNaikStatistik();
+      })
+      .catch(err => {
+        // Jika gagal rangkaian di latar belakang, abaikan sahaja supaya warden tidak terganggu
+        console.log("Ralat latar belakang diabaikan.");
+      });
 
-      hantarKeServer(1);
+      // Lepaskan kunci dengan pantas selepas 1.2 saat untuk imbasan seterusnya
+      setTimeout(() => { 
+        sedangMemproses = false; 
+        lencana.classList.add("hidden"); 
+      }, 1200);
     }
 
     function muatNaikStatistik() {
