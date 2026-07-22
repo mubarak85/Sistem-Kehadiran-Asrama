@@ -4,22 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>HostelScan Pro v3.2</title>
-  
-  <!-- PWA Manifest -->
-  <link rel="manifest" href='data:application/json;base64,ewogICJuYW1lIjogIkhvc3RlbFNjYW4gUHJvIiwKICAic2hvcnRfbmFtZSI6ICJIb3N0ZWxTY2FuIiwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjZmZmZmZmIiwKICAiZGVzY3JpcHRpb24iOiAiU2lzdGVtIEltYmFzYW4gQXNyYW1hIiwKICAiaWNvbnMiOiBbewogICAgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuc2VjdXJlZmxhdC5jb20vMTI4LzI5MTkvMjkxOTYxMi5wbmciLAogICAgInNpemVzIjogIjEyOHgxMjgiLAogICAgInR5cGUiOiAiaW1hZ2UvcG5nIgogIH1dCn0K'>
-  <meta name="theme-color" content="#2563eb">
-  
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('data:text/javascript,self.addEventListener("fetch", (event) => {});').catch(err => console.log('SW failed', err));
-      });
-    }
-  </script>
-
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
@@ -114,7 +100,7 @@
 
   <script>
     let html5QrCode; let sedangMemproses = false; let modKameraSekarang = "environment"; let statusSemasaArah = "MASUK";
-    const urlAPI = "https://script.google.com/macros/s/AKfycbz473UUN247YnjxN4yQOT6fDvhgYeOPY9KEx0wrqHInB_odjewM315iA8dWRDneunHVMA/exec";
+    const urlAPI = "https://script.google.com/macros/s/AKfycbxWucFOH_X8Q7G4mVJJms4DKju2z2hPN55ZpwbVt-7MPEqTsp1xnopnQhkAksJoJxZ9cg/exec";
     
     function mainkanBunyi(jenis) {
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -159,9 +145,7 @@
           document.getElementById("data-nama").innerText = data.nama; document.getElementById("data-dorm").innerText = data.dorm;
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          statusEl.className = (data.statusHadir === "LEWAT") 
-            ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" 
-            : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
+          statusEl.className = (data.statusHadir === "LEWAT") ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
           document.getElementById("kotak-maklumat").classList.remove("hidden"); muatNaikStatistik();
         } else { mainkanBunyi('GAGAL'); lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; lencana.innerText = "ID Tiada"; }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
@@ -191,26 +175,34 @@
       });
     }
     
+    function eksportKePDF() { window.print(); } 
+
     function eksportKeExcel() {
-      const table = document.getElementById("jadual-belum-masuk");
-      let csv = ["Nama,Tingkatan,Dorm,Status"];
-      let rows = table.querySelectorAll("tr");
-      if (rows.length === 0 || rows[0].innerText.includes("Tiada")) { alert("Tiada data untuk dieksport."); return; }
-      for (let i = 0; i < rows.length; i++) {
-        let row = [], cols = rows[i].querySelectorAll("td");
-        for (let j = 0; j < cols.length; j++) row.push('"' + cols[j].innerText.trim() + '"');
-        csv.push(row.join(","));
-      }
-      const csvFile = new Blob([csv.join("\n")], { type: "text/csv" });
-      const downloadLink = document.createElement("a");
-      downloadLink.download = "Senarai_Belum_Masuk_" + new Date().toLocaleDateString() + ".csv";
-      downloadLink.href = window.URL.createObjectURL(csvFile);
-      downloadLink.style.display = "none";
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
+        const table = document.getElementById("jadual-belum-masuk");
+        if (!table || table.innerText.includes("Tiada")) {
+            alert("Tiada data pelajar untuk dieksport.");
+            return;
+        }
+        let csv = ["Nama,Tingkatan,Dorm,Status"];
+        let rows = table.querySelectorAll("tr");
+        for (let i = 0; i < rows.length; i++) {
+            let row = [], cols = rows[i].querySelectorAll("td");
+            for (let j = 0; j < cols.length; j++) {
+                let text = cols[j].innerText.trim().replace(/"/g, '""');
+                row.push('"' + text + '"');
+            }
+            if (row.length > 0) csv.push(row.join(","));
+        }
+        const csvContent = "\uFEFF" + csv.join("\n");
+        const csvFile = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const downloadLink = document.createElement("a");
+        downloadLink.download = "Senarai_Pelajar_" + new Date().toISOString().split('T')[0] + ".csv";
+        downloadLink.href = window.URL.createObjectURL(csvFile);
+        downloadLink.style.display = "none";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
     }
-    
-    function eksportKePDF() { window.print(); }
   </script>
 </body>
 </html>
