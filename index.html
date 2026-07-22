@@ -3,10 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v3.2</title>
+  <title>HostelScan Pro v4.0 - Ultimate CyberNext</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.4); }
+      50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.8); }
+    }
+    @keyframes breathing-masuk {
+      0%, 100% { box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); border-color: rgba(16, 185, 129, 0.6); }
+      50% { box-shadow: 0 0 45px rgba(16, 185, 129, 0.8); border-color: rgba(16, 185, 129, 1); }
+    }
+    @keyframes breathing-keluar {
+      0%, 100% { box-shadow: 0 0 20px rgba(239, 68, 68, 0.3); border-color: rgba(239, 68, 68, 0.6); }
+      50% { box-shadow: 0 0 45px rgba(239, 68, 68, 0.8); border-color: rgba(239, 68, 68, 1); }
+    }
+    .cyber-card {
+      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      animation: pulse-glow 4s infinite ease-in-out;
+    }
+    .bingkai-masuk-aktif {
+      animation: breathing-masuk 3s infinite ease-in-out !important;
+    }
+    .bingkai-keluar-aktif {
+      animation: breathing-keluar 3s infinite ease-in-out !important;
+    }
+    .glass-input {
+      background: rgba(2, 6, 23, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .glass-input:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+    }
     @media print {
       body { background: white; color: black; padding: 0; }
       #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi { display: none !important; }
@@ -17,72 +52,101 @@
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-4 lg:p-6 selection:bg-indigo-500 selection:text-white">
+  
+  <!-- BAR STATUS OFFLINE / SYNC -->
+  <div id="bar-status-offline" class="hidden max-w-7xl mx-auto mb-4 bg-amber-500/20 border border-amber-500/50 text-amber-300 px-4 py-2 rounded-2xl text-xs font-bold flex items-center justify-between shadow-lg">
+    <span class="flex items-center gap-2">⚠️ Mod Luar Talian Aktif (<span id="jumlah-queue">0</span> data tersimpan dalam baris gilir)</span>
+    <button onclick="syncDataOffline()" class="bg-amber-500 text-slate-950 px-3 py-1 rounded-xl cursor-pointer hover:bg-amber-400 transition-all font-black">Sync Sekarang</button>
+  </div>
+
   <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
     <!-- KOLOM 1: KAMERA & PENGIMBAS -->
-    <div class="lg:col-span-4 lg\:col-span-4-kamera bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 rounded-3xl shadow-2xl shadow-indigo-500/10 overflow-hidden w-full">
-      <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 p-5 text-white text-center relative">
-        <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm">HOSTELSCAN PRO v3.2</h1>
-        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan & Log Pergerakan</p>
-        <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-md backdrop-blur-md">🔄</button>
+    <div class="lg:col-span-4 lg\:col-span-4-kamera cyber-card rounded-3xl shadow-2xl overflow-hidden w-full transition-all duration-500">
+      <div class="bg-gradient-to-r from-blue-600 via-indigo-600 to-emerald-600 p-5 text-white text-center relative overflow-hidden">
+        <div class="absolute -right-10 -top-10 w-32 h-32 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+        <h1 class="text-xl font-black tracking-wider uppercase drop-shadow-sm flex items-center justify-center gap-2">
+          <span>⚡</span> HOSTELSCAN PRO
+        </h1>
+        <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Imbasan Pintar Biometrik/QR</p>
+        <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
+          <button id="btn-suara" onclick="toggleSuaraVoice()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md" title="Kawalan Suara">🎙️</button>
+          <button id="btn-tukar-kamera" onclick="tukarKamera()" class="hidden bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md">🔄</button>
+        </div>
       </div>
 
-      <div id="elemen-cetak-padam" class="p-4 bg-slate-900/50 border-b border-slate-800/80 flex gap-2">
-        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all">📥 DAFTAR MASUK</button>
-        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all">📤 BALIK / OUTING</button>
+      <div id="elemen-cetak-padam" class="p-4 bg-slate-900/40 border-b border-slate-800/80 flex gap-2">
+        <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all transform active:scale-95">📥 DAFTAR MASUK</button>
+        <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95">📤 BALIK / OUTING</button>
       </div>
 
       <div class="p-5 space-y-4">
         <div class="text-center space-y-2">
-          <div id="bingkai-kamera" class="relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)] flex items-center justify-center">
+          <div id="bingkai-kamera" class="relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 bingkai-masuk-aktif flex items-center justify-center transition-all duration-300">
             <div id="reader" class="w-full h-full"></div>
-            <div id="overlay-mula" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center z-50">
-              <button onclick="mulaKameraGitHub()" class="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold py-3 px-6 rounded-2xl shadow-xl shadow-emerald-600/30 text-sm cursor-pointer transition-all transform hover:scale-105">📷 Aktifkan Kamera Live</button>
+            <div id="overlay-mula" class="absolute inset-0 bg-slate-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-50">
+              <div class="w-16 h-16 bg-emerald-500/20 border border-emerald-500/50 rounded-2xl flex items-center justify-center text-2xl mb-4 animate-bounce">📷</div>
+              <button onclick="mulaKameraGitHub()" class="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:opacity-90 text-white font-bold py-3.5 px-6 rounded-2xl shadow-xl shadow-emerald-500/30 text-sm cursor-pointer transition-all transform hover:scale-105 active:scale-95">Aktifkan Kamera Live</button>
             </div>
           </div>
         </div>
-        <details class="group border-t border-slate-800 pt-2">
-          <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
+        <details class="group border-t border-slate-800/80 pt-2">
+          <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual Cepat</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
           <div class="flex gap-2 mt-2">
-            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-2 border border-slate-700 rounded-xl text-sm uppercase font-mono bg-slate-950 text-white focus:outline-none focus:border-indigo-500 transition-colors">
-            <button onclick="hantarIDManual()" class="bg-slate-700 hover:bg-slate-600 text-white font-bold px-4 py-2 rounded-xl text-sm cursor-pointer transition-all shadow-md">Semak</button>
+            <input type="text" id="id-manual" placeholder="Contoh: TB2024001" class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none">
+            <button onclick="hantarIDManual()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-sm cursor-pointer transition-all shadow-md shadow-indigo-600/30">Semak</button>
           </div>
         </details>
       </div>
 
-      <div class="p-5 border-t border-slate-800/80 bg-slate-900/30 min-h-[100px]">
-        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-slate-950 p-4 rounded-2xl border border-slate-800 shadow-inner">
-          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Nama</span><span class="col-span-2 font-bold text-slate-200" id="data-nama">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Dorm</span><span class="col-span-2 font-bold text-indigo-400" id="data-dorm">-</span></div>
-          <div class="grid grid-cols-3 text-sm"><span class="text-slate-500">Status</span><span class="col-span-2"><span id="data-status" class="text-xs px-2.5 py-0.5 rounded-md font-black uppercase">-</span></span></div>
+      <div class="p-5 border-t border-slate-800/80 bg-slate-900/30 min-h-[140px]">
+        <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse"></div>
+        <div id="kotak-maklumat" class="hidden space-y-2 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 shadow-inner">
+          <div class="flex items-center gap-3">
+            <div id="data-avatar" class="w-12 h-12 rounded-xl bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-lg font-bold text-indigo-300 overflow-hidden">👤</div>
+            <div class="flex-1 truncate">
+              <div class="text-sm font-bold text-slate-200 truncate" id="data-nama">-</div>
+              <div class="text-xs text-indigo-400 font-medium" id="data-dorm">-</div>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 text-xs pt-2 border-t border-slate-800 items-center"><span class="text-slate-500">Status Pengesahan</span><span><span id="data-status" class="text-[10px] px-2 py-0.5 rounded-md font-black uppercase">-</span></span></div>
         </div>
       </div>
     </div>
 
     <!-- KOLOM 2: SIDEBAR LOG TERKINI -->
-    <div class="lg:col-span-4 lg\:col-span-4-sidebar bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80 flex flex-col h-full">
+    <div class="lg:col-span-4 lg\:col-span-4-sidebar cyber-card p-6 rounded-3xl shadow-2xl flex flex-col h-full">
       <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
-        <h2 class="font-bold text-slate-200 text-base">📋 Sidebar Log Terkini</h2>
+        <h2 class="font-bold text-slate-200 text-base flex items-center gap-2"><span>📋</span> Log Aktiviti Live</h2>
         <div class="flex gap-1.5 butang-aksi">
           <button onclick="eksportLogExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-[10px] font-bold py-1 px-2.5 rounded-xl cursor-pointer transition-all">💾 Excel</button>
           <button onclick="eksportLogPDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-[10px] font-bold py-1 px-2.5 rounded-xl cursor-pointer transition-all">📄 PDF</button>
         </div>
       </div>
-      <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[550px] pr-1">
+      <!-- Bar Carian Pantas Global -->
+      <div class="mb-3">
+        <input type="text" id="carian-global" oninput="tapisLogGlobal()" placeholder="🔍 Cari nama / kelas / dorm..." class="w-full px-3 py-2 glass-input rounded-xl text-xs text-white focus:outline-none">
+      </div>
+      <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[500px] pr-1">
         <p class="text-xs text-slate-500 italic text-center py-6">Memuatkan rekod log...</p>
       </div>
     </div>
 
     <!-- KOLOM 3: ANALISIS & RINGKASAN WARDEN -->
     <div class="lg:col-span-4 space-y-6 w-full">
-      <div id="kad-tarikh" class="bg-slate-900/80 backdrop-blur-xl p-4 rounded-3xl shadow-2xl border border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-200">Tarikh Rujukan Warden</h3></div></div>
-        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-700 rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 bg-slate-950 focus:outline-none focus:border-indigo-500 w-full sm:w-auto">
+      <div id="kad-tarikh" class="cyber-card p-4 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/40 flex items-center justify-center text-sm">📅</div>
+          <div><h3 class="font-bold text-sm text-slate-200">Tarikh Rujukan Warden</h3></div>
+        </div>
+        <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
       </div>
       
-      <div id="kad-analisa" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
-        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4">📊 Analisa Keseluruhan</h2>
+      <div id="kad-analisa" class="cyber-card p-6 rounded-3xl shadow-2xl">
+        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
+          <span class="flex items-center gap-2"><span>📊</span> Analisa Keseluruhan</span>
+          <button onclick="bukaGrafModal()" class="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-xl cursor-pointer font-bold transition-all">📈 Graf Trend</button>
+        </h2>
         <div class="grid grid-cols-3 gap-3 text-center mb-3">
           <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800"><p class="text-[11px] text-slate-500 uppercase font-semibold">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-200 mt-1">0</p></div>
           <div class="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/50"><p class="text-[11px] text-emerald-400 uppercase font-semibold">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p></div>
@@ -94,8 +158,8 @@
         </div>
       </div>
 
-      <div id="kad-ringkasan" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
-        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
+      <div id="kad-ringkasan" class="cyber-card p-6 rounded-3xl shadow-2xl">
+        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4 flex items-center gap-2"><span>🏫</span> Ringkasan Tingkatan (Ikut Tarikh)</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
             <thead class="uppercase text-slate-500 font-bold"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
@@ -104,9 +168,9 @@
         </div>
       </div>
 
-      <div id="kad-belum-masuk" class="bg-slate-900/80 backdrop-blur-xl p-6 rounded-3xl shadow-2xl border border-slate-800/80">
+      <div id="kad-belum-masuk" class="cyber-card p-6 rounded-3xl shadow-2xl">
         <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
-          <h2 class="font-bold text-rose-400 text-base">⚠️ Senarai Pelajar Belum Masuk</h2>
+          <h2 class="font-bold text-rose-400 text-base flex items-center gap-2"><span>⚠️</span> Pelajar Belum Masuk</h2>
           <div class="flex gap-2 butang-aksi">
             <button onclick="eksportKeExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">💾 Excel</button>
             <button onclick="eksportKePDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">📄 PDF</button>
@@ -117,31 +181,66 @@
     </div>
   </div>
 
+  <!-- MODAL CARTA GRAF TREND -->
+  <div id="modal-graf" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="cyber-card p-6 rounded-3xl max-w-lg w-full shadow-2xl space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="font-bold text-slate-200 text-base">📈 Analisis Carta Trend Pergerakan</h3>
+        <button onclick="tutupGrafModal()" class="text-slate-400 hover:text-white font-bold text-lg cursor-pointer">✕</button>
+      </div>
+      <div class="relative h-64 w-full">
+        <canvas id="grafTrendCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
   <script>
     let html5QrCode; let sedangMemproses = false; let modKameraSekarang = "environment"; let statusSemasaArah = "MASUK";
-    let senaraiLogData = []; 
+    let senaraiLogData = []; let dataCacheLogGlobal = [];
+    let cartaInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbziNDmCJu5VDLENj5wz8CVxcxidYT2mQKJhd0vvqMooeiytPLLgWvjoicUK0BK1HE6gyA/exec";
     
+    // --- FUNGSI AUDIO & HAPTIK ---
     function mainkanBunyi(jenis) {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
-        oscillator.frequency.value = (jenis === 'BERJAYA') ? 880 : 220;
-        gainNode.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.2); 
+        if ("vibrate" in navigator) {
+            navigator.vibrate(jenis === 'BERJAYA' ? [100, 50, 100] : [300]);
+        }
+        try {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.connect(gainNode); gainNode.connect(audioCtx.destination);
+            oscillator.frequency.value = (jenis === 'BERJAYA') ? 880 : 220;
+            gainNode.gain.value = 0.1; oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.2); 
+        } catch(e) {}
+    }
+
+    function lancarConfetti() {
+        confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
     }
     
     window.onload = function() { 
         document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0]; 
         muatNaikStatistik(); 
         setInterval(muatNaikStatistik, 30000); 
+        cekQueueOffline();
     };
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all" : "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all";
-      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all" : "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all";
-      document.getElementById("bingkai-kamera").style.borderColor = (arah === 'MASUK') ? "#10b981" : "#ef4444";
+      const btnMasuk = document.getElementById("tab-masuk");
+      const btnKeluar = document.getElementById("tab-keluar");
+      const bingkai = document.getElementById("bingkai-kamera");
+
+      if (arah === 'MASUK') {
+        btnMasuk.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all transform active:scale-95";
+        btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95";
+        bingkai.className = "relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 bingkai-masuk-aktif flex items-center justify-center transition-all duration-300";
+      } else {
+        btnMasuk.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95";
+        btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all transform active:scale-95";
+        bingkai.className = "relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-red-500 bingkai-keluar-aktif flex items-center justify-center transition-all duration-300";
+      }
     }
     
     function mulaKameraGitHub() { document.getElementById('overlay-mula').style.display = 'none'; html5QrCode = new Html5Qrcode("reader", false); jalankanKamera(modKameraSekarang); }
@@ -156,13 +255,167 @@
     
     function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
     
+    // --- OFFLINE SYNC SYSTEM (INDEXED / LOCALSTORAGE) ---
+    function simpanQueueOffline(id, arah) {
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
+        queue.push({ id: id, arah: arah, masa: new Date().toISOString() });
+        localStorage.setItem('hostelQueue', JSON.stringify(queue));
+        cekQueueOffline();
+    }
+
+    function cekQueueOffline() {
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
+        const bar = document.getElementById('bar-status-offline');
+        const count = document.getElementById('jumlah-queue');
+        if (queue.length > 0) {
+            bar.classList.remove('hidden');
+            count.innerText = queue.length;
+        } else {
+            bar.classList.add('hidden');
+        }
+    }
+
+    function syncDataOffline() {
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
+        if (queue.length === 0) return;
+        let item = queue.shift();
+        localStorage.setItem('hostelQueue', JSON.stringify(queue));
+        cekQueueOffline();
+        
+        fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: item.id, arahPergerakan: item.arah }) })
+        .then(() => {
+            if (queue.length > 0) syncDataOffline();
+            else muatNaikStatistik();
+        })
+        .catch(() => {
+            queue.unshift(item);
+            localStorage.setItem('hostelQueue', JSON.stringify(queue));
+            cekQueueOffline();
+        });
+    }
+
+    // --- VOICE COMMAND (WEB SPEECH API) ---
+    let recognition;
+    function toggleSuaraVoice() {
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+            alert("Pelayar anda tidak menyokong arahan suara.");
+            return;
+        }
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'ms-MY';
+        recognition.interimResults = false;
+        
+        recognition.onstart = () => {
+            document.getElementById('btn-suara').classList.add('animate-spin', 'bg-indigo-500');
+        };
+        recognition.onresult = (event) => {
+            const text = event.results[0][0].transcript.toLowerCase();
+            if (text.includes("masuk")) {
+                setModPergerakan('MASUK');
+            } else if (text.includes("keluar") || text.includes("balik")) {
+                setModPergerakan('KELUAR');
+            } else {
+                document.getElementById('id-manual').value = text.toUpperCase();
+                hantarIDManual();
+            }
+        };
+        recognition.onerror = () => { stopVoice(); };
+        recognition.onend = () => { stopVoice(); };
+        recognition.start();
+    }
+    function stopVoice() {
+        try { document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500'); } catch(e){}
+    }
+
+    // --- PENCARIAN PANTAS GLOBAL ---
+    function tapisLogGlobal() {
+        const keyword = document.getElementById('carian-global').value.toLowerCase();
+        const sidebar = document.getElementById("sidebar-log-pergerakan");
+        sidebar.innerHTML = "";
+        
+        const filtered = dataCacheLogGlobal.filter(item => 
+            item.nama.toLowerCase().includes(keyword) || 
+            item.kelas.toLowerCase().includes(keyword) || 
+            item.dorm.toLowerCase().includes(keyword)
+        );
+
+        if (filtered.length > 0) {
+            filtered.forEach(item => {
+                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-950/20 border-emerald-900/40 text-emerald-200' : 'bg-red-950/20 border-red-900/40 text-red-200';
+                const ikonArah = (item.arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
+                sidebar.innerHTML += `
+                  <div class="p-3.5 rounded-2xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all hover:translate-x-1">
+                    <div>
+                      <p class="font-bold text-xs text-slate-200">${item.nama}</p>
+                      <p class="text-[11px] text-slate-400 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
+                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-indigo-400">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
+                    </div>
+                    <span class="text-[10px] px-2 py-1 rounded-xl font-black uppercase bg-slate-900 text-slate-200 border border-slate-700 shadow-xs">${ikonArah}</span>
+                  </div>
+                `;
+            });
+        } else {
+            sidebar.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">Tiada rekod sepadan dijumpai.</p>`;
+        }
+    }
+
+    // --- MODAL GRAF CHART.JS ---
+    function bukaGrafModal() {
+        document.getElementById('modal-graf').classList.remove('hidden');
+        renderGrafTrend();
+    }
+    function tutupGrafModal() {
+        document.getElementById('modal-graf').classList.add('hidden');
+    }
+    function renderGrafTrend() {
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (cartaInstance) cartaInstance.destroy();
+        
+        let totalMasuk = document.getElementById('stat-masuk').innerText;
+        let totalKeluar = document.getElementById('stat-keluar').innerText;
+
+        cartaInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Masuk', 'Keluar'],
+                datasets: [{
+                    label: 'Taburan Aktiviti Harian',
+                    data: [totalMasuk, totalKeluar],
+                    backgroundColor: ['rgba(16, 185, 129, 0.6)', 'rgba(239, 68, 68, 0.6)'],
+                    borderColor: ['#10b981', '#ef4444'],
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                }
+            }
+        });
+    }
+    
     function prosesPenghantaranData(id) {
       if (sedangMemproses) return; 
       sedangMemproses = true; 
       const lencana = document.getElementById("notifikasi-badge"); 
       lencana.classList.remove("hidden"); 
-      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-950 text-blue-400 border border-blue-900 shadow-md";
+      lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-950 text-blue-400 border border-blue-900 shadow-md animate-pulse";
       lencana.innerText = "Memproses...";
+
+      if (!navigator.onLine) {
+          simpanQueueOffline(id, statusSemasaArah);
+          mainkanBunyi('BERJAYA');
+          lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
+          lencana.innerText = "Disimpan (Luar Talian)";
+          setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
+          return;
+      }
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
@@ -177,27 +430,30 @@
         clearTimeout(timeoutId);
         if (data.status === "SUCCESS") {
           mainkanBunyi('BERJAYA'); 
+          lancarConfetti();
           lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-950 text-emerald-400 border border-emerald-900 shadow-md"; 
-          lencana.innerText = "Berjaya!";
+          lencana.innerText = "Berjaya Disahkan!";
           document.getElementById("data-nama").innerText = data.nama; 
           document.getElementById("data-dorm").innerText = data.dorm;
+          document.getElementById("data-avatar").innerText = data.nama.charAt(0).toUpperCase();
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
-          statusEl.className = data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-900" : "text-xs px-2 py-0.5 rounded-md font-black uppercase bg-red-950 text-red-400 border border-red-900";
+          statusEl.className = data.statusHadir === "MASUK" ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-900" : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-red-950 text-red-400 border border-red-900";
           document.getElementById("kotak-maklumat").classList.remove("hidden"); 
           muatNaikStatistik();
         } else { 
           mainkanBunyi('GAGAL'); 
           lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-950 text-rose-400 border border-rose-900 shadow-md"; 
-          lencana.innerText = "ID Tiada"; 
+          lencana.innerText = "ID Tidak Dijumpai"; 
         }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
       })
       .catch(err => {
         clearTimeout(timeoutId);
+        simpanQueueOffline(id, statusSemasaArah);
         mainkanBunyi('GAGAL');
         lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
-        lencana.innerText = "Masalah Rangkaian / Masa Terbuang";
+        lencana.innerText = "Rangkaian Gagal - Masuk Queue Offline";
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
       });
     }
@@ -218,36 +474,22 @@
         if (data.tingkatan) {
             Object.keys(data.tingkatan).sort().forEach(tingkat => {
                 let row = data.tingkatan[tingkat];
-                tbodyTingkat.innerHTML += `<tr><td class="p-2 font-bold text-slate-300">${tingkat}</td><td class="p-2 text-center text-slate-300">${row.total}</td><td class="p-2 text-center text-emerald-400 font-semibold">${row.masuk}</td><td class="p-2 text-center text-red-400 font-semibold">${row.keluar}</td></tr>`;
+                tbodyTingkat.innerHTML += `<tr class="hover:bg-slate-900/40 transition-colors"><td class="p-2.5 font-bold text-slate-300">${tingkat}</td><td class="p-2.5 text-center text-slate-300">${row.total}</td><td class="p-2.5 text-center text-emerald-400 font-semibold">${row.masuk}</td><td class="p-2.5 text-center text-red-400 font-semibold">${row.keluar}</td></tr>`;
             });
         }
         const tbody = document.getElementById("jadual-belum-masuk"); tbody.innerHTML = "";
         if (data.belumMasuk && data.belumMasuk.length > 0) {
-          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr><td class="p-3 font-semibold text-slate-300">${p.nama}</td><td class="p-3 text-center text-slate-300">${p.tingkatan}</td><td class="p-3 text-center font-bold text-indigo-400">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-950 text-red-400 border border-red-900' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-950 text-orange-400 border border-orange-900' : 'bg-slate-800 text-slate-400')}">${p.statusTerakhir}</span></td></tr>`; });
+          data.belumMasuk.forEach(p => { tbody.innerHTML += `<tr class="hover:bg-slate-900/40 transition-colors"><td class="p-3 font-semibold text-slate-300">${p.nama}</td><td class="p-3 text-center text-slate-300">${p.tingkatan}</td><td class="p-3 text-center font-bold text-indigo-400">${p.dorm}</td><td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-bold uppercase ${p.statusTerakhir === 'KELUAR' ? 'bg-red-950 text-red-400 border border-red-900' : (p.statusTerakhir === 'LEWAT' ? 'bg-orange-950 text-orange-400 border border-orange-900' : 'bg-slate-800 text-slate-400')}">${p.statusTerakhir}</span></td></tr>`; });
         } else { tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-slate-500 italic">Tiada pelajar belum masuk.</td></tr>`; }
 
-        const sidebar = document.getElementById("sidebar-log-pergerakan");
-        sidebar.innerHTML = "";
-        
         if (data.logPergerakan && data.logPergerakan.length > 0) {
             senaraiLogData = data.logPergerakan;
-            senaraiLogData.forEach(item => {
-                const warnaBg = (item.arah === 'MASUK') ? 'bg-emerald-950/30 border-emerald-900/50 text-emerald-200' : 'bg-red-950/30 border-red-900/50 text-red-200';
-                const ikonArah = (item.arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
-                sidebar.innerHTML += `
-                  <div class="p-3 rounded-2xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
-                    <div>
-                      <p class="font-bold text-xs text-slate-200">${item.nama}</p>
-                      <p class="text-[11px] text-slate-400 font-medium">Kelas: ${item.kelas} • Ting: ${item.tingkatan}</p>
-                      <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-indigo-400">${item.dorm}</span> • <span class="font-mono text-[10px]">${item.masa}</span></p>
-                    </div>
-                    <span class="text-[10px] px-2 py-1 rounded-xl font-black uppercase bg-slate-900 text-slate-200 border border-slate-700 shadow-xs">${ikonArah}</span>
-                  </div>
-                `;
-            });
+            dataCacheLogGlobal = data.logPergerakan;
+            tapisLogGlobal();
         } else {
             senaraiLogData = [];
-            sidebar.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">Tiada rekod log untuk tarikh ini.</p>`;
+            dataCacheLogGlobal = [];
+            document.getElementById("sidebar-log-pergerakan").innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">Tiada rekod log untuk tarikh ini.</p>`;
         }
       })
       .catch(err => {
