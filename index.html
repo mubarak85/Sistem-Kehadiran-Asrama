@@ -9,8 +9,8 @@
   <style>
     @media print {
       body { background: white; color: black; padding: 0; }
-      #elemen-cetak-padam, .lg\:col-span-5, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi { display: none !important; }
-      .lg\:col-span-7 { width: 100% !important; }
+      #elemen-cetak-padam, .lg\:col-span-4, #kad-tarikh, #kad-analisa, #kad-ringkasan, .butang-aksi { display: none !important; }
+      .lg\:col-span-4-kamera { width: 100% !important; }
       #kad-belum-masuk { border: none !important; box-shadow: none !important; }
       .tabel-cetak { border: 1px solid #000 !important; }
     }
@@ -18,9 +18,9 @@
   </style>
 </head>
 <body class="bg-slate-100 font-sans min-h-screen p-4 lg:p-6">
-  <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+  <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
     
-    <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
+    <div class="lg:col-span-4 bg-white rounded-2xl shadow-xl overflow-hidden w-full">
       <div class="bg-blue-600 p-5 text-white text-center relative">
         <h1 class="text-xl font-bold tracking-wide">HOSTELSCAN PRO v3.2</h1>
         <p class="text-xs text-blue-200 mt-1">Terminal Imbasan & Log Pergerakan</p>
@@ -60,7 +60,17 @@
       </div>
     </div>
 
-    <div class="lg:col-span-7 space-y-6 w-full">
+    <div class="lg:col-span-4 bg-white p-6 rounded-2xl shadow-xl border border-slate-100 flex flex-col h-full">
+      <div class="border-b pb-3 mb-4 flex items-center justify-between">
+        <h2 class="font-bold text-slate-800 text-base">📋 Sidebar Log Terkini</h2>
+        <span class="text-xs bg-blue-100 text-blue-700 font-bold px-2 py-0.5 rounded-full">Live Feed</span>
+      </div>
+      <div id="sidebar-log-pergerakan" class="space-y-3 overflow-y-auto max-h-[550px] pr-1">
+        <p class="text-xs text-gray-400 italic text-center py-6">Belum ada rekod imbasan dalam sesi ini.</p>
+      </div>
+    </div>
+
+    <div class="lg:col-span-4 space-y-6 w-full">
       <div id="kad-tarikh" class="bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2"><span>📅</span><div><h3 class="font-bold text-sm text-slate-800">Tarikh Rujukan Warden</h3></div></div>
         <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="border border-slate-300 rounded-xl px-3 py-1.5 text-sm font-semibold text-slate-700 bg-slate-50 w-full sm:w-auto">
@@ -68,18 +78,18 @@
       
       <div id="kad-analisa" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">📊 Analisa Keseluruhan</h2>
-        <div class="grid grid-cols-3 gap-4 text-center">
-          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-xs text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-2xl font-black text-slate-800 mt-1">0</p></div>
-          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-xs text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-2xl font-black text-emerald-700 mt-1">0</p></div>
-          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-xs text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-2xl font-black text-red-700 mt-1">0</p></div>
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><p class="text-xs text-slate-500 uppercase">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-800 mt-1">0</p></div>
+          <div class="bg-emerald-50 p-3 rounded-xl border border-emerald-100"><p class="text-xs text-emerald-600 uppercase">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-700 mt-1">0</p></div>
+          <div class="bg-red-50 p-3 rounded-xl border border-red-100"><p class="text-xs text-red-600 uppercase">Keluar</p><p id="stat-keluar" class="text-xl font-black text-red-700 mt-1">0</p></div>
         </div>
       </div>
 
       <div id="kad-ringkasan" class="bg-white p-6 rounded-2xl shadow-xl border border-slate-100">
         <h2 class="font-bold text-slate-800 text-base border-b pb-3 mb-4">🏫 Ringkasan Tingkatan</h2>
         <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="text-xs uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase text-slate-500"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
             <tbody id="jadual-tingkatan"></tbody>
           </table>
         </div>
@@ -93,7 +103,7 @@
             <button onclick="eksportKePDF()" class="bg-rose-600 text-white text-xs font-bold py-1.5 px-3 rounded-lg cursor-pointer">📄 PDF</button>
           </div>
         </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><tr><th class="p-3">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-sm divide-y divide-slate-100"></tbody></table></div>
+        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-100 text-slate-600 text-xs uppercase font-bold"><tr><th class="p-3">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-100"></tbody></table></div>
       </div>
     </div>
   </div>
@@ -119,8 +129,8 @@
     
     function setModPergerakan(arah) {
       statusSemasaArah = arah;
-      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200";
-      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200";
+      document.getElementById("tab-masuk").className = (arah === 'MASUK') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-emerald-600 text-white shadow-md text-center" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center";
+      document.getElementById("tab-keluar").className = (arah === 'KELUAR') ? "w-full py-2.5 rounded-xl font-bold text-sm bg-red-600 text-white shadow-md text-center" : "w-full py-2.5 rounded-xl font-bold text-sm bg-white text-slate-600 border border-slate-200 text-center";
       document.getElementById("bingkai-kamera").style.borderColor = (arah === 'MASUK') ? "#10b981" : "#ef4444";
     }
     
@@ -146,10 +156,34 @@
           const statusEl = document.getElementById("data-status");
           statusEl.innerText = data.statusHadir;
           statusEl.className = (data.statusHadir === "LEWAT") ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-orange-100 text-orange-800" : (data.statusHadir === "MASUK" ? "text-xs px-2 py-0.5 rounded font-black uppercase bg-emerald-100 text-emerald-800" : "text-xs px-2 py-0.5 rounded font-black uppercase bg-red-100 text-red-800");
-          document.getElementById("kotak-maklumat").classList.remove("hidden"); muatNaikStatistik();
+          document.getElementById("kotak-maklumat").classList.remove("hidden"); 
+          
+          tambahKeSidebarLog(data.nama, data.dorm, statusSemasaArah, new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+          
+          muatNaikStatistik();
         } else { mainkanBunyi('GAGAL'); lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-rose-100 text-rose-800"; lencana.innerText = "ID Tiada"; }
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
       });
+    }
+
+    function tambahKeSidebarLog(nama, dorm, arah, masa) {
+      const sidebar = document.getElementById("sidebar-log-pergerakan");
+      if (sidebar.querySelector("p") && sidebar.querySelector("p").innerText.includes("Belum ada")) {
+          sidebar.innerHTML = "";
+      }
+      const warnaBg = (arah === 'MASUK') ? 'bg-emerald-50 border-emerald-200 text-emerald-800' : 'bg-red-50 border-red-200 text-red-800';
+      const ikonArah = (arah === 'MASUK') ? '📥 MASUK' : '📤 KELUAR';
+      
+      const itemHtml = `
+        <div class="p-3 rounded-xl border ${warnaBg} shadow-xs flex items-center justify-between transition-all">
+          <div>
+            <p class="font-bold text-xs text-slate-800">${nama}</p>
+            <p class="text-[11px] text-slate-500">Dorm: <span class="font-semibold text-blue-600">${dorm}</span> • <span class="font-mono text-[10px]">${masa}</span></p>
+          </div>
+          <span class="text-[10px] px-2 py-1 rounded-md font-black uppercase bg-white shadow-xs">${ikonArah}</span>
+        </div>
+      `;
+      sidebar.insertAdjacentHTML('afterbegin', itemHtml);
     }
     
     function muatNaikStatistik() {
