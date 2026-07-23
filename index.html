@@ -80,6 +80,25 @@
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95">📤 BALIK / OUTING</button>
       </div>
 
+      <!-- KOTAK PILIHAN KESALAHAN DISIPLIN -->
+      <div class="p-4 bg-slate-900/60 border-b border-slate-800/80 space-y-2">
+        <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">⚠️ Rekod Salahlaku (Jika Ada):</p>
+        <div class="grid grid-cols-3 gap-2 text-xs">
+          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+            <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
+            <span class="text-slate-300">❌ Kasut</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+            <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="rounded accent-rose-500">
+            <span class="text-slate-300">❌ Batik</span>
+          </label>
+          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+            <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="rounded accent-rose-500">
+            <span class="text-slate-300">❌ Stokin</span>
+          </label>
+        </div>
+      </div>
+
       <div class="p-5 space-y-4">
         <div class="text-center space-y-2">
           <div id="bingkai-kamera" class="relative w-full rounded-2xl overflow-hidden bg-black min-h-[280px] border-2 border-emerald-500 bingkai-masuk-aktif flex items-center justify-center transition-all duration-300">
@@ -198,7 +217,7 @@
     let html5QrCode; let sedangMemproses = false; let modKameraSekarang = "environment"; let statusSemasaArah = "MASUK";
     let senaraiLogData = []; let dataCacheLogGlobal = [];
     let cartaInstance = null;
-    const urlAPI = "https://script.google.com/macros/s/AKfycbziNDmCJu5VDLENj5wz8CVxcxidYT2mQKJhd0vvqMooeiytPLLgWvjoicUK0BK1HE6gyA/exec";
+    const urlAPI = "https://script.google.com/macros/s/AKfycbzwObjqAd7BdPmV_8VvtNjp3ooNzan7ydbhoKkzyr-8PMC8MB5E2-lQ83OjtpeA9l2hEw/exec";
     
     // --- FUNGSI AUDIO & HAPTIK ---
     function mainkanBunyi(jenis) {
@@ -256,9 +275,9 @@
     function hantarIDManual() { const id = document.getElementById("id-manual").value.trim(); if (id) prosesPenghantaranData(id); }
     
     // --- OFFLINE SYNC SYSTEM (INDEXED / LOCALSTORAGE) ---
-    function simpanQueueOffline(id, arah) {
+    function simpanQueueOffline(id, arah, kesalahan) {
         let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
-        queue.push({ id: id, arah: arah, masa: new Date().toISOString() });
+        queue.push({ id: id, arah: arah, kesalahan: kesalahan, masa: new Date().toISOString() });
         localStorage.setItem('hostelQueue', JSON.stringify(queue));
         cekQueueOffline();
     }
@@ -282,7 +301,7 @@
         localStorage.setItem('hostelQueue', JSON.stringify(queue));
         cekQueueOffline();
         
-        fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: item.id, arahPergerakan: item.arah }) })
+        fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: item.id, arahPergerakan: item.arah, kesalahan: item.kesalahan }) })
         .then(() => {
             if (queue.length > 0) syncDataOffline();
             else muatNaikStatistik();
@@ -403,16 +422,25 @@
     function prosesPenghantaranData(id) {
       if (sedangMemproses) return; 
       sedangMemproses = true; 
+
+      // Kumpul senarai kesalahan yang di-tick oleh warden
+      let senaraiKesalahan = [];
+      document.querySelectorAll('input[name="kesalahan"]:checked').forEach((checkbox) => {
+          senaraiKesalahan.push(checkbox.value);
+      });
+      let teksKesalahan = senaraiKesalahan.length > 0 ? senaraiKesalahan.join(", ") : "Tiada";
+
       const lencana = document.getElementById("notifikasi-badge"); 
       lencana.classList.remove("hidden"); 
       lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-blue-950 text-blue-400 border border-blue-900 shadow-md animate-pulse";
       lencana.innerText = "Memproses...";
 
       if (!navigator.onLine) {
-          simpanQueueOffline(id, statusSemasaArah);
+          simpanQueueOffline(id, statusSemasaArah, teksKesalahan);
           mainkanBunyi('BERJAYA');
           lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
           lencana.innerText = "Disimpan (Luar Talian)";
+          document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
           setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2000);
           return;
       }
@@ -422,7 +450,11 @@
 
       fetch(urlAPI, { 
         method: "POST", 
-        body: JSON.stringify({ idPelajar: id, arahPergerakan: statusSemasaArah }),
+        body: JSON.stringify({ 
+          idPelajar: id, 
+          arahPergerakan: statusSemasaArah,
+          kesalahan: teksKesalahan 
+        }),
         signal: controller.signal
       })
       .then(res => res.json())
@@ -432,7 +464,7 @@
           mainkanBunyi('BERJAYA'); 
           lancarConfetti();
           lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-emerald-950 text-emerald-400 border border-emerald-900 shadow-md"; 
-          lencana.innerText = "Berjaya Disahkan!";
+          lencana.innerText = "Berjaya Disahkan!" + (teksKesalahan !== "Tiada" ? " (Ada Salahlaku)" : "");
           document.getElementById("data-nama").innerText = data.nama; 
           document.getElementById("data-dorm").innerText = data.dorm;
           document.getElementById("data-avatar").innerText = data.nama.charAt(0).toUpperCase();
@@ -440,6 +472,8 @@
           statusEl.innerText = data.statusHadir;
           statusEl.className = data.statusHadir === "MASUK" ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-900" : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-red-950 text-red-400 border border-red-900";
           document.getElementById("kotak-maklumat").classList.remove("hidden"); 
+          
+          document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
           muatNaikStatistik();
         } else { 
           mainkanBunyi('GAGAL'); 
@@ -450,10 +484,11 @@
       })
       .catch(err => {
         clearTimeout(timeoutId);
-        simpanQueueOffline(id, statusSemasaArah);
+        simpanQueueOffline(id, statusSemasaArah, teksKesalahan);
         mainkanBunyi('GAGAL');
         lencana.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 block bg-amber-950 text-amber-400 border border-amber-900 shadow-md";
         lencana.innerText = "Rangkaian Gagal - Masuk Queue Offline";
+        document.querySelectorAll('input[name="kesalahan"]').forEach((cb) => cb.checked = false);
         setTimeout(() => { sedangMemproses = false; lencana.classList.add("hidden"); }, 2500);
       });
     }
