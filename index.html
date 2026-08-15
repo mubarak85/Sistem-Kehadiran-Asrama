@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.8 - Laporan Dinamik Bersih</title>
+  <title>HostelScan Pro v4.9 - Format Tarikh & Cetak Bersih</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -37,16 +37,68 @@
       object-fit: cover;
       border-radius: 1rem;
     }
+    
+    /* MOD CETAK / PDF: HANYA PAPARKAN MODAL LAPORAN RASMI SAHAJA */
     @media print {
-      body { background: white !important; color: black !important; padding: 0 !important; }
-      #elemen-cetak-padam, .lg\:col-span-4-kamera, #kad-tarikh, #kad-analisa, #kad-ringkasan, #kad-belum-masuk, .butang-aksi, header, nav, .tidak-perlu-cetak { display: none !important; }
-      #modal-laporan-rasmi { position: static !important; background: white !important; display: block !important; padding: 0 !important; backdrop-filter: none !important; width: 100% !important; }
-      .kotak-laporan-modal { background: white !important; border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; color: black !important; padding: 0 !important; max-height: none !important; }
-      .cetak-hitam-putih { color: black !important; border-color: #000 !important; }
-      table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
-      tr { page-break-inside: avoid; page-break-after: auto; }
-      th, td { border: 1px solid #000 !important; color: black !important; padding: 6px !important; font-size: 11pt !important; }
-      .tandatangan-cetak { display: flex !important; justify-content: space-between !important; margin-top: 40px !important; page-break-inside: avoid; }
+      body * {
+        visibility: hidden !important;
+      }
+      #modal-laporan-rasmi, #modal-laporan-rasmi * {
+        visibility: visible !important;
+      }
+      #modal-laporan-rasmi {
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        height: auto !important;
+        background: white !important;
+        display: block !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        backdrop-filter: none !important;
+        overflow: visible !important;
+        z-index: 999999 !important;
+      }
+      .kotak-laporan-modal {
+        background: white !important;
+        border: none !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        color: black !important;
+        padding: 10mm !important;
+        margin: 0 !important;
+        max-height: none !important;
+      }
+      .butang-aksi {
+        display: none !important;
+      }
+      .cetak-hitam-putih {
+        color: black !important;
+        border-color: #000 !important;
+      }
+      table {
+        border-collapse: collapse !important;
+        width: 100% !important;
+        page-break-inside: auto;
+      }
+      tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+      }
+      th, td {
+        border: 1px solid #000 !important;
+        color: black !important;
+        padding: 6px !important;
+        font-size: 10pt !important;
+      }
+      .tandatangan-cetak {
+        display: flex !important;
+        justify-content: space-between !important;
+        margin-top: 40px !important;
+        page-break-inside: avoid;
+      }
     }
   </style>
 </head>
@@ -72,7 +124,7 @@
         </div>
       </div>
 
-      <div id="elemen-cetak-padam" class="p-4 bg-slate-900/40 border-b border-slate-800/80 flex gap-2">
+      <div class="p-4 bg-slate-900/40 border-b border-slate-800/80 flex gap-2">
         <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 text-center cursor-pointer transition-all transform active:scale-95">📥 DAFTAR MASUK</button>
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95">📤 BALIK / OUTING</button>
       </div>
@@ -346,6 +398,18 @@
     let chartInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
+    // Fungsi untuk menukar format tarikh YYYY-MM-DD kepada DD/MM/YY
+    function formatTarikhDDMMYY(tarikhStr) {
+        if (!tarikhStr) return "-";
+        // Jika format yyyy-mm-dd
+        const parts = tarikhStr.split('-');
+        if (parts.length === 3) {
+            const tahunDuaDigit = parts[0].slice(-2);
+            return `${parts[2]}/${parts[1]}/${tahunDuaDigit}`;
+        }
+        return tarikhStr;
+    }
+
     function mainkanBunyi(jenis) {
         if ("vibrate" in navigator) {
             navigator.vibrate(jenis === 'BERJAYA' ? [100, 50, 100] : [300]);
@@ -547,7 +611,7 @@
             muatNaikStatistik();
             return;
         }
-        tukarModLaporanRasmi('MASUK'); // Tetapkan default kepada Mod Masuk
+        tukarModLaporanRasmi('MASUK');
         document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
     }
 
@@ -561,7 +625,8 @@
         const bahagianBelumMasuk = document.getElementById('bahagian-belum-masuk');
 
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        document.getElementById('laporan-tarikh-papar').innerText = tarikhPilih;
+        // Tukar format paparan tarikh kepada DD/MM/YY
+        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
         document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString();
 
         const kes = cacheStatistikGlobal.keseluruhan || { total: 0, masuk: 0, keluar: 0 };
@@ -663,7 +728,6 @@
             tBodyLaporanTing.innerHTML = `<tr><td colspan="${colSpanVal}" class="p-3 text-center text-slate-500 italic border border-slate-700">Tiada data tingkatan.</td></tr>`;
         }
 
-        // Isi Senarai Belum Masuk dalam Modal (Hanya jika mod Masuk)
         if (mod === 'MASUK') {
             const tBodyLaporanBelum = document.getElementById('laporan-jadual-belum-masuk');
             tBodyLaporanBelum.innerHTML = "";
@@ -830,7 +894,7 @@
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url;
-        a.setAttribute('download', `Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        a.setAttribute('download', `Belum_Masuk_${formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value).replaceAll('/', '-')}.csv`);
         a.click();
     }
 
@@ -843,12 +907,12 @@
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a'); a.href = url;
-        a.setAttribute('download', `Log_Pergerakan_${document.getElementById('pilih-tarikh').value}.csv`);
+        a.setAttribute('download', `Log_Pergerakan_${formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value).replaceAll('/', '-')}.csv`);
         a.click();
     }
 
-    function eksportLogPDF() { window.print(); }
-    function eksportKePDF() { window.print(); }
+    function eksportLogPDF() { bukaModalLaporanRasmi(); }
+    function eksportKePDF() { bukaModalLaporanRasmi(); }
 
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
