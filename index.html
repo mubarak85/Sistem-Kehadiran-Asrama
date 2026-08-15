@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.4 - Universal Cross-Platform</title>
+  <title>HostelScan Pro v4.5 - Universal Cross-Platform</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -72,30 +72,8 @@
         <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="w-full py-2.5 rounded-2xl font-bold text-sm bg-slate-800 text-slate-400 border border-slate-700/80 text-center cursor-pointer transition-all transform active:scale-95">📤 BALIK / OUTING</button>
       </div>
 
-      <!-- KOTAK PILIHAN KESALAHAN DISIPLIN -->
-      <div class="p-4 bg-slate-900/60 border-b border-slate-800/80 space-y-2">
-        <p class="text-xs font-bold text-rose-400 uppercase tracking-wider">⚠️ Rekod Salahlaku (Jika Ada):</p>
-        <div class="grid grid-cols-2 gap-2 text-xs">
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Kasut</span>
-          </label>
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Batik</span>
-          </label>
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Stokin</span>
-          </label>
-          <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
-            <input type="checkbox" name="kesalahan" value="Tidak Bawa / Hilang Kad" class="rounded accent-rose-500">
-            <span class="text-slate-300">❌ Hilang Kad</span>
-          </label>
-        </div>
-      </div>
-
       <div class="p-5 space-y-4">
+        <!-- PAPARAN KAMERA DULU -->
         <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border border-slate-800 p-2">
           <div id="reader" class="w-full min-h-[220px]"></div>
           <div class="flex gap-2 mt-3">
@@ -104,10 +82,33 @@
           </div>
         </div>
 
-        <details class="group border-t border-slate-800/80 pt-2" open>
+        <!-- KOTAK PILIHAN KESALAHAN DISIPLIN (BERADA DI BAWAH KAMERA) -->
+        <div class="p-4 bg-slate-900/60 rounded-2xl border border-slate-800/80 space-y-2">
+          <p class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5"><span>⚠️</span> Rekod Salahlaku (Jika Ada):</p>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+              <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="rounded accent-rose-500">
+              <span class="text-slate-300">❌ Kasut</span>
+            </label>
+            <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+              <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="rounded accent-rose-500">
+              <span class="text-slate-300">❌ Batik</span>
+            </label>
+            <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+              <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="rounded accent-rose-500">
+              <span class="text-slate-300">❌ Stokin</span>
+            </label>
+            <label class="flex items-center gap-1.5 bg-slate-950/60 p-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/50 transition-all">
+              <input type="checkbox" name="kesalahan" value="Tidak Bawa / Hilang Kad" class="rounded accent-rose-500">
+              <span class="text-slate-300">❌ Hilang Kad</span>
+            </label>
+          </div>
+        </div>
+
+        <details class="group border-t border-slate-800/80 pt-2">
           <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-indigo-400 transition-colors"><span>✏️ Taip ID Manual Cepat</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
           <div class="mt-2">
-            <input type="text" id="id-manual" oninput="lewatTaipID(this.value)" placeholder="Taip ID (Auto-hantar selepas selesai)..." class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none" autofocus>
+            <input type="text" id="id-manual" oninput="lewatTaipID(this.value)" placeholder="Taip ID (Auto-hantar selepas selesai)..." class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none">
           </div>
         </details>
       </div>
