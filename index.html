@@ -118,8 +118,8 @@
           <div class="flex items-center gap-3">
             <div id="data-avatar" class="w-12 h-12 rounded-xl bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-lg font-bold text-indigo-300 overflow-hidden">👤</div>
             <div class="flex-1 truncate">
-              <div class="text-sm font-bold text-slate-200 truncate" id="data-nama">-</div>
-              <div class="text-xs text-indigo-400 font-medium" id="data-dorm">-</div>
+              <div class="text-xl sm:text-2xl font-black text-emerald-400 truncate tracking-wide" id="data-nama">-</div>
+              <div class="text-sm text-indigo-300 font-bold mt-0.5" id="data-dorm">-</div>
             </div>
           </div>
           <div class="grid grid-cols-2 text-xs pt-2 border-t border-slate-800 items-center"><span class="text-slate-500">Status Pergerakan</span><span><span id="data-status" class="text-[10px] px-2 py-0.5 rounded-md font-black uppercase">-</span></span></div>
@@ -558,8 +558,7 @@
         if (!dataCacheLogGlobal || dataCacheLogGlobal.length === 0) return;
         let csvContent = "\uFEFFID,Nama,Tingkatan,Kelas,Dorm,Status Pergerakan,Masa\n";
         dataCacheLogGlobal.forEach(item => {
-            const rawStatus = item.statusPergerakan || item["Status Pergerakan"] || item.arah || item.status || "MASUK";
-            csvContent += `"${item.id || ''}","${item.nama || ''}","${item.tingkatan || ''}","${item.kelas || ''}","${item.dorm || ''}","${rawStatus}","${item.masa || ''}"\n`;
+            csvContent += `"${item.id || ''}","${item.nama || ''}","${item.tingkatan || ''}","${item.kelas || ''}","${item.dorm || ''}","${item.statusPergerakan || item['Status Pergerakan'] || ''}","${item.masa || ''}"\n`;
         });
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
@@ -571,41 +570,60 @@
     function eksportKePDF() { window.print(); }
     function eksportLogPDF() { window.print(); }
 
-    /* FUNGSI KAWALAN GRAF TREND MODAL */
     function bukaGrafModal() {
-      document.getElementById('modal-graf').classList.remove('hidden');
-      const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-      
-      const masukCount = parseInt(document.getElementById('stat-masuk').innerText) || 0;
-      const keluarCount = parseInt(document.getElementById('stat-keluar').innerText) || 0;
-      const bakiMasukCount = parseInt(document.getElementById('stat-baki-masuk').innerText) || 0;
-
-      if (chartInstance) chartInstance.destroy();
-
-      chartInstance = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels: ['Masuk', 'Keluar', 'Baki Masuk'],
-          datasets: [{
-            label: 'Statistik Harian',
-            data: [masukCount, keluarCount, bakiMasukCount],
-            backgroundColor: ['#10b981', '#f43f5e', '#f97316']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: {
-            y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' } },
-            x: { grid: { display: false } }
-          }
-        }
-      });
+        document.getElementById('modal-graf').classList.remove('hidden');
+        renderGrafTrend();
     }
 
     function tutupGrafModal() {
-      document.getElementById('modal-graf').classList.add('hidden');
+        document.getElementById('modal-graf').classList.add('hidden');
+    }
+
+    function renderGrafTrend() {
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (chartInstance) {
+            chartInstance.destroy();
+        }
+        
+        let labelData = ['Pagi', 'Tengah Hari', 'Petang', 'Malam'];
+        let masukData = [10, 25, 40, 15];
+        let keluarData = [5, 12, 30, 8];
+
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labelData,
+                datasets: [
+                    {
+                        label: 'Masuk',
+                        data: masukData,
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Keluar',
+                        data: keluarData,
+                        borderColor: '#f43f5e',
+                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1', font: { size: 10 } } }
+                },
+                scales: {
+                    x: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.2)' } },
+                    y: { ticks: { color: '#64748b' }, grid: { color: 'rgba(51, 65, 85, 0.2)' } }
+                }
+            }
+        });
     }
   </script>
 </body>
