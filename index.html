@@ -114,16 +114,20 @@
 
       <div class="p-5 border-t border-slate-800/80 bg-slate-900/30 min-h-[140px]">
         <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse"></div>
-        <div id="kotak-maklumat" class="hidden space-y-2 bg-slate-950/80 p-4 rounded-2xl border border-slate-800 shadow-inner">
-          <div class="flex items-center gap-3">
-            <div id="data-avatar" class="w-12 h-12 rounded-xl bg-indigo-600/30 border border-indigo-500/50 flex items-center justify-center text-lg font-bold text-indigo-300 overflow-hidden">👤</div>
-            <div class="flex-1 truncate">
-              <!-- NAMA DIBESARKAN DI SINI -->
-              <div class="text-lg sm:text-xl font-black text-emerald-400 truncate tracking-wide" id="data-nama">-</div>
-              <div class="text-xs text-indigo-300 font-bold mt-0.5" id="data-dorm">-</div>
-            </div>
+        
+        <!-- KOTAK MAKLUMAT DISUSUN DI TENGAH-TENGAH & MERIAH -->
+        <div id="kotak-maklumat" class="hidden text-center space-y-3 bg-gradient-to-b from-slate-900/90 to-slate-950 p-5 rounded-2xl border border-indigo-500/30 shadow-2xl">
+          <div class="flex justify-center">
+            <div id="data-avatar" class="w-16 h-16 rounded-2xl bg-indigo-600/30 border-2 border-indigo-500/60 flex items-center justify-center text-2xl font-bold text-indigo-300 shadow-lg shadow-indigo-500/20">🎉</div>
           </div>
-          <div class="grid grid-cols-2 text-xs pt-2 border-t border-slate-800 items-center"><span class="text-slate-500">Status Pergerakan</span><span><span id="data-status" class="text-[10px] px-2 py-0.5 rounded-md font-black uppercase">-</span></span></div>
+          <div>
+            <div class="text-2xl sm:text-3xl font-black text-emerald-400 tracking-wide drop-shadow-md uppercase" id="data-nama">-</div>
+            <div class="text-base text-indigo-300 font-bold mt-1" id="data-dorm">-</div>
+          </div>
+          <div class="pt-2 border-t border-slate-800/80 flex justify-center items-center gap-2">
+            <span class="text-xs text-slate-400">Status:</span>
+            <span id="data-status" class="text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md">-</span>
+          </div>
         </div>
       </div>
     </div>
@@ -450,8 +454,8 @@
           const elStatus = document.getElementById('data-status');
           elStatus.innerText = statusSemasaArah;
           elStatus.className = statusSemasaArah === 'MASUK' 
-            ? "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-800" 
-            : "text-[10px] px-2 py-0.5 rounded-md font-black uppercase bg-rose-950 text-rose-400 border border-rose-800";
+            ? "text-xs px-3 py-1 rounded-lg font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-800" 
+            : "text-xs px-3 py-1 rounded-lg font-black uppercase bg-rose-950 text-rose-400 border border-rose-800";
 
           const masaMinit = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
           
