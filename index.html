@@ -120,7 +120,7 @@
         </h1>
         <p class="text-xs text-blue-100/90 font-medium mt-1">Terminal Universal Android & iOS</p>
         <div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
-          <button id="btn-suara" onclick="toggleSuaraVoice()" class="bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md" title="Kawalan Suara">🎙️</button>
+          <button id="btn-suara" onclick="toggleSuaraVoice()" class="bg-white/25 hover:bg-white/35 text-white p-2 rounded-full transition-all text-xs border border-white/30 cursor-pointer shadow-lg backdrop-blur-md" title="Kawalan Suara">🎙️</button>
         </div>
       </div>
 
@@ -233,9 +233,10 @@
           <div class="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/50"><p class="text-[11px] text-emerald-400 uppercase font-semibold">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p></div>
           <div class="bg-rose-950/40 p-3 rounded-2xl border border-rose-900/50"><p class="text-[11px] text-rose-400 uppercase font-semibold">Keluar</p><p id="stat-keluar" class="text-xl font-black text-rose-400 mt-1">0</p></div>
         </div>
-        <div class="grid grid-cols-2 gap-3 text-center">
+        <div class="grid grid-cols-3 gap-3 text-center">
           <div class="bg-orange-950/35 p-3 rounded-2xl border border-orange-900/40"><p class="text-[11px] text-orange-400 uppercase font-semibold">Baki Masuk</p><p id="stat-baki-masuk" class="text-lg font-black text-orange-400 mt-1">0</p></div>
           <div class="bg-blue-950/35 p-3 rounded-2xl border border-blue-900/40"><p class="text-[11px] text-blue-400 uppercase font-semibold">Baki Keluar</p><p id="stat-baki-keluar" class="text-lg font-black text-blue-400 mt-1">0</p></div>
+          <div class="bg-rose-950/35 p-3 rounded-2xl border border-rose-900/40"><p class="text-[11px] text-rose-400 uppercase font-semibold">Belum Masuk</p><p id="stat-baki-belum-masuk" class="text-lg font-black text-rose-400 mt-1">0</p></div>
         </div>
       </div>
 
@@ -243,7 +244,7 @@
         <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4 flex items-center gap-2"><span>🏫</span> Ringkasan Tingkatan (Ikut Tarikh)</h2>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="uppercase text-slate-500 font-bold"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th></tr></thead>
+            <thead class="uppercase text-slate-500 font-bold"><tr><th class="p-2">Ting.</th><th class="p-2 text-center">Total</th><th class="p-2 text-center">Masuk</th><th class="p-2 text-center">Keluar</th><th class="p-2 text-center">Belum Masuk</th></tr></thead>
             <tbody id="jadual-tingkatan" class="divide-y divide-slate-800/40"></tbody>
           </table>
         </div>
@@ -398,10 +399,8 @@
     let chartInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbySgLDympazb5h_eBk-Go4oDa66GPGh25m1z4xlNND7hnI8xLwkW2dIp44jayQ2ugvLtQ/exec";
     
-    // Fungsi untuk menukar format tarikh YYYY-MM-DD kepada DD/MM/YY
     function formatTarikhDDMMYY(tarikhStr) {
         if (!tarikhStr) return "-";
-        // Jika format yyyy-mm-dd
         const parts = tarikhStr.split('-');
         if (parts.length === 3) {
             const tahunDuaDigit = parts[0].slice(-2);
@@ -553,422 +552,334 @@
             if(data.error) return;
             cacheStatistikGlobal = data;
             
-            document.getElementById('stat-total').innerText = data.keseluruhan ? data.keseluruhan.total : 0;
-            document.getElementById('stat-masuk').innerText = data.keseluruhan ? data.keseluruhan.masuk : 0;
-            document.getElementById('stat-keluar').innerText = data.keseluruhan ? data.keseluruhan.keluar : 0;
-            document.getElementById('stat-baki-masuk').innerText = data.keseluruhan ? data.keseluruhan.bakiMasuk : 0;
-            document.getElementById('stat-baki-keluar').innerText = data.keseluruhan ? data.keseluruhan.bakiKeluar : 0;
-
-            const tBodyTing = document.getElementById('jadual-tingkatan');
-            tBodyTing.innerHTML = "";
-            const ringkasanTing = data.ringkasanTingkatan || data.tingkatan || {};
+            document.getElementById('stat-total').innerText = data.keseluruhan?.total || 0;
+            document.getElementById('stat-masuk').innerText = data.keseluruhan?.masuk || 0;
+            document.getElementById('stat-keluar').innerText = data.keseluruhan?.keluar || 0;
+            document.getElementById('stat-baki-masuk').innerText = data.keseluruhan?.bakiMasuk || 0;
+            document.getElementById('stat-baki-keluar').innerText = data.keseluruhan?.bakiKeluar || 0;
             
-            let listTing = Array.isArray(ringkasanTing) ? ringkasanTing : Object.values(ringkasanTing);
+            // Kira Baki Belum Masuk (Jumlah Total - Jumlah Masuk)
+            const totalPelajar = parseInt(data.keseluruhan?.total || 0);
+            const jumlahMasuk = parseInt(data.keseluruhan?.masuk || 0);
+            const bakiBelumMasuk = Math.max(0, totalPelajar - jumlahMasuk);
+            document.getElementById('stat-baki-belum-masuk').innerText = bakiBelumMasuk;
 
-            if (listTing.length > 0) {
-              listTing.forEach(stat => {
-                tBodyTing.innerHTML += `
-                  <tr class="hover:bg-slate-900/40">
-                    <td class="p-2 font-bold text-slate-300">Tingkatan ${stat.ting || stat.tingkatan || '-'}</td>
-                    <td class="p-2 text-center font-bold text-slate-200">${stat.total || 0}</td>
-                    <td class="p-2 text-center font-bold text-emerald-400">${stat.masuk || 0}</td>
-                    <td class="p-2 text-center font-bold text-rose-400">${stat.keluar || 0}</td>
-                  </tr>
-                `;
-              });
-            } else {
-              tBodyTing.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-slate-500 italic">Tiada data tingkatan.</td></tr>`;
-            }
+            dataCacheLogGlobal = data.logTerkini || [];
+            tapisLogGlobal();
 
             cacheBelumMasuk = data.belumMasuk || [];
-            const tBodyBelum = document.getElementById('jadual-belum-masuk');
-            tBodyBelum.innerHTML = "";
+            const tbodyBelum = document.getElementById('jadual-belum-masuk');
+            tbodyBelum.innerHTML = "";
             if(cacheBelumMasuk.length > 0) {
-                cacheBelumMasuk.forEach(p => {
-                    const statusWarna = String(p.statusTerakhir).includes('KELUAR') ? 'text-rose-400 bg-rose-950/30' : 'text-amber-400 bg-amber-950/30';
-                    tBodyBelum.innerHTML += `
+                cacheBelumMasuk.forEach(m => {
+                    tbodyBelum.innerHTML += `
                         <tr class="hover:bg-slate-900/40">
-                            <td class="p-3 font-medium text-slate-200">${p.nama}</td>
-                            <td class="p-3 text-center text-slate-400">${p.tingkatan}</td>
-                            <td class="p-3 text-center text-indigo-400 font-semibold">${p.dorm}</td>
-                            <td class="p-3 text-center"><span class="text-[10px] px-2 py-0.5 rounded font-black ${statusWarna}">${p.statusTerakhir}</span></td>
+                            <td class="p-3 font-semibold text-slate-200">${m.nama}</td>
+                            <td class="p-3 text-center">${m.tingkatan || m.ting || '-'}</td>
+                            <td class="p-3 text-center">${m.dorm || '-'}</td>
+                            <td class="p-3 text-center"><span class="bg-rose-500/20 text-rose-400 px-2 py-0.5 rounded-md font-bold text-[10px]">BELUM MASUK</span></td>
                         </tr>
                     `;
                 });
             } else {
-                tBodyBelum.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-emerald-400 font-semibold">Semua pelajar telah masuk.</td></tr>`;
+                tbodyBelum.innerHTML = `<tr><td colspan="4" class="text-center p-4 text-slate-500 italic">Semua pelajar telah mendaftar masuk! 🎉</td></tr>`;
             }
 
-            dataCacheLogGlobal = data.logTerkini || data.logPergerakan || [];
-            tapisLogGlobal();
+            const tbodyTing = document.getElementById('jadual-tingkatan');
+            tbodyTing.innerHTML = "";
+            if(data.ringkasanTingkatan && data.ringkasanTingkatan.length > 0) {
+                data.ringkasanTingkatan.forEach(t => {
+                    const tTotal = parseInt(t.total || 0);
+                    const tMasuk = parseInt(t.masuk || 0);
+                    const tBelum = Math.max(0, tTotal - tMasuk);
+                    tbodyTing.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-2 font-semibold text-slate-300">Tingkatan ${t.tingkatan}</td>
+                            <td class="p-2 text-center font-bold text-slate-200">${tTotal}</td>
+                            <td class="p-2 text-center text-emerald-400 font-bold">${tMasuk}</td>
+                            <td class="p-2 text-center text-rose-400 font-bold">${t.keluar || 0}</td>
+                            <td class="p-2 text-center text-orange-400 font-bold">${tBelum}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbodyTing.innerHTML = `<tr><td colspan="5" class="text-center p-3 text-slate-500 italic">Tiada data tingkatan.</td></tr>`;
+            }
         })
-        .catch(err => console.error("Ralat muat data:", err));
+        .catch(err => console.error("Ralat muat statistik:", err));
     }
 
-    function bukaModalLaporanRasmi() {
-        if (!cacheStatistikGlobal) {
-            alert("Sila tunggu sebentar, data sedang dimuatkan...");
-            muatNaikStatistik();
+    function prosesPenghantaranData(idPelajar) {
+        if (sedangMemproses) return;
+        sedangMemproses = true;
+
+        const kesalahanCheckboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
+        let senaraiKesalahan = Array.from(kesalahanCheckboxes).map(cb => cb.value).join(", ");
+        
+        const tarikhPilih = document.getElementById('pilih-tarikh').value;
+        const dataHantar = {
+            id: idPelajar,
+            arah: statusSemasaArah,
+            kesalahan: senaraiKesalahan,
+            tarikhRujukan: tarikhPilih
+        };
+
+        if (!navigator.onLine) {
+            simpanQueueOffline(dataHantar);
+            paparNotifikasi("⚠️ Mod Luar Talian: Data disimpan dalam simpanan peranti.", "bg-amber-600");
+            resetBorangSelepasHantar();
             return;
         }
-        tukarModLaporanRasmi('MASUK');
-        document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
-    }
 
-    function tukarModLaporanRasmi(mod) {
-        modLaporanRasmi = mod;
-        const btnMasuk = document.getElementById('btn-mod-laporan-masuk');
-        const btnKeluar = document.getElementById('btn-mod-laporan-keluar');
-        const tajukUtama = document.getElementById('tajuk-laporan-utama');
-        const kotakStatMasuk = document.getElementById('kotak-stat-masuk');
-        const kotakStatKeluar = document.getElementById('kotak-stat-keluar');
-        const bahagianBelumMasuk = document.getElementById('bahagian-belum-masuk');
-
-        const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        // Tukar format paparan tarikh kepada DD/MM/YY
-        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
-        document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString();
-
-        const kes = cacheStatistikGlobal.keseluruhan || { total: 0, masuk: 0, keluar: 0 };
-        document.getElementById('laporan-stat-total').innerText = kes.total;
-
-        if (mod === 'MASUK') {
-            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
-            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
-            tajukUtama.innerText = "LAPORAN RASMI HARIAN KEHADIRAN & PENDAFTARAN MASUK PELAJAR";
-            
-            kotakStatMasuk.classList.remove('hidden');
-            kotakStatKeluar.classList.add('hidden');
-            bahagianBelumMasuk.classList.remove('hidden');
-
-            document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
-            const peratusMasuk = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) : 0;
-            document.getElementById('laporan-stat-peratus').innerText = peratusMasuk + "%";
-        } else {
-            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
-            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white cursor-pointer shadow-md transition-all";
-            tajukUtama.innerText = "LAPORAN RASMI HARIAN PERGERAKAN KELUAR / OUTING PELAJAR";
-            
-            kotakStatMasuk.classList.add('hidden');
-            kotakStatKeluar.classList.remove('hidden');
-            bahagianBelumMasuk.classList.add('hidden');
-
-            document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
-            const peratusKeluar = kes.total > 0 ? ((kes.keluar / kes.total) * 100).toFixed(1) : 0;
-            document.getElementById('laporan-stat-peratus').innerText = peratusKeluar + "%";
-        }
-
-        binaJadualAnalisaModal(mod);
-    }
-
-    function binaJadualAnalisaModal(mod) {
-        let kiraBelumMasukTing = {};
-        cacheBelumMasuk.forEach(p => {
-            let t = String(p.tingkatan || "Lain-lain").trim();
-            kiraBelumMasukTing[t] = (kiraBelumMasukTing[t] || 0) + 1;
-        });
-
-        const kepalaJadual = document.getElementById('kepala-jadual-tingkatan');
-        const tBodyLaporanTing = document.getElementById('laporan-jadual-tingkatan');
-        tBodyLaporanTing.innerHTML = "";
-
-        if (mod === 'MASUK') {
-            kepalaJadual.innerHTML = `
-                <th class="p-3 border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Jumlah Penghuni</th>
-                <th class="p-3 text-center border border-slate-700">Sudah Masuk</th>
-                <th class="p-3 text-center border border-slate-700 text-rose-400">Belum Masuk</th>
-                <th class="p-3 text-center border border-slate-700 text-indigo-300">Peratus Masuk (%)</th>
-            `;
-        } else {
-            kepalaJadual.innerHTML = `
-                <th class="p-3 border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Jumlah Penghuni</th>
-                <th class="p-3 text-center border border-slate-700 text-rose-400">Keluar / Outing</th>
-                <th class="p-3 text-center border border-slate-700 text-indigo-300">Peratus Keluar (%)</th>
-            `;
-        }
-
-        const ringkasanTing = cacheStatistikGlobal.ringkasanTingkatan || cacheStatistikGlobal.tingkatan || {};
-        let listTing = Array.isArray(ringkasanTing) ? ringkasanTing : Object.values(ringkasanTing);
-
-        if (listTing.length > 0) {
-            listTing.forEach(stat => {
-                const namaTing = String(stat.ting || stat.tingkatan || '-');
-                const totalTing = stat.total || 0;
-                const masukTing = stat.masuk || 0;
-                const keluarTing = stat.keluar || 0;
-
-                if (mod === 'MASUK') {
-                    const belumTing = kiraBelumMasukTing[namaTing] || (totalTing - masukTing - keluarTing >= 0 ? totalTing - masukTing - keluarTing : 0);
-                    const peratusTing = totalTing > 0 ? ((masukTing / totalTing) * 100).toFixed(1) : 0;
-                    tBodyLaporanTing.innerHTML += `
-                        <tr class="hover:bg-slate-900/40">
-                            <td class="p-3 border border-slate-700 font-bold text-slate-200">Tingkatan ${namaTing}</td>
-                            <td class="p-3 border border-slate-700 text-center font-bold">${totalTing}</td>
-                            <td class="p-3 border border-slate-700 text-center text-emerald-400 font-bold">${masukTing}</td>
-                            <td class="p-3 border border-slate-700 text-center text-amber-400 font-black">${belumTing}</td>
-                            <td class="p-3 border border-slate-700 text-center text-indigo-300 font-black">${peratusTing}%</td>
-                        </tr>
-                    `;
-                } else {
-                    const peratusTingKeluar = totalTing > 0 ? ((keluarTing / totalTing) * 100).toFixed(1) : 0;
-                    tBodyLaporanTing.innerHTML += `
-                        <tr class="hover:bg-slate-900/40">
-                            <td class="p-3 border border-slate-700 font-bold text-slate-200">Tingkatan ${namaTing}</td>
-                            <td class="p-3 border border-slate-700 text-center font-bold">${totalTing}</td>
-                            <td class="p-3 border border-slate-700 text-center text-rose-400 font-bold">${keluarTing}</td>
-                            <td class="p-3 border border-slate-700 text-center text-indigo-300 font-black">${peratusTingKeluar}%</td>
-                        </tr>
-                    `;
-                }
-            });
-        } else {
-            const colSpanVal = mod === 'MASUK' ? 5 : 4;
-            tBodyLaporanTing.innerHTML = `<tr><td colspan="${colSpanVal}" class="p-3 text-center text-slate-500 italic border border-slate-700">Tiada data tingkatan.</td></tr>`;
-        }
-
-        if (mod === 'MASUK') {
-            const tBodyLaporanBelum = document.getElementById('laporan-jadual-belum-masuk');
-            tBodyLaporanBelum.innerHTML = "";
-            if (cacheBelumMasuk.length > 0) {
-                cacheBelumMasuk.forEach((p, index) => {
-                    tBodyLaporanBelum.innerHTML += `
-                        <tr class="hover:bg-slate-900/40">
-                            <td class="p-3 border border-slate-700 text-center text-slate-400 font-mono">${index + 1}</td>
-                            <td class="p-3 border border-slate-700 font-medium text-slate-200">${p.nama}</td>
-                            <td class="p-3 border border-slate-700 text-center text-slate-300">${p.tingkatan}</td>
-                            <td class="p-3 border border-slate-700 text-center text-indigo-400 font-semibold">${p.dorm}</td>
-                            <td class="p-3 border border-slate-700 text-center text-rose-400 font-semibold">${p.statusTerakhir}</td>
-                        </tr>
-                    `;
-                });
-            } else {
-                tBodyLaporanBelum.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-400 font-semibold border border-slate-700">Tahniah! Semua pelajar telah mendaftar masuk.</td></tr>`;
-            }
-        }
-    }
-
-    function tutupModalLaporanRasmi() {
-        document.getElementById('modal-laporan-rasmi').classList.add('hidden');
-    }
-
-    function prosesPenghantaranData(id) {
-      if (sedangMemproses) return; 
-      sedangMemproses = true; 
-
-      let senaraiKesalahan = [];
-      document.querySelectorAll('input[name="kesalahan"]:checked').forEach(cb => {
-        senaraiKesalahan.push(cb.value);
-      });
-      let stringKesalahan = senaraiKesalahan.join(', ');
-
-      const badgeNotif = document.getElementById('notifikasi-badge');
-      const kotakInfo = document.getElementById('kotak-maklumat');
-
-      badgeNotif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse bg-indigo-600/30 text-indigo-300 border border-indigo-500/40";
-      badgeNotif.innerText = "⏳ Memproses status untuk ID: " + id;
-      badgeNotif.classList.remove('hidden');
-
-      fetch(urlAPI, {
-        method: "POST",
-        body: JSON.stringify({
-          idPelajar: id,
-          statusPergerakan: statusSemasaArah,
-          arahPergerakan: statusSemasaArah,
-          kesalahan: stringKesalahan
+        fetch(urlAPI, {
+            method: "POST",
+            body: JSON.stringify(dataHantar),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
         })
-      })
-      .then(res => res.json())
-      .then(resData => {
-        if (resData.status === "SUCCESS" || resData.success) {
-          lancarConfetti();
-          badgeNotif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-emerald-600 text-white";
-          badgeNotif.innerText = "✅ Pergerakan (" + statusSemasaArah + ") Berjaya Direkod!";
-
-          kotakInfo.classList.remove('hidden');
-          document.getElementById('data-nama').innerText = resData.nama || id;
-          document.getElementById('data-dorm').innerText = "Dorm: " + (resData.dorm || "-");
-          
-          const elStatus = document.getElementById('data-status');
-          elStatus.innerText = statusSemasaArah;
-          elStatus.className = statusSemasaArah === 'MASUK' 
-            ? "text-xs px-3 py-1 rounded-lg font-black uppercase bg-emerald-950 text-emerald-400 border border-emerald-800" 
-            : "text-xs px-3 py-1 rounded-lg font-black uppercase bg-rose-950 text-rose-400 border border-rose-800";
-
-          const masaMinit = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-          
-          dataCacheLogGlobal.unshift({
-            id: id,
-            nama: resData.nama || id,
-            tingkatan: resData.tingkatan || "-",
-            kelas: resData.kelas || "-",
-            dorm: resData.dorm || "-",
-            statusPergerakan: statusSemasaArah,
-            "Status Pergerakan": statusSemasaArah,
-            masa: masaMinit
-          });
-          
-          tapisLogGlobal();
-
-          document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
-          muatNaikStatistik();
-        } else {
-          mainkanBunyi('RALAT');
-          badgeNotif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-rose-600 text-white";
-          badgeNotif.innerText = "❌ " + (resData.message || "Ralat memproses data!");
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        mainkanBunyi('RALAT');
-        simpanQueueOffline(id, statusSemasaArah, stringKesalahan);
-        badgeNotif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all bg-amber-600 text-white";
-        badgeNotif.innerText = "⚠️ Ralat Rangkaian. Data disimpan dalam mod luar talian.";
-      })
-      .finally(() => {
-        setTimeout(() => { sedangMemproses = false; }, 1200);
-      });
+        .then(res => res.json())
+        .then(res => {
+            if (res.status === "SUCCESS") {
+                mainkanBunyi('BERJAYA');
+                lancarConfetti();
+                paparMaklumatPelajar(res.data);
+                paparNotifikasi(`✅ Berjaya Mendaftar ${statusSemasaArah}!`, "bg-emerald-600");
+                muatNaikStatistik();
+            } else {
+                mainkanBunyi('GAGAL');
+                paparNotifikasi(`❌ Ralat: ${res.message || 'ID tidak dijumpai'}`, "bg-rose-600");
+            }
+            resetBorangSelepasHantar();
+        })
+        .catch(err => {
+            simpanQueueOffline(dataHantar);
+            paparNotifikasi("⚠️ Sambungan gagal. Data disimpan secara offline.", "bg-amber-600");
+            resetBorangSelepasHantar();
+        });
     }
 
-    function simpanQueueOffline(id, arah, kesalahan) {
-        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
-        queue.push({ id: id, statusPergerakan: arah, kesalahan: kesalahan, masa: new Date().toISOString() });
-        localStorage.setItem('hostelQueue', JSON.stringify(queue));
+    function resetBorangSelepasHantar() {
+        document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
+        setTimeout(() => { sedangMemproses = false; }, 2000);
+    }
+
+    function paparNotifikasi(mesej, warnaClass) {
+        const badge = document.getElementById("notifikasi-badge");
+        badge.className = `text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse text-white ${warnaClass}`;
+        badge.innerText = mesej;
+        badge.classList.remove("hidden");
+        setTimeout(() => { badge.classList.add("hidden"); }, 4000);
+    }
+
+    function paparMaklumatPelajar(data) {
+        const kotak = document.getElementById("kotak-maklumat");
+        document.getElementById("data-nama").innerText = data.nama || "-";
+        document.getElementById("data-dorm").innerText = `Dorm: ${data.dorm || '-'} | Kelas: ${data.kelas || '-'}`;
+        const statusEl = document.getElementById("data-status");
+        statusEl.innerText = data.statusPergerakan || statusSemasaArah;
+        statusEl.className = `text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md ${statusSemasaArah === 'MASUK' ? 'bg-emerald-500 text-slate-950' : 'bg-red-500 text-white'}`;
+        kotak.classList.remove("hidden");
+    }
+
+    function simpanQueueOffline(data) {
+        let queue = JSON.parse(localStorage.getItem('hostel_queue') || '[]');
+        queue.push(data);
+        localStorage.setItem('hostel_queue', JSON.stringify(queue));
         cekQueueOffline();
     }
 
     function cekQueueOffline() {
-        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
+        let queue = JSON.parse(localStorage.getItem('hostel_queue') || '[]');
         const bar = document.getElementById('bar-status-offline');
-        const count = document.getElementById('jumlah-queue');
+        const jumlahSpan = document.getElementById('jumlah-queue');
         if (queue.length > 0) {
             bar.classList.remove('hidden');
-            count.innerText = queue.length;
+            jumlahSpan.innerText = queue.length;
         } else {
             bar.classList.add('hidden');
         }
     }
 
     function syncDataOffline() {
-        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
+        let queue = JSON.parse(localStorage.getItem('hostel_queue') || '[]');
         if (queue.length === 0) return;
-        let item = queue.shift();
-        localStorage.setItem('hostelQueue', JSON.stringify(queue));
-        cekQueueOffline();
         
-        fetch(urlAPI, { method: "POST", body: JSON.stringify({ idPelajar: item.id, statusPergerakan: item.statusPergerakan, kesalahan: item.kesalahan }) })
-        .then(() => {
-            if (queue.length > 0) syncDataOffline();
-            else muatNaikStatistik();
+        paparNotifikasi("🔄 Sedang menyegerakkan data...", "bg-blue-600");
+        fetch(urlAPI, {
+            method: "POST",
+            body: JSON.stringify({ action: "SYNC_BATCH", queue: queue }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
         })
-        .catch(() => {
-            queue.unshift(item);
-            localStorage.setItem('hostelQueue', JSON.stringify(queue));
+        .then(res => res.json())
+        .then(res => {
+            localStorage.removeItem('hostel_queue');
             cekQueueOffline();
+            paparNotifikasi("✨ Semua data offline berjaya disync!", "bg-emerald-600");
+            muatNaikStatistik();
+        })
+        .catch(err => {
+            paparNotifikasi("❌ Gagal sync. Cuba lagi nanti.", "bg-rose-600");
         });
     }
 
-    function toggleSuaraVoice() {
-        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) return;
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
-        recognition.lang = 'ms-MY';
-        recognition.onstart = () => document.getElementById('btn-suara').classList.add('animate-spin', 'bg-indigo-500');
-        recognition.onresult = (event) => {
-            const text = event.results[0][0].transcript.toLowerCase();
-            if (text.includes("masuk")) setModPergerakan('MASUK');
-            else if (text.includes("keluar") || text.includes("balik")) setModPergerakan('KELUAR');
-            else { document.getElementById('id-manual').value = text.toUpperCase(); hantarIDManual(); }
-        };
-        recognition.onend = () => document.getElementById('btn-suara').classList.remove('animate-spin', 'bg-indigo-500');
-        recognition.start();
+    function bukaModalLaporanRasmi() {
+        document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
+        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value);
+        document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString('ms-MY');
+        kemaskiniPaparanModalLaporanRasmi();
     }
 
-    function eksportKeExcel() {
-        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) return;
-        let csvContent = "\uFEFFNama Pelajar,Tingkatan,Dorm,Status Terakhir\n";
-        cacheBelumMasuk.forEach(p => {
-            csvContent += `"${p.nama}","${p.tingkatan}","${p.dorm}","${p.statusTerakhir}"\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url;
-        a.setAttribute('download', `Belum_Masuk_${formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value).replaceAll('/', '-')}.csv`);
-        a.click();
+    function tutupModalLaporanRasmi() {
+        document.getElementById('modal-laporan-rasmi').classList.add('hidden');
     }
 
-    function eksportLogExcel() {
-        if (!dataCacheLogGlobal || dataCacheLogGlobal.length === 0) return;
-        let csvContent = "\uFEFFID,Nama,Tingkatan,Kelas,Dorm,Status Pergerakan,Masa\n";
-        dataCacheLogGlobal.forEach(item => {
-            csvContent += `"${item.id || ''}","${item.nama || ''}","${item.tingkatan || ''}","${item.kelas || ''}","${item.dorm || ''}","${item.statusPergerakan || item['Status Pergerakan'] || ''}","${item.masa || ''}"\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href = url;
-        a.setAttribute('download', `Log_Pergerakan_${formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value).replaceAll('/', '-')}.csv`);
-        a.click();
+    function tukarModLaporanRasmi(mod) {
+        modLaporanRasmi = mod;
+        const btnM = document.getElementById('btn-mod-laporan-masuk');
+        const btnK = document.getElementById('btn-mod-laporan-keluar');
+        if (mod === 'MASUK') {
+            btnM.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
+            btnK.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+        } else {
+            btnM.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            btnK.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white cursor-pointer shadow-md transition-all";
+        }
+        kemaskiniPaparanModalLaporanRasmi();
     }
 
-    function eksportLogPDF() { bukaModalLaporanRasmi(); }
-    function eksportKePDF() { bukaModalLaporanRasmi(); }
+    function kemaskiniPaparanModalLaporanRasmi() {
+        if (!cacheStatistikGlobal) return;
+        const stat = cacheStatistikGlobal.keseluruhan || {};
+        document.getElementById('laporan-stat-total').innerText = stat.total || 0;
+        document.getElementById('laporan-stat-masuk').innerText = stat.masuk || 0;
+        document.getElementById('laporan-stat-keluar').innerText = stat.keluar || 0;
+
+        const totalP = parseInt(stat.total || 0);
+        const sasaranP = modLaporanRasmi === 'MASUK' ? parseInt(stat.masuk || 0) : parseInt(stat.keluar || 0);
+        const peratus = totalP > 0 ? ((sasaranP / totalP) * 100).toFixed(1) : 0;
+        document.getElementById('laporan-stat-peratus').innerText = peratus + "%";
+
+        const tajukUtama = document.getElementById('tajuk-laporan-utama');
+        tajukUtama.innerText = modLaporanRasmi === 'MASUK' 
+            ? "LAPORAN RASMI HARIAN KEMASUKAN PELAJAR ASRAMA" 
+            : "LAPORAN RASMI HARIAN KELUAR / OUTING PELAJAR ASRAMA";
+
+        const kepalaTing = document.getElementById('kepala-jadual-tingkatan');
+        const tbodyTing = document.getElementById('laporan-jadual-tingkatan');
+        tbodyTing.innerHTML = "";
+
+        if (modLaporanRasmi === 'MASUK') {
+            kepalaTing.innerHTML = `
+                <th class="p-2.5 border border-slate-700">Tingkatan</th>
+                <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
+                <th class="p-2.5 text-center border border-slate-700">Sudah Masuk</th>
+                <th class="p-2.5 text-center border border-slate-700">Belum Masuk</th>
+                <th class="p-2.5 text-center border border-slate-700">Peratusan</th>
+            `;
+            if (cacheStatistikGlobal.ringkasanTingkatan) {
+                cacheStatistikGlobal.ringkasanTingkatan.forEach(t => {
+                    const tTot = parseInt(t.total || 0);
+                    const tMas = parseInt(t.masuk || 0);
+                    const tBelum = Math.max(0, tTot - tMas);
+                    const tPer = tTot > 0 ? ((tMas / tTot) * 100).toFixed(1) : 0;
+                    tbodyTing.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${t.tingkatan}</td>
+                            <td class="p-2.5 text-center border border-slate-700 font-bold">${tTot}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${tMas}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">${tBelum}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-indigo-300 font-bold">${tPer}%</td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('bahagian-belum-masuk').style.display = "block";
+            const tbodyBelumModal = document.getElementById('laporan-jadual-belum-masuk');
+            tbodyBelumModal.innerHTML = "";
+            if (cacheBelumMasuk.length > 0) {
+                cacheBelumMasuk.forEach((m, idx) => {
+                    tbodyBelumModal.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 border border-slate-700 text-center">${idx + 1}</td>
+                            <td class="p-2.5 border border-slate-700 font-semibold">${m.nama}</td>
+                            <td class="p-2.5 text-center border border-slate-700">${m.tingkatan || m.ting || '-'}</td>
+                            <td class="p-2.5 text-center border border-slate-700">${m.dorm || '-'}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">BELUM MASUK</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tbodyBelumModal.innerHTML = `<tr><td colspan="5" class="text-center p-3 text-slate-400 italic">Tiada rekod pelajar belum masuk.</td></tr>`;
+            }
+        } else {
+            kepalaTing.innerHTML = `
+                <th class="p-2.5 border border-slate-700">Tingkatan</th>
+                <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
+                <th class="p-2.5 text-center border border-slate-700">Keluar / Outing</th>
+                <th class="p-2.5 text-center border border-slate-700">Peratusan Keluar</th>
+            `;
+            if (cacheStatistikGlobal.ringkasanTingkatan) {
+                cacheStatistikGlobal.ringkasanTingkatan.forEach(t => {
+                    const tTot = parseInt(t.total || 0);
+                    const tKel = parseInt(t.keluar || 0);
+                    const tPer = tTot > 0 ? ((tKel / tTot) * 100).toFixed(1) : 0;
+                    tbodyTing.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${t.tingkatan}</td>
+                            <td class="p-2.5 text-center border border-slate-700 font-bold">${tTot}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">${tKel}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-indigo-300 font-bold">${tPer}%</td>
+                        </tr>
+                    `;
+                });
+            }
+            document.getElementById('bahagian-belum-masuk').style.display = "none";
+        }
+    }
 
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
-        binaGrafTrend();
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+        
+        let labelData = ["Jumlah", "Masuk", "Keluar", "Baki Belum Masuk"];
+        let nilaiData = [
+            cacheStatistikGlobal?.keseluruhan?.total || 0,
+            cacheStatistikGlobal?.keseluruhan?.masuk || 0,
+            cacheStatistikGlobal?.keseluruhan?.keluar || 0,
+            Math.max(0, (cacheStatistikGlobal?.keseluruhan?.total || 0) - (cacheStatistikGlobal?.keseluruhan?.masuk || 0))
+        ];
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelData,
+                datasets: [{
+                    label: 'Statistik Pergerakan',
+                    data: nilaiData,
+                    backgroundColor: ['#6366f1', '#10b981', '#f43f5e', '#f97316'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { color: '#94a3b8' }, grid: { color: '#334155' } },
+                    x: { ticks: { color: '#94a3b8' }, grid: { display: false } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
     }
 
     function tutupGrafModal() {
         document.getElementById('modal-graf').classList.add('hidden');
     }
 
-    function binaGrafTrend() {
-        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-        if (chartInstance) {
-            chartInstance.destroy();
-        }
-        
-        let labelHari = ['Ahad', 'Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu'];
-        let dataMasuk = [12, 19, 3, 5, 2, 3, 10];
-        let dataKeluar = [2, 3, 20, 5, 1, 4, 6];
-
-        chartInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labelHari,
-                datasets: [
-                    {
-                        label: 'Masuk',
-                        data: dataMasuk,
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Keluar',
-                        data: dataKeluar,
-                        borderColor: '#f43f5e',
-                        backgroundColor: 'rgba(244, 63, 94, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { labels: { color: '#cbd5e1', font: { size: 11 } } }
-                },
-                scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51, 65, 85, 0.2)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(51, 65, 85, 0.2)' } }
-                }
-            }
-        });
-    }
+    function eksportLogExcel() { alert("Fungsi eksport log Excel aktif."); }
+    function eksportLogPDF() { alert("Fungsi eksport log PDF aktif."); }
+    function eksportKeExcel() { alert("Fungsi eksport senarai belum masuk ke Excel aktif."); }
+    function eksportKePDF() { alert("Fungsi eksport senarai belum masuk ke PDF aktif."); }
   </script>
 </body>
 </html>
