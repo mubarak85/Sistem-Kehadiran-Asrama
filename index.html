@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.9 - Format Tarikh & Cetak Bersih</title>
+  <title>HostelScan Pro v5.0 - Carian Pantas & Tarikh Rasmi</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -190,6 +190,19 @@
           <div><h3 class="font-bold text-sm text-slate-200">Tarikh Rujukan Warden</h3></div>
         </div>
         <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
+      </div>
+
+      <!-- KOTAK SEMAKAN STATUS PELAJAR (PANTAS) -->
+      <div class="cyber-card p-5 rounded-3xl shadow-2xl space-y-4">
+        <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 flex items-center gap-2">
+          <span>🔍</span> Semak Status Pelajar (Cari Nama)
+        </h2>
+        <div>
+          <input type="text" id="carian-nama-pelajar" oninput="cariPelajar(this.value)" placeholder="Taip sebahagian nama atau ID pelajar..." class="w-full px-4 py-3 glass-input rounded-2xl text-sm uppercase font-mono text-white focus:outline-none">
+        </div>
+        <div id="hasil-carian-container" class="space-y-2 max-h-48 overflow-y-auto">
+          <p class="text-xs text-slate-500 text-center py-2">Masukkan nama untuk mula mencari...</p>
+        </div>
       </div>
 
       <div class="cyber-card p-4 rounded-3xl shadow-2xl bg-gradient-to-r from-indigo-900/40 to-blue-900/40 border border-indigo-500/40 text-center">
@@ -466,6 +479,40 @@
         prosesPenghantaranData(id); 
         inputEl.value = ""; 
       }
+    }
+
+    // FUNGSI CARIAN PANTAS NAMA PELAJAR (CLIENT-SIDE)
+    function cariPelajar(keyword) {
+        const container = document.getElementById('hasil-carian-container');
+        const query = keyword.trim().toLowerCase();
+        
+        if (query.length < 2) {
+            container.innerHTML = `<p class="text-xs text-slate-500 text-center py-2">Taip sekurang-kurangnya 2 huruf...</p>`;
+            return;
+        }
+
+        let senaraiCarian = [];
+        if (typeof cacheBelumMasuk !== 'undefined' && cacheBelumMasuk.length > 0) {
+            senaraiCarian = cacheBelumMasuk.filter(p => p.nama.toLowerCase().includes(query) || (p.id && p.id.toLowerCase().includes(query)));
+        }
+
+        if (senaraiCarian.length === 0) {
+            container.innerHTML = `<p class="text-xs text-slate-400 text-center py-2">Tiada rekod / Pelajar mungkin sudah masuk atau nama tidak dijumpai dalam senarai belum masuk.</p>`;
+            return;
+        }
+
+        container.innerHTML = "";
+        senaraiCarian.forEach(p => {
+            container.innerHTML += `
+                <div class="bg-slate-900/80 p-3 rounded-2xl border border-slate-800 flex justify-between items-center text-xs">
+                    <div>
+                        <p class="font-black text-slate-200 uppercase">${p.nama}</p>
+                        <p class="text-[11px] text-indigo-400">Tingkatan ${p.tingkatan} | Dorm: ${p.dorm}</p>
+                    </div>
+                    <span class="px-2 py-1 bg-rose-950/60 text-rose-400 border border-rose-900 rounded font-bold text-[10px]">BELUM MASUK</span>
+                </div>
+            `;
+        });
     }
 
     function renderRingkasanTingkatan(dataTingkatan) {
