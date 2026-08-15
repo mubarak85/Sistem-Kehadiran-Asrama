@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.7 - Laporan Rasmi Formal</title>
+  <title>HostelScan Pro v4.8 - Laporan Dinamik Bersih</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -218,14 +218,17 @@
       <div class="text-center border-b-2 border-slate-700 pb-4 space-y-1">
         <p class="text-xs font-bold uppercase tracking-widest text-indigo-400">KEMENTERIAN PENDIDIKAN MALAYSIA</p>
         <h2 class="text-lg sm:text-xl font-black text-slate-100 uppercase tracking-wide">UNIT PENGURUSAN ASRAMA SEKOLAH</h2>
-        <h1 class="text-xl sm:text-2xl font-extrabold text-white uppercase">LAPORAN RASMI HARIAN KEHADIRAN & PERGERAKAN PELAJAR</h1>
+        <h1 id="tajuk-laporan-utama" class="text-xl sm:text-2xl font-extrabold text-white uppercase">LAPORAN RASMI HARIAN KEHADIRAN PELAJAR</h1>
         <p class="text-xs text-slate-400 pt-1">Tarikh Rujukan Laporan: <span id="laporan-tarikh-papar" class="font-bold text-indigo-300"></span></p>
       </div>
 
-      <!-- BUTANG KAWALAN DI PAPARAN (DISSEMBUNYIKAN KETIKA CETAK) -->
-      <div class="flex justify-between items-center bg-slate-900/60 p-3 rounded-2xl border border-slate-800 butang-aksi">
-        <span class="text-xs text-slate-300 font-medium">Paparan rasmi siap untuk dicetak atau dimuat turun sebagai PDF.</span>
-        <div class="flex gap-2">
+      <!-- BUTANG KAWALAN & PILIHAN MOD LAPORAN (MASUK / KELUAR) -->
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800 butang-aksi">
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button id="btn-mod-laporan-masuk" onclick="tukarModLaporanRasmi('MASUK')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all">📥 LAPORAN MASUK</button>
+          <button id="btn-mod-laporan-keluar" onclick="tukarModLaporanRasmi('KELUAR')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all">📤 LAPORAN KELUAR</button>
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto justify-end">
           <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>🖨️</span> Cetak / PDF</button>
           <button onclick="tutupModalLaporanRasmi()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs cursor-pointer">Tutup</button>
         </div>
@@ -237,33 +240,28 @@
           <p class="text-[11px] text-slate-400 uppercase font-semibold">Jumlah Pelajar</p>
           <p id="laporan-stat-total" class="text-xl font-black text-slate-100 mt-1">0</p>
         </div>
-        <div class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-900/50">
+        <div id="kotak-stat-masuk" class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-900/50">
           <p class="text-[11px] text-emerald-400 uppercase font-semibold">Sudah Masuk</p>
           <p id="laporan-stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p>
         </div>
-        <div class="bg-rose-950/40 p-3.5 rounded-2xl border border-rose-900/50">
+        <div id="kotak-stat-keluar" class="bg-rose-950/40 p-3.5 rounded-2xl border border-rose-900/50">
           <p class="text-[11px] text-rose-400 uppercase font-semibold">Keluar / Outing</p>
           <p id="laporan-stat-keluar" class="text-xl font-black text-rose-400 mt-1">0</p>
         </div>
         <div class="bg-indigo-950/40 p-3.5 rounded-2xl border border-indigo-900/50">
-          <p class="text-[11px] text-indigo-400 uppercase font-semibold">Peratus Kehadiran</p>
+          <p class="text-[11px] text-indigo-400 uppercase font-semibold">Peratusan</p>
           <p id="laporan-stat-peratus" class="text-xl font-black text-indigo-300 mt-1">0%</p>
         </div>
       </div>
 
-      <!-- ANALISA MENGIKUT TINGKATAN (TERMASUK BILANGAN BELUM MASUK) -->
+      <!-- ANALISA MENGIKUT TINGKATAN (DINAMIK MENGIKUT MOD) -->
       <div class="space-y-3">
-        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2"><span>📈</span> Ringkasan Analisa, Peratusan & Bilangan Belum Masuk Mengikut Tingkatan</h3>
+        <h3 id="tajuk-jadual-tingkatan" class="font-bold text-sm text-slate-200 flex items-center gap-2"><span>📈</span> Ringkasan Analisa, Peratusan & Bilangan Belum Masuk Mengikut Tingkatan</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse">
             <thead class="bg-slate-900 text-slate-300 uppercase font-bold">
-              <tr>
-                <th class="p-3 border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Jumlah Penghuni</th>
-                <th class="p-3 text-center border border-slate-700">Sudah Masuk</th>
-                <th class="p-3 text-center border border-slate-700">Keluar / Outing</th>
-                <th class="p-3 text-center border border-slate-700 text-rose-400">Belum Masuk</th>
-                <th class="p-3 text-center border border-slate-700 text-indigo-300">Peratus Masuk (%)</th>
+              <tr id="kepala-jadual-tingkatan">
+                <!-- Dijana Dinamik Melalui JS -->
               </tr>
             </thead>
             <tbody id="laporan-jadual-tingkatan" class="divide-y divide-slate-800"></tbody>
@@ -271,8 +269,8 @@
         </div>
       </div>
 
-      <!-- SENARAI NAMA PELAJAR BELUM MENDAFTAR MASUK -->
-      <div class="space-y-3 pt-2">
+      <!-- SENARAI NAMA PELAJAR BELUM MENDAFTAR MASUK (HANYA MUNCUL JIKA MOD MASUK) -->
+      <div id="bahagian-belum-masuk" class="space-y-3 pt-2">
         <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Nama Pelajar Belum Mendaftar Masuk Asrama</h3>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs border-collapse">
@@ -301,7 +299,7 @@
           <div class="space-y-16 text-center sm:text-left">
             <div class="space-y-1">
               <p class="text-xs font-bold text-slate-300 uppercase">Disediakan Oleh:</p>
-              <div class="h-12"></div> <!-- Ruang cop / tandatangan -->
+              <div class="h-12"></div>
               <div class="w-64 border-b border-slate-500 mx-auto sm:mx-0 mb-1"></div>
               <p class="font-bold text-xs text-slate-200">( WARDEN BERTUGAS )</p>
               <p class="text-[11px] text-slate-400">Tarikh: ........................................</p>
@@ -312,7 +310,7 @@
           <div class="space-y-16 text-center sm:text-right">
             <div class="space-y-1">
               <p class="text-xs font-bold text-slate-300 uppercase">Disahkan Oleh:</p>
-              <div class="h-12"></div> <!-- Ruang cop / tandatangan -->
+              <div class="h-12"></div>
               <div class="w-64 border-b border-slate-500 mx-auto sm:ml-auto sm:mr-0 mb-1"></div>
               <p class="font-bold text-xs text-slate-200">( PENOLONG KANAN HAL EHWAL MURID )</p>
               <p class="text-[11px] text-slate-400">Tarikh: ........................................</p>
@@ -340,6 +338,7 @@
   <script>
     let sedangMemproses = false; 
     let statusSemasaArah = "MASUK";
+    let modLaporanRasmi = "MASUK"; // 'MASUK' atau 'KELUAR'
     let dataCacheLogGlobal = [];
     let cacheBelumMasuk = [];
     let cacheStatistikGlobal = null;
@@ -548,29 +547,83 @@
             muatNaikStatistik();
             return;
         }
-        
+        tukarModLaporanRasmi('MASUK'); // Tetapkan default kepada Mod Masuk
+        document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
+    }
+
+    function tukarModLaporanRasmi(mod) {
+        modLaporanRasmi = mod;
+        const btnMasuk = document.getElementById('btn-mod-laporan-masuk');
+        const btnKeluar = document.getElementById('btn-mod-laporan-keluar');
+        const tajukUtama = document.getElementById('tajuk-laporan-utama');
+        const kotakStatMasuk = document.getElementById('kotak-stat-masuk');
+        const kotakStatKeluar = document.getElementById('kotak-stat-keluar');
+        const bahagianBelumMasuk = document.getElementById('bahagian-belum-masuk');
+
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
         document.getElementById('laporan-tarikh-papar').innerText = tarikhPilih;
         document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString();
 
         const kes = cacheStatistikGlobal.keseluruhan || { total: 0, masuk: 0, keluar: 0 };
         document.getElementById('laporan-stat-total').innerText = kes.total;
-        document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
-        document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
 
-        const peratusMasukTotal = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) : 0;
-        document.getElementById('laporan-stat-peratus').innerText = peratusMasukTotal + "%";
+        if (mod === 'MASUK') {
+            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
+            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            tajukUtama.innerText = "LAPORAN RASMI HARIAN KEHADIRAN & PENDAFTARAN MASUK PELAJAR";
+            
+            kotakStatMasuk.classList.remove('hidden');
+            kotakStatKeluar.classList.add('hidden');
+            bahagianBelumMasuk.classList.remove('hidden');
 
-        // Kira bilangan belum masuk mengikut tingkatan secara automatik dari cacheBelumMasuk
+            document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
+            const peratusMasuk = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) : 0;
+            document.getElementById('laporan-stat-peratus').innerText = peratusMasuk + "%";
+        } else {
+            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white cursor-pointer shadow-md transition-all";
+            tajukUtama.innerText = "LAPORAN RASMI HARIAN PERGERAKAN KELUAR / OUTING PELAJAR";
+            
+            kotakStatMasuk.classList.add('hidden');
+            kotakStatKeluar.classList.remove('hidden');
+            bahagianBelumMasuk.classList.add('hidden');
+
+            document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
+            const peratusKeluar = kes.total > 0 ? ((kes.keluar / kes.total) * 100).toFixed(1) : 0;
+            document.getElementById('laporan-stat-peratus').innerText = peratusKeluar + "%";
+        }
+
+        binaJadualAnalisaModal(mod);
+    }
+
+    function binaJadualAnalisaModal(mod) {
         let kiraBelumMasukTing = {};
         cacheBelumMasuk.forEach(p => {
             let t = String(p.tingkatan || "Lain-lain").trim();
             kiraBelumMasukTing[t] = (kiraBelumMasukTing[t] || 0) + 1;
         });
 
-        // Isi Jadual Tingkatan & Peratusan dalam Modal
+        const kepalaJadual = document.getElementById('kepala-jadual-tingkatan');
         const tBodyLaporanTing = document.getElementById('laporan-jadual-tingkatan');
         tBodyLaporanTing.innerHTML = "";
+
+        if (mod === 'MASUK') {
+            kepalaJadual.innerHTML = `
+                <th class="p-3 border border-slate-700">Tingkatan</th>
+                <th class="p-3 text-center border border-slate-700">Jumlah Penghuni</th>
+                <th class="p-3 text-center border border-slate-700">Sudah Masuk</th>
+                <th class="p-3 text-center border border-slate-700 text-rose-400">Belum Masuk</th>
+                <th class="p-3 text-center border border-slate-700 text-indigo-300">Peratus Masuk (%)</th>
+            `;
+        } else {
+            kepalaJadual.innerHTML = `
+                <th class="p-3 border border-slate-700">Tingkatan</th>
+                <th class="p-3 text-center border border-slate-700">Jumlah Penghuni</th>
+                <th class="p-3 text-center border border-slate-700 text-rose-400">Keluar / Outing</th>
+                <th class="p-3 text-center border border-slate-700 text-indigo-300">Peratus Keluar (%)</th>
+            `;
+        }
+
         const ringkasanTing = cacheStatistikGlobal.ringkasanTingkatan || cacheStatistikGlobal.tingkatan || {};
         let listTing = Array.isArray(ringkasanTing) ? ringkasanTing : Object.values(ringkasanTing);
 
@@ -580,44 +633,56 @@
                 const totalTing = stat.total || 0;
                 const masukTing = stat.masuk || 0;
                 const keluarTing = stat.keluar || 0;
-                const belumTing = kiraBelumMasukTing[namaTing] || (totalTing - masukTing - keluarTing >= 0 ? totalTing - masukTing - keluarTing : 0);
-                const peratusTing = totalTing > 0 ? ((masukTing / totalTing) * 100).toFixed(1) : 0;
 
-                tBodyLaporanTing.innerHTML += `
-                    <tr class="hover:bg-slate-900/40">
-                        <td class="p-3 border border-slate-700 font-bold text-slate-200">Tingkatan ${namaTing}</td>
-                        <td class="p-3 border border-slate-700 text-center font-bold">${totalTing}</td>
-                        <td class="p-3 border border-slate-700 text-center text-emerald-400 font-bold">${masukTing}</td>
-                        <td class="p-3 border border-slate-700 text-center text-rose-400 font-bold">${keluarTing}</td>
-                        <td class="p-3 border border-slate-700 text-center text-amber-400 font-black">${belumTing}</td>
-                        <td class="p-3 border border-slate-700 text-center text-indigo-300 font-black">${peratusTing}%</td>
-                    </tr>
-                `;
+                if (mod === 'MASUK') {
+                    const belumTing = kiraBelumMasukTing[namaTing] || (totalTing - masukTing - keluarTing >= 0 ? totalTing - masukTing - keluarTing : 0);
+                    const peratusTing = totalTing > 0 ? ((masukTing / totalTing) * 100).toFixed(1) : 0;
+                    tBodyLaporanTing.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-3 border border-slate-700 font-bold text-slate-200">Tingkatan ${namaTing}</td>
+                            <td class="p-3 border border-slate-700 text-center font-bold">${totalTing}</td>
+                            <td class="p-3 border border-slate-700 text-center text-emerald-400 font-bold">${masukTing}</td>
+                            <td class="p-3 border border-slate-700 text-center text-amber-400 font-black">${belumTing}</td>
+                            <td class="p-3 border border-slate-700 text-center text-indigo-300 font-black">${peratusTing}%</td>
+                        </tr>
+                    `;
+                } else {
+                    const peratusTingKeluar = totalTing > 0 ? ((keluarTing / totalTing) * 100).toFixed(1) : 0;
+                    tBodyLaporanTing.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-3 border border-slate-700 font-bold text-slate-200">Tingkatan ${namaTing}</td>
+                            <td class="p-3 border border-slate-700 text-center font-bold">${totalTing}</td>
+                            <td class="p-3 border border-slate-700 text-center text-rose-400 font-bold">${keluarTing}</td>
+                            <td class="p-3 border border-slate-700 text-center text-indigo-300 font-black">${peratusTingKeluar}%</td>
+                        </tr>
+                    `;
+                }
             });
         } else {
-            tBodyLaporanTing.innerHTML = `<tr><td colspan="6" class="p-3 text-center text-slate-500 italic border border-slate-700">Tiada data tingkatan.</td></tr>`;
+            const colSpanVal = mod === 'MASUK' ? 5 : 4;
+            tBodyLaporanTing.innerHTML = `<tr><td colspan="${colSpanVal}" class="p-3 text-center text-slate-500 italic border border-slate-700">Tiada data tingkatan.</td></tr>`;
         }
 
-        // Isi Senarai Belum Masuk dalam Modal
-        const tBodyLaporanBelum = document.getElementById('laporan-jadual-belum-masuk');
-        tBodyLaporanBelum.innerHTML = "";
-        if (cacheBelumMasuk.length > 0) {
-            cacheBelumMasuk.forEach((p, index) => {
-                tBodyLaporanBelum.innerHTML += `
-                    <tr class="hover:bg-slate-900/40">
-                        <td class="p-3 border border-slate-700 text-center text-slate-400 font-mono">${index + 1}</td>
-                        <td class="p-3 border border-slate-700 font-medium text-slate-200">${p.nama}</td>
-                        <td class="p-3 border border-slate-700 text-center text-slate-300">${p.tingkatan}</td>
-                        <td class="p-3 border border-slate-700 text-center text-indigo-400 font-semibold">${p.dorm}</td>
-                        <td class="p-3 border border-slate-700 text-center text-rose-400 font-semibold">${p.statusTerakhir}</td>
-                    </tr>
-                `;
-            });
-        } else {
-            tBodyLaporanBelum.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-400 font-semibold border border-slate-700">Tahniah! Semua pelajar telah mendaftar masuk.</td></tr>`;
+        // Isi Senarai Belum Masuk dalam Modal (Hanya jika mod Masuk)
+        if (mod === 'MASUK') {
+            const tBodyLaporanBelum = document.getElementById('laporan-jadual-belum-masuk');
+            tBodyLaporanBelum.innerHTML = "";
+            if (cacheBelumMasuk.length > 0) {
+                cacheBelumMasuk.forEach((p, index) => {
+                    tBodyLaporanBelum.innerHTML += `
+                        <tr class="hover:bg-slate-900/40">
+                            <td class="p-3 border border-slate-700 text-center text-slate-400 font-mono">${index + 1}</td>
+                            <td class="p-3 border border-slate-700 font-medium text-slate-200">${p.nama}</td>
+                            <td class="p-3 border border-slate-700 text-center text-slate-300">${p.tingkatan}</td>
+                            <td class="p-3 border border-slate-700 text-center text-indigo-400 font-semibold">${p.dorm}</td>
+                            <td class="p-3 border border-slate-700 text-center text-rose-400 font-semibold">${p.statusTerakhir}</td>
+                        </tr>
+                    `;
+                });
+            } else {
+                tBodyLaporanBelum.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-emerald-400 font-semibold border border-slate-700">Tahniah! Semua pelajar telah mendaftar masuk.</td></tr>`;
+            }
         }
-
-        document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
     }
 
     function tutupModalLaporanRasmi() {
