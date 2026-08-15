@@ -591,6 +591,13 @@
         }
     }
 
+   Ralat pada paparan tersebut menunjukkan **`[object Object]`** di bahagian kotak **JUMLAH**.
+
+Ini berlaku kerana fungsi `muatNaikStatistik()` memasukkan objek JSON penuh (`data`) ke dalam elemen HTML imbas jumlah, bukannya memaparkan nilai nombor ringkasan tertentu (contohnya `data.keseluruhan`).
+
+Berikut adalah **kod fungsi `muatNaikStatistik` yang telah dibetulkan** (salin fungsi ini dan gantikan fungsi lama di dalam kod anda):
+
+```javascript
     function muatNaikStatistik() {
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
         fetch(urlAPI + "?tarikh=" + tarikhPilih)
@@ -598,12 +605,19 @@
         .then(data => {
             if(data.error) return;
             cacheStatistikGlobal = data;
-            document.getElementById('stat-total').innerText = data.keseluruhan || 0;
+            // Pastikan kita ambil nilai nombor spesifik (cth: data.keseluruhan atau data.total)
+            document.getElementById('stat-total').innerText = data.keseluruhan !== undefined ? data.keseluruhan : (data.total || 0);
             document.getElementById('stat-masuk').innerText = data.masuk || 0;
             document.getElementById('stat-keluar').innerText = data.keluar || 0;
+            document.getElementById('stat-baki-masuk').innerText = data.bakiMasuk || 0;
+            document.getElementById('stat-baki-keluar').innerText = data.bakiKeluar || 0;
         })
         .catch(err => console.log("Gagal muat statistik:", err));
     }
+
+```
+
+Tukar bahagian fungsi tersebut sahaja dan ralat `[object Object]` akan hilang serta-merta.
 
     function cekQueueOffline() {}
     function eksportLogExcel() {}
