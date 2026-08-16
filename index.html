@@ -192,7 +192,7 @@
         <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
       </div>
 
-      <!-- KOTAK SEMAKAN STATUS PELAJAR (PANTAS, NAMA & NO ID) -->
+      <!-- KOTAK SEMAKAN STATUS PELAJAR -->
       <div class="cyber-card p-5 rounded-3xl shadow-2xl space-y-4">
         <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 flex items-center gap-2">
           <span>🔍</span> Semak Status Pelajar (Cari Nama / No ID)
@@ -482,7 +482,6 @@
       }
     }
 
-    // FUNGSI CARIAN PANTAS MERANGKUMI NAMA & NO ID (BELUM MASUK & SUDAH MASUK)
     function cariPelajar(keyword) {
         const container = document.getElementById('hasil-carian-container');
         const query = keyword.trim().toLowerCase();
@@ -493,16 +492,11 @@
         }
 
         let senaraiGabungan = [];
-        
         if (typeof cacheBelumMasuk !== 'undefined') {
-            cacheBelumMasuk.forEach(p => {
-                senaraiGabungan.push({ ...p, status: 'BELUM MASUK' });
-            });
+            cacheBelumMasuk.forEach(p => { senaraiGabungan.push({ ...p, status: 'BELUM MASUK' }); });
         }
         if (typeof cacheSudahMasuk !== 'undefined') {
-            cacheSudahMasuk.forEach(p => {
-                senaraiGabungan.push({ ...p, status: 'SUDAH MASUK' });
-            });
+            cacheSudahMasuk.forEach(p => { senaraiGabungan.push({ ...p, status: 'SUDAH MASUK' }); });
         }
 
         const hasil = senaraiGabungan.filter(p => 
@@ -589,118 +583,137 @@
 
             if (data.sudahMasuk) {
                 cacheSudahMasuk = data.sudahMasuk;
-            } else {
-                cacheSudahMasuk = [];
             }
         })
-        .catch(err => console.error("Ralat Statistik:", err));
+        .catch(err => console.error("Ralat muat statistik:", err));
     }
 
     function prosesPenghantaranData(idPelajar) {
         if (sedangMemproses) return;
         sedangMemproses = true;
 
-        const checkboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
+        const kesalahanCheckboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
         let senaraiKesalahan = [];
-        checkboxes.forEach((cb) => {
+        kesalahanCheckboxes.forEach(cb => {
             senaraiKesalahan.push(cb.value);
-            cb.checked = false; 
+            cb.checked = false; // Reset selepas hantar
         });
+        const catatanKesalahan = senaraiKesalahan.length > 0 ? senaraiKesalahan.join(', ') : '';
 
-        const urlTerus = `${urlAPI}?action=scan&id=${encodeURIComponent(idPelajar)}&arah=${encodeURIComponent(statusSemasaArah)}&kesalahan=${encodeURIComponent(senaraiKesalahan.join(", "))}`;
+        const tarikhRujukan = document.getElementById('pilih-tarikh').value;
+        const payload = {
+            id: idPelajar,
+            arah: statusSemasaArah,
+            tarikh: tarikhRujukan,
+            catatan: catatanKesalahan
+        };
 
         if (!navigator.onLine) {
-            simpanKeQueueOffline({ id: idPelajar, arahPergerakan: statusSemasaArah, kesalahan: senaraiKesalahan });
+            simpanQueueOffline(payload);
+            tunjukNotifikasi("Mod Luar Talian: Data disimpan dalam simpanan peranti.", "AMARAN");
             sedangMemproses = false;
             return;
         }
 
-        fetch(urlTerus)
-        .then(res => res.json())
-        .then(resData => {
-            if (resData.status === "SUCCESS") {
-                paparNotifikasiBerjayaDiterima(idPelajar, resData.nama, resData.dorm, statusSemasaArah);
-            } else {
-                paparNotifikasiBerjayaDiterima(idPelajar, "TIDAK DIKENALI", "-", statusSemasaArah);
-            }
-            muatNaikStatistik();
-            setTimeout(() => { sedangMemproses = false; }, 1500);
+        fetch(urlAPI, {
+            method: 'POST',
+            body: JSON.stringify(payload),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
         })
-        .catch(() => {
-            paparNotifikasiBerjayaDiterima(idPelajar, "GAGAL DIHUBUNGI", "-", statusSemasaArah);
+        .then(res => res.json())
+        .then(response => {
+            if (response.success) {
+                tunjukInfoPelajar(response.pelajar, statusSemasaArah);
+                tunjukNotifikasi(response.mesej || "Berjaya direkodkan!", "BERJAYA");
+                lancarConfetti();
+                muatNaikStatistik();
+            } else {
+                tunjukNotifikasi(response.mesej || "Ralat rekod.", "GAGAL");
+                mainkanBunyi('GAGAL');
+            }
+            sedangMemproses = false;
+        })
+        .catch(err => {
+            simpanQueueOffline(payload);
+            tunjukNotifikasi("Sambutan terganggu. Disimpan secara luar talian.", "AMARAN");
             sedangMemproses = false;
         });
     }
 
-    function paparNotifikasiBerjayaDiterima(id, namaPelajar, dormPelajar, arah) {
-        const badge = document.getElementById("notifikasi-badge");
-        const kotakInfo = document.getElementById("kotak-maklumat");
+    function tunjukInfoPelajar(pelajar, arah) {
+        const kotak = document.getElementById("kotak-maklumat");
+        kotak.classList.remove("hidden");
+        document.getElementById("data-nama").innerText = pelajar.nama || "-";
+        document.getElementById("data-dorm").innerText = `Tingkatan ${pelajar.tingkatan || '-'} | Dorm: ${pelajar.dorm || '-'}`;
         
-        badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-500 text-slate-950 block animate-bounce";
-        badge.innerText = `BERJAYA DIREKOD (${arah})!`;
-        
-        kotakInfo.classList.remove("hidden");
-        document.getElementById("data-nama").innerText = namaPelajar;
-        document.getElementById("data-dorm").innerText = "Dorm: " + dormPelajar + " | ID: " + id;
-        document.getElementById("data-status").innerText = arah;
-        document.getElementById("data-status").className = arah === 'MASUK' ? "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-emerald-600 text-white" : "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-red-600 text-white";
-
-        lancarConfetti();
-
-        setTimeout(() => {
-            badge.classList.add("hidden");
-        }, 4000);
+        const statusEl = document.getElementById("data-status");
+        if (arah === 'MASUK') {
+            statusEl.innerText = "MASUK ASRAMA";
+            statusEl.className = "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-emerald-950 text-emerald-400 border border-emerald-800";
+        } else {
+            statusEl.innerText = "BALIK / OUTING";
+            statusEl.className = "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-rose-950 text-rose-400 border border-rose-800";
+        }
     }
 
-    function simpanKeQueueOffline(data) {
-        let queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+    function tunjukNotifikasi(mesej, jenis) {
+        const badge = document.getElementById("notifikasi-badge");
+        badge.classList.remove("hidden");
+        badge.innerText = mesej;
+        if (jenis === 'BERJAYA') {
+            badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-600 text-white animate-bounce";
+        } else if (jenis === 'AMARAN') {
+            badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-amber-500 text-slate-950";
+        } else {
+            badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-rose-600 text-white";
+        }
+        setTimeout(() => { badge.classList.add("hidden"); }, 4000);
+    }
+
+    function simpanQueueOffline(data) {
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
         queue.push(data);
-        localStorage.setItem('offlineQueue', JSON.stringify(queue));
+        localStorage.setItem('hostelQueue', JSON.stringify(queue));
         cekQueueOffline();
-        alert("Mod Luar Talian: Data disimpan dalam peranti.");
-        sedangMemproses = false;
     }
 
     function cekQueueOffline() {
-        let queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
         const bar = document.getElementById('bar-status-offline');
+        const countSpan = document.getElementById('jumlah-queue');
         if (queue.length > 0) {
             bar.classList.remove('hidden');
-            document.getElementById('jumlah-queue').innerText = queue.length;
+            countSpan.innerText = queue.length;
         } else {
             bar.classList.add('hidden');
         }
     }
 
     function syncDataOffline() {
-        let queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
+        let queue = JSON.parse(localStorage.getItem('hostelQueue') || '[]');
         if (queue.length === 0) return;
-        alert("Sedang menyelaraskan data luar talian...");
-        localStorage.removeItem('offlineQueue');
-        cekQueueOffline();
-        muatNaikStatistik();
+        
+        tunjukNotifikasi("Menyelaras data luar talian...", "AMARAN");
+        fetch(urlAPI, {
+            method: 'POST',
+            body: JSON.stringify({ batch: queue }),
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+        })
+        .then(res => res.json())
+        .then(res => {
+            localStorage.removeItem('hostelQueue');
+            cekQueueOffline();
+            tunjukNotifikasi("Sinkronisasi berjaya!", "BERJAYA");
+            muatNaikStatistik();
+        })
+        .catch(() => tunjukNotifikasi("Gagal sync. Cuba lagi nanti.", "GAGAL"));
     }
 
     function bukaModalLaporanRasmi() {
-        const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
-        document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString();
-        
-        if (cacheStatistikGlobal) {
-            document.getElementById('laporan-stat-total').innerText = cacheStatistikGlobal.keseluruhan.total || 0;
-            document.getElementById('laporan-stat-masuk').innerText = cacheStatistikGlobal.keseluruhan.masuk || 0;
-            document.getElementById('laporan-stat-keluar').innerText = cacheStatistikGlobal.keseluruhan.keluar || 0;
-            
-            let total = cacheStatistikGlobal.keseluruhan.total || 0;
-            let masuk = cacheStatistikGlobal.keseluruhan.masuk || 0;
-            let peratus = total > 0 ? ((masuk / total) * 100).toFixed(1) + '%' : '0%';
-            document.getElementById('laporan-stat-peratus').innerText = peratus;
-
-            renderJadualLaporanRasmiTingkatan(cacheStatistikGlobal.tingkatan);
-            renderJadualLaporanRasmiBelumMasuk(cacheBelumMasuk);
-        }
-        
         document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
+        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(document.getElementById('pilih-tarikh').value);
+        document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString();
+        muatDataLaporanRasmi();
     }
 
     function tutupModalLaporanRasmi() {
@@ -712,117 +725,162 @@
         const btnMasuk = document.getElementById('btn-mod-laporan-masuk');
         const btnKeluar = document.getElementById('btn-mod-laporan-keluar');
         const tajukUtama = document.getElementById('tajuk-laporan-utama');
-        const bahagianBelumMasuk = document.getElementById('bahagian-belum-masuk');
 
         if (mod === 'MASUK') {
             btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
             btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
             tajukUtama.innerText = "LAPORAN RASMI PENDAFTARAN MASUK PELAJAR";
-            bahagianBelumMasuk.style.display = "block";
         } else {
             btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
-            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-red-600 text-white cursor-pointer shadow-md transition-all";
+            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white cursor-pointer shadow-md transition-all";
             tajukUtama.innerText = "LAPORAN RASMI KELUAR / OUTING PELAJAR";
-            bahagianBelumMasuk.style.display = "none";
         }
-        if (cacheStatistikGlobal) renderJadualLaporanRasmiTingkatan(cacheStatistikGlobal.tingkatan);
+        muatDataLaporanRasmi();
     }
 
-    function renderJadualLaporanRasmiTingkatan(dataTingkatan) {
+    function muatDataLaporanRasmi() {
+        if (!cacheStatistikGlobal) return;
+        const data = cacheStatistikGlobal;
+        const kes = data.keseluruhan || { total: 0, masuk: 0, keluar: 0 };
+
+        document.getElementById('laporan-stat-total').innerText = kes.total;
+        document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
+        document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
+
+        const peratus = kes.total > 0 ? Math.round((kes.masuk / kes.total) * 100) : 0;
+        document.getElementById('laporan-stat-peratus').innerText = peratus + "%";
+
         const kepala = document.getElementById('kepala-jadual-tingkatan');
-        const tbody = document.getElementById('laporan-jadual-tingkatan');
-        kepala.innerHTML = "";
-        tbody.innerHTML = "";
-        if (!dataTingkatan) return;
+        const tbodyTing = document.getElementById('laporan-jadual-tingkatan');
 
         if (modLaporanRasmi === 'MASUK') {
             kepala.innerHTML = `
                 <th class="p-3 border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Jumlah Asrama</th>
+                <th class="p-3 text-center border border-slate-700">Jumlah</th>
                 <th class="p-3 text-center border border-slate-700">Sudah Masuk</th>
-                <th class="p-3 text-center border border-slate-700">Baki Belum Masuk</th>
-                <th class="p-3 text-center border border-slate-700">Peratusan (%)</th>
+                <th class="p-3 text-center border border-slate-700">Belum Masuk</th>
+                <th class="p-3 text-center border border-slate-700">Peratusan</th>
             `;
-            for (const [ting, info] of Object.entries(dataTingkatan)) {
-                let total = info.total || 0;
-                let masuk = info.masuk || 0;
-                let baki = Math.max(0, total - masuk);
-                let peratus = total > 0 ? ((masuk / total) * 100).toFixed(1) + '%' : '0%';
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 border border-slate-700 font-bold">Tingkatan ${ting}</td>
-                        <td class="p-3 border border-slate-700 text-center">${total}</td>
-                        <td class="p-3 border border-slate-700 text-center text-emerald-400 font-bold">${masuk}</td>
-                        <td class="p-3 border border-slate-700 text-center text-orange-400 font-bold">${baki}</td>
-                        <td class="p-3 border border-slate-700 text-center font-bold">${peratus}</td>
-                    </tr>
-                `;
+            tbodyTing.innerHTML = "";
+            if (data.tingkatan) {
+                for (const [ting, info] of Object.entries(data.tingkatan)) {
+                    const t = info.total || 0;
+                    const m = info.masuk || 0;
+                    const b = Math.max(0, t - m);
+                    const p = t > 0 ? Math.round((m / t) * 100) : 0;
+                    tbodyTing.innerHTML += `
+                        <tr>
+                            <td class="p-3 border border-slate-700 font-bold">Tingkatan ${ting}</td>
+                            <td class="p-3 text-center border border-slate-700">${t}</td>
+                            <td class="p-3 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
+                            <td class="p-3 text-center border border-slate-700 text-orange-400 font-bold">${b}</td>
+                            <td class="p-3 text-center border border-slate-700 font-bold text-indigo-300">${p}%</td>
+                        </tr>
+                    `;
+                }
             }
         } else {
             kepala.innerHTML = `
                 <th class="p-3 border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Jumlah Asrama</th>
+                <th class="p-3 text-center border border-slate-700">Jumlah</th>
                 <th class="p-3 text-center border border-slate-700">Keluar / Outing</th>
-                <th class="p-3 text-center border border-slate-700">Peratusan Keluar (%)</th>
+                <th class="p-3 text-center border border-slate-700">Peratusan Keluar</th>
             `;
-            for (const [ting, info] of Object.entries(dataTingkatan)) {
-                let total = info.total || 0;
-                let keluar = info.keluar || 0;
-                let peratus = total > 0 ? ((keluar / total) * 100).toFixed(1) + '%' : '0%';
-                tbody.innerHTML += `
+            tbodyTing.innerHTML = "";
+            if (data.tingkatan) {
+                for (const [ting, info] of Object.entries(data.tingkatan)) {
+                    const t = info.total || 0;
+                    const k = info.keluar || 0;
+                    const p = t > 0 ? Math.round((k / t) * 100) : 0;
+                    tbodyTing.innerHTML += `
+                        <tr>
+                            <td class="p-3 border border-slate-700 font-bold">Tingkatan ${ting}</td>
+                            <td class="p-3 text-center border border-slate-700">${t}</td>
+                            <td class="p-3 text-center border border-slate-700 text-rose-400 font-bold">${k}</td>
+                            <td class="p-3 text-center border border-slate-700 font-bold text-indigo-300">${p}%</td>
+                        </tr>
+                    `;
+                }
+            }
+        }
+
+        const tbodyBelum = document.getElementById('laporan-jadual-belum-masuk');
+        tbodyBelum.innerHTML = "";
+        if (data.belumMasuk && data.belumMasuk.length > 0) {
+            document.getElementById('bahagian-belum-masuk').style.display = 'block';
+            data.belumMasuk.forEach((m, idx) => {
+                tbodyBelum.innerHTML += `
                     <tr>
-                        <td class="p-3 border border-slate-700 font-bold">Tingkatan ${ting}</td>
-                        <td class="p-3 border border-slate-700 text-center">${total}</td>
-                        <td class="p-3 border border-slate-700 text-center text-rose-400 font-bold">${keluar}</td>
-                        <td class="p-3 border border-slate-700 text-center font-bold">${peratus}</td>
+                        <td class="p-3 border border-slate-700 text-center">${idx + 1}</td>
+                        <td class="p-3 border border-slate-700 font-bold">${m.nama}</td>
+                        <td class="p-3 text-center border border-slate-700">${m.tingkatan}</td>
+                        <td class="p-3 text-center border border-slate-700 text-indigo-300 font-semibold">${m.dorm}</td>
+                        <td class="p-3 text-center border border-slate-700 text-rose-400 font-bold">BELUM MASUK</td>
                     </tr>
                 `;
-            }
+            });
+        } else {
+            document.getElementById('bahagian-belum-masuk').style.display = 'none';
         }
     }
 
-    function renderJadualLaporanRasmiBelumMasuk(dataBelumMasuk) {
-        const tbody = document.getElementById('laporan-jadual-belum-masuk');
-        tbody.innerHTML = "";
-        if (!dataBelumMasuk || dataBelumMasuk.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400">Tiada rekod pelajar belum masuk.</td></tr>`;
+    function eksportKeExcel() {
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            tunjukNotifikasi("Tiada senarai pelajar belum masuk untuk dieksport.", "AMARAN");
             return;
         }
-        dataBelumMasuk.forEach((m, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td class="p-3 border border-slate-700 text-center">${index + 1}</td>
-                    <td class="p-3 border border-slate-700 font-bold">${m.nama}</td>
-                    <td class="p-3 border border-slate-700 text-center">Tingkatan ${m.tingkatan}</td>
-                    <td class="p-3 border border-slate-700 text-center">${m.dorm}</td>
-                    <td class="p-3 border border-slate-700 text-center text-rose-400 font-bold">BELUM MASUK</td>
-                </tr>
-            `;
+        let csv = "Bil,Nama Pelajar,Tingkatan,Dorm,Status\n";
+        cacheBelumMasuk.forEach((m, i) => {
+            csv += `${i+1},"${m.nama}",${m.tingkatan},"${m.dorm}","BELUM MASUK"\n`;
         });
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.setAttribute("download", `Senarai_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    function eksportKePDF() {
+        bukaModalLaporanRasmi();
+        setTimeout(() => { window.print(); }, 500);
     }
 
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
         const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        
         if (chartInstance) chartInstance.destroy();
         
+        let labelTingkatan = [];
+        let dataMasuk = [];
+        let dataKeluar = [];
+
+        if (cacheStatistikGlobal && cacheStatistikGlobal.tingkatan) {
+            for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+                labelTingkatan.push(`Ting ${ting}`);
+                dataMasuk.push(info.masuk || 0);
+                dataKeluar.push(info.keluar || 0);
+            }
+        }
+
         chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Ting 1', 'Ting 2', 'Ting 3', 'Ting 4', 'Ting 5'],
-                datasets: [{
-                    label: 'Kehadiran Masuk',
-                    data: [12, 19, 15, 17, 22],
-                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
-                    borderColor: 'rgba(16, 185, 129, 1)',
-                    borderWidth: 1
-                }]
+                labels: labelTingkatan,
+                datasets: [
+                    { label: 'Masuk', data: dataMasuk, backgroundColor: '#10b981' },
+                    { label: 'Keluar', data: dataKeluar, backgroundColor: '#f43f5e' }
+                ]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                plugins: { legend: { labels: { color: '#cbd5e1' } } },
                 scales: {
-                    y: { beginAtZero: true }
+                    x: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#cbd5e1' }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
@@ -830,14 +888,6 @@
 
     function tutupGrafModal() {
         document.getElementById('modal-graf').classList.add('hidden');
-    }
-
-    function eksportKeExcel() {
-        alert("Eksport data ke Excel sedang diproses...");
-    }
-
-    function eksportKePDF() {
-        bukaModalLaporanRasmi();
     }
   </script>
 </body>
