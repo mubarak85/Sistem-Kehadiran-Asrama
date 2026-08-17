@@ -187,7 +187,8 @@
         <div class="grid grid-cols-3 gap-3 text-center mb-3">
           <div class="bg-slate-950/60 p-3 rounded-2xl border border-slate-800"><p class="text-[11px] text-slate-500 uppercase font-semibold">Jumlah</p><p id="stat-total" class="text-xl font-black text-slate-200 mt-1">0</p></div>
           <div class="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-900/50"><p class="text-[11px] text-emerald-400 uppercase font-semibold">Masuk</p><p id="stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p></div>
-          <div class="bg-rose-950/40 p-3 rounded-2xl border border-rose-900/50"><p class="text-[11px] text-rose-400 uppercase font-semibold">Keluar</p><p id="stat-keluar" class="text-xl font-black text-rose-400 mt-1">0</p></div>
+          <!-- Diubah daripada 'Keluar' kepada 'Baki Masuk' dengan tema warna oren selaras -->
+          <div class="bg-orange-950/40 p-3 rounded-2xl border border-orange-900/50"><p class="text-[11px] text-orange-400 uppercase font-semibold">Baki Masuk</p><p id="stat-keluar" class="text-xl font-black text-orange-400 mt-1">0</p></div>
         </div>
       </div>
 
@@ -614,34 +615,34 @@
         dataBelum.forEach((p, index) => {
             tbody.innerHTML += `
                 <tr>
-                    <td class="p-2 border border-slate-700 text-center">${index + 1}</td>
-                    <td class="p-2 border border-slate-700">${p.nama || '-'}</td>
-                    <td class="p-2 border border-slate-700 text-center">${p.tingkatan || '-'}</td>
-                    <td class="p-2 border border-slate-700 text-center">${p.dorm || '-'}</td>
-                    <td class="p-2 border border-slate-700 text-center text-rose-400 font-bold">Belum Masuk</td>
+                    <td class="p-2.5 border border-slate-700 text-center">${index + 1}</td>
+                    <td class="p-2.5 border border-slate-700 font-bold">${p.nama}</td>
+                    <td class="p-2.5 border border-slate-700 text-center">${p.tingkatan}</td>
+                    <td class="p-2.5 border border-slate-700 text-center">${p.dorm}</td>
+                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">${p.status}</td>
                 </tr>
             `;
         });
     }
 
     function tapisSenaraiBelumMasuk() {
-        const keyword = document.getElementById('carian-pelajar').value.toLowerCase();
+        const kataKunci = document.getElementById('carian-pelajar').value.toLowerCase();
         const senaraiTapis = cacheBelumMasuk.filter(p => 
-            (p.nama && p.nama.toLowerCase().includes(keyword)) || 
-            (p.dorm && p.dorm.toLowerCase().includes(keyword)) ||
-            (p.tingkatan && p.tingkatan.toLowerCase().includes(keyword))
+            p.nama.toLowerCase().includes(kataKunci) || 
+            p.dorm.toLowerCase().includes(kataKunci) ||
+            p.tingkatan.toLowerCase().includes(kataKunci)
         );
         renderSenaraiBelumMasuk(senaraiTapis);
     }
 
     function eksportKeExcel() {
-        if (!cacheStatistikGlobal || !cacheBelumMasuk) {
-            alert("Data belum dimuat penuh.");
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            alert("Tiada data untuk dieksport.");
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\n";
+        let csvContent = "data:text/csv;charset=utf-8,Bil,ID Pelajar,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
         cacheBelumMasuk.forEach((p, index) => {
-            csvContent += `${index + 1},"${p.nama || '-'}","${p.tingkatan || '-'}","${p.dorm || '-'}",Belum Masuk\n`;
+            csvContent += `${index + 1},"${p.id}","${p.nama}","${p.tingkatan}","${p.dorm}","${p.status}"\r\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -654,32 +655,32 @@
 
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
-        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-        if (chartTrendInstance) chartTrendInstance.destroy();
-        
-        chartTrendInstance = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
-                datasets: [{
-                    label: 'Kehadiran Masuk',
-                    data: [120, 150, 180, 200, 250, 90, 310],
-                    borderColor: '#6366f1',
-                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
-                    fill: true,
-                    tension: 0.3
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { labels: { color: '#cbd5e1' } } },
-                scales: {
-                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+        if (!chartTrendInstance) {
+            const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+            chartTrendInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
+                    datasets: [{
+                        label: 'Kehadiran Masuk',
+                        data: [120, 250, 400, 550, 680, 705, 709],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                    scales: {
+                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     function tutupGrafModal() {
