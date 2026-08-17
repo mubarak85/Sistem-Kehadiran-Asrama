@@ -393,7 +393,7 @@
         btnKeluar.className = "w-full py-2.5 rounded-2xl font-bold text-sm bg-red-600 text-white shadow-lg shadow-red-600/30 text-center cursor-pointer transition-all transform active:scale-95";
         document.getElementById("tajuk-kolum-dinamik").innerText = "Keluar";
       }
-      if(cacheStatistikGlobal && cacheStatistikGlobal.tingkatan) renderRingkasanTingkatan(cacheStatistikGlobal.tingkatan);
+      if(cacheStatistikGlobal) renderRingkasanTingkatan(cacheStatistikGlobal.tingkatan);
     }
     
     let timerTaip;
@@ -505,9 +505,7 @@
             document.getElementById('stat-masuk').innerText = data.keseluruhan ? data.keseluruhan.masuk : 0;
             document.getElementById('stat-keluar').innerText = data.keseluruhan ? Math.max(0, data.keseluruhan.total - data.keseluruhan.masuk) : 0;
             
-            if (data.tingkatan) {
-                renderRingkasanTingkatan(data.tingkatan);
-            }
+            renderRingkasanTingkatan(data.tingkatan);
 
             if (data.belumMasuk) {
                 cacheBelumMasuk = data.belumMasuk;
@@ -577,23 +575,21 @@
         `;
         tbody.innerHTML = "";
 
-        if (cacheStatistikGlobal.tingkatan) {
-            for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
-                const t = info.total || 0;
-                const m = info.masuk || 0;
-                const baki = Math.max(0, t - m);
-                const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
-                        <td class="p-2.5 text-center border border-slate-700">${t}</td>
-                        <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
-                        <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
-                        <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
-                    </tr>
-                `;
-            }
+        for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+            const t = info.total || 0;
+            const m = info.masuk || 0;
+            const baki = Math.max(0, t - m);
+            const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
+                    <td class="p-2.5 text-center border border-slate-700">${t}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
+                    <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
+                </tr>
+            `;
         }
         renderSenaraiBelumMasuk(cacheBelumMasuk);
     }
@@ -609,48 +605,84 @@
             tbody.innerHTML += `
                 <tr>
                     <td class="p-2.5 border border-slate-700 text-center">${index + 1}</td>
-                    <td class="p-2.5 border border-slate-700 font-semibold">${p.nama || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center">Tingkatan ${p.tingkatan || '-'}</td>
+                    <td class="p-2.5 border border-slate-700 font-semibold">${p.nama}</td>
+                    <td class="p-2.5 border border-slate-700 text-center">Tingkatan ${p.tingkatan}</td>
                     <td class="p-2.5 border border-slate-700 text-center">${p.dorm || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">${p.status || 'Belum Masuk'}</td>
+                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">${p.status}</td>
                 </tr>
             `;
         });
     }
 
     function tapisSenaraiBelumMasuk() {
-        const carian = document.getElementById('carian-pelajar').value.toLowerCase();
-        const senaraiTapis = cacheBelumMasuk.filter(p => 
-            (p.nama && p.nama.toLowerCase().includes(carian)) || 
-            (p.dorm && p.dorm.toLowerCase().includes(carian)) ||
-            (p.tingkatan && p.tingkatan.toString().toLowerCase().includes(carian))
+        const keyword = document.getElementById('carian-pelajar').value.toLowerCase();
+        const ditapis = cacheBelumMasuk.filter(p => 
+            p.nama.toLowerCase().includes(keyword) || 
+            (p.dorm && p.dorm.toLowerCase().includes(keyword)) ||
+            p.tingkatan.toLowerCase().includes(keyword)
         );
-        renderSenaraiBelumMasuk(senaraiTapis);
-    }
-
-    function bukaGrafModal() {
-        document.getElementById('modal-graf').classList.remove('hidden');
-        // Logik paparan chart.js jika diperlukan
-    }
-
-    function tutupGrafModal() {
-        document.getElementById('modal-graf').classList.add('hidden');
+        renderSenaraiBelumMasuk(ditapis);
     }
 
     function eksportKeExcel() {
-        if (!cacheBelumMasuk) return;
-        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama,Tingkatan,Dorm,Status\r\n";
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            alert("Tiada data untuk dieksport.");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
         cacheBelumMasuk.forEach((p, index) => {
-            let row = [index + 1, `"${p.nama || ''}"`, p.tingkatan || '', `"${p.dorm || ''}"`, `"${p.status || ''}"`];
-            csvContent += row.join(",") + "\r\n";
+            csvContent += `${index + 1},"${p.nama}","${p.tingkatan}","${p.dorm || '-'}","${p.status}"\r\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "laporan_belum_masuk.csv");
+        link.setAttribute("download", `Laporan_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    function bukaGrafModal() {
+        document.getElementById('modal-graf').classList.remove('hidden');
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (chartTrendInstance) chartTrendInstance.destroy();
+        
+        let labelTingkatan = [];
+        let dataMasukTingkatan = [];
+        if (cacheStatistikGlobal && cacheStatistikGlobal.tingkatan) {
+            for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+                labelTingkatan.push(`Ting ${ting}`);
+                dataMasukTingkatan.push(info.masuk || 0);
+            }
+        }
+        
+        chartTrendInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelTingkatan,
+                datasets: [{
+                    label: 'Pelajar Masuk Mengikut Tingkatan',
+                    data: dataMasukTingkatan,
+                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: { legend: { labels: { color: '#f8fafc' } } }
+            }
+        });
+    }
+
+    function tutupGrafModal() {
+        document.getElementById('modal-graf').classList.add('hidden');
     }
   </script>
 </body>
