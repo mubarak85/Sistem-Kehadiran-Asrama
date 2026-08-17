@@ -469,8 +469,9 @@
         setTimeout(() => { badge.classList.add('hidden'); }, 3000);
     }
 
-    function renderRingkasanTingkatan(dataTingkatan) {
+function renderRingkasanTingkatan(dataTingkatan) {
         const tbody = document.getElementById("jadual-tingkatan");
+        if (!tbody) return;
         tbody.innerHTML = "";
         if (!dataTingkatan) return;
 
@@ -508,14 +509,21 @@
             if(data.error) return;
             cacheStatistikGlobal = data;
             
-            document.getElementById('stat-total').innerText = data.keseluruhan ? data.keseluruhan.total : 0;
-            document.getElementById('stat-masuk').innerText = data.keseluruhan ? data.keseluruhan.masuk : 0;
-            document.getElementById('stat-keluar').innerText = data.keseluruhan ? Math.max(0, data.keseluruhan.total - data.keseluruhan.masuk) : 0;
+            // Kemas kini paparan statistik utama pada dashboard
+            const totalPelajar = data.keseluruhan ? data.keseluruhan.total : 0;
+            const jumlahMasuk = data.keseluruhan ? data.keseluruhan.masuk : 0;
+            const jumlahKeluar = totalPelajar - jumlahMasuk;
+
+            document.getElementById('stat-total').innerText = totalPelajar;
+            document.getElementById('stat-masuk').innerText = jumlahMasuk;
+            document.getElementById('stat-keluar').innerText = Math.max(0, jumlahKeluar);
             
+            // Paparkan jadual ringkasan mengikut tingkatan secara dinamik
             if (data.tingkatan) {
                 renderRingkasanTingkatan(data.tingkatan);
             }
 
+            // Simpan senarai belum masuk ke dalam cache untuk rujukan laporan
             if (data.belumMasuk) {
                 cacheBelumMasuk = data.belumMasuk;
             }
@@ -523,16 +531,17 @@
         .catch(err => console.error("Ralat Statistik:", err));
     }
 
-    function bukaModalLaporanRasmi() {
+    async function bukaModalLaporanRasmi() {
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
-        
-        if (cacheStatistikGlobal) {
-            updateUIModalRasmi();
-        } else {
-            muatNaikStatistik();
-            setTimeout(updateUIModalRasmi, 500);
+        const elTarikhPapar = document.getElementById('laporan-tarikh-papar');
+        if (elTarikhPapar && typeof formatTarikhDDMMYY === 'function') {
+            elTarikhPapar.innerText = formatTarikhDDMMYY(tarikhPilih);
         }
+        
+        if (!cacheStatistikGlobal) {
+            await muatNaikStatistik();
+        }
+        updateUIModalRasmi();
         document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
     }
 
@@ -548,15 +557,15 @@
         const tajukBelum = document.getElementById('bahagian-belum-masuk');
 
         if (mod === 'MASUK') {
-            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
-            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
-            tajukUtama.innerText = "LAPORAN RASMI PENDAFTARAN MASUK PELAJAR";
-            tajukBelum.style.display = "block";
+            if(btnMasuk) btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
+            if(btnKeluar) btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            if(tajukUtama) tajukUtama.innerText = "LAPORAN RASMI PENDAFTARAN MASUK PELAJAR";
+            if(tajukBelum) tajukBelum.style.display = "block";
         } else {
-            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
-            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-red-600 text-white cursor-pointer shadow-md transition-all";
-            tajukUtama.innerText = "LAPORAN RASMI KELUAR / OUTING PELAJAR";
-            tajukBelum.style.display = "none";
+            if(btnMasuk) btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            if(btnKeluar) btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-red-600 text-white cursor-pointer shadow-md transition-all";
+            if(tajukUtama) tajukUtama.innerText = "LAPORAN RASMI KELUAR / OUTING PELAJAR";
+            if(tajukBelum) tajukBelum.style.display = "none";
         }
         updateUIModalRasmi();
     }
@@ -575,31 +584,34 @@
         const kepala = document.getElementById('kepala-jadual-tingkatan');
         const tbody = document.getElementById('laporan-jadual-tingkatan');
         
-        kepala.innerHTML = `
-            <th class="p-2.5 border border-slate-700">Tingkatan</th>
-            <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
-            <th class="p-2.5 text-center border border-slate-700">Masuk</th>
-            <th class="p-2.5 text-center border border-slate-700 text-orange-400">Baki Masuk</th>
-            <th class="p-2.5 text-center border border-slate-700">Peratusan</th>
-        `;
-        tbody.innerHTML = "";
-
-        if (cacheStatistikGlobal.tingkatan) {
-            for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
-                const t = info.total || 0;
-                const m = info.masuk || 0;
-                const baki = Math.max(0, t - m);
-                const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
-                
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
-                        <td class="p-2.5 text-center border border-slate-700">${t}</td>
-                        <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
-                        <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
-                        <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
-                    </tr>
-                `;
+        if(kepala) {
+            kepala.innerHTML = `
+                <th class="p-2.5 border border-slate-700">Tingkatan</th>
+                <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
+                <th class="p-2.5 text-center border border-slate-700">Masuk</th>
+                <th class="p-2.5 text-center border border-slate-700 text-orange-400">Baki Masuk</th>
+                <th class="p-2.5 text-center border border-slate-700">Peratusan</th>
+            `;
+        }
+        if(tbody) {
+            tbody.innerHTML = "";
+            if (cacheStatistikGlobal.tingkatan) {
+                for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+                    const t = info.total || 0;
+                    const m = info.masuk || 0;
+                    const baki = Math.max(0, t - m);
+                    const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
+                    
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
+                            <td class="p-2.5 text-center border border-slate-700">${t}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
+                            <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
+                            <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
+                        </tr>
+                    `;
+                }
             }
         }
         renderSenaraiBelumMasuk(cacheBelumMasuk);
@@ -607,6 +619,7 @@
 
     function renderSenaraiBelumMasuk(dataBelum) {
         const tbody = document.getElementById('laporan-jadual-belum-masuk');
+        if (!tbody) return;
         tbody.innerHTML = "";
         if (!dataBelum || dataBelum.length === 0) {
             tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Syabas! Semua pelajar telah mendaftar masuk.</td></tr>`;
@@ -626,7 +639,9 @@
     }
 
     function tapisSenaraiBelumMasuk() {
-        const kataKunci = document.getElementById('carian-pelajar').value.toLowerCase();
+        const inputCari = document.getElementById('carian-pelajar');
+        if (!inputCari || !cacheBelumMasuk) return;
+        const kataKunci = inputCari.value.toLowerCase();
         const senaraiTapis = cacheBelumMasuk.filter(p => 
             p.nama.toLowerCase().includes(kataKunci) || 
             p.dorm.toLowerCase().includes(kataKunci) ||
@@ -647,44 +662,51 @@
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `Laporan_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        const pilihTarikhEl = document.getElementById('pilih-tarikh');
+        const tarikhVal = pilihTarikhEl ? pilihTarikhEl.value : 'data';
+        link.setAttribute("download", `Laporan_Belum_Masuk_${tarikhVal}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
     function bukaGrafModal() {
-        document.getElementById('modal-graf').classList.remove('hidden');
+        const modalGraf = document.getElementById('modal-graf');
+        if(modalGraf) modalGraf.classList.remove('hidden');
         if (!chartTrendInstance) {
-            const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-            chartTrendInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
-                    datasets: [{
-                        label: 'Kehadiran Masuk',
-                        data: [120, 250, 400, 550, 680, 705, 709],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#cbd5e1' } } },
-                    scales: {
-                        x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
-                        y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+            const canvasEl = document.getElementById('grafTrendCanvas');
+            if (canvasEl && typeof Chart !== 'undefined') {
+                const ctx = canvasEl.getContext('2d');
+                chartTrendInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
+                        datasets: [{
+                            label: 'Kehadiran Masuk',
+                            data: [120, 250, 400, 550, 680, 705, 709],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                        scales: {
+                            x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                            y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                        }
                     }
-                }
-            });
+                });
+            }
         }
     }
 
     function tutupGrafModal() {
-        document.getElementById('modal-graf').classList.add('hidden');
+        const modalGraf = document.getElementById('modal-graf');
+        if(modalGraf) modalGraf.classList.add('hidden');
     }
   </script>
 </body>
