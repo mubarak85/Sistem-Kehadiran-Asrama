@@ -289,7 +289,6 @@
         </div>
       </div>
 
-      <!-- BAHAGIAN BELUM MASUK DENGAN CARIAN & PENGESAHAN CETAKAN PENUH -->
       <div id="bahagian-belum-masuk" class="space-y-3 pt-2">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Pelajar Belum Mendaftar Masuk</h3>
@@ -362,6 +361,7 @@
     let cacheBelumMasuk = [];
     let cacheStatistikGlobal = null;
     let html5QrCode = null;
+    let chartTrendInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbxdEB5L8D2sRcitOeryn4hwZwQ24oLaS0XNSaH2wNQCb37KBbCbrz0OmJtxvLsmX5J3Kg/exec";
     
     function formatTarikhDDMMYY(tarikhStr) {
@@ -389,14 +389,13 @@
     }
 
     function lancarConfetti() {
-        confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } });
+        try { confetti({ particleCount: 60, spread: 70, origin: { y: 0.7 } }); } catch(e){}
     }
     
     window.onload = function() { 
         document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0]; 
         muatNaikStatistik(); 
         setInterval(muatNaikStatistik, 60000); 
-        cekQueueOffline();
         mulakanKamera();
     };
     
@@ -465,6 +464,50 @@
         prosesPenghantaranData(id); 
         inputEl.value = ""; 
       }
+    }
+
+    function prosesPenghantaranData(idPelajar) {
+        if (sedangMemproses) return;
+        sedangMemproses = true;
+        
+        const kesalahanCheckboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
+        let senaraiKesalahan = Array.from(kesalahanCheckboxes).map(cb => cb.value).join(", ");
+        
+        const dataPayload = {
+            id: idPelajar,
+            arah: statusSemasaArah,
+            kesalahan: senaraiKesalahan
+        };
+
+        fetch(urlAPI, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataPayload)
+        })
+        .then(() => {
+            tunjukNotifikasi(`Berjaya Merekod: ${idPelajar}`, 'success');
+            muatNaikStatistik();
+            kosongkanCheckboxKesalahan();
+            setTimeout(() => { sedangMemproses = false; }, 1500);
+        })
+        .catch(err => {
+            console.error("Ralat Hantar:", err);
+            tunjukNotifikasi(`Gagal Merekod Rangkaian`, 'error');
+            sedangMemproses = false;
+        });
+    }
+
+    function kosongkanCheckboxKesalahan() {
+        document.querySelectorAll('input[name="kesalahan"]').forEach(cb => cb.checked = false);
+    }
+
+    function tunjukNotifikasi(mesej, jenis) {
+        const badge = document.getElementById('notifikasi-badge');
+        badge.innerText = mesej;
+        badge.className = `text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg transition-all animate-pulse ${jenis === 'success' ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500' : 'bg-rose-500/20 text-rose-300 border border-rose-500'}`;
+        badge.classList.remove('hidden');
+        setTimeout(() => { badge.classList.add('hidden'); }, 3000);
     }
 
     function renderRingkasanTingkatan(dataTingkatan) {
@@ -590,25 +633,24 @@
                 </tr>
             `;
         }
-
-        paparSenaraiBelumMasuk(cacheBelumMasuk);
+        renderSenaraiBelumMasuk(cacheBelumMasuk);
     }
 
-    function paparSenaraiBelumMasuk(senarai) {
+    function renderSenaraiBelumMasuk(dataBelum) {
         const tbody = document.getElementById('laporan-jadual-belum-masuk');
         tbody.innerHTML = "";
-        if (!senarai || senarai.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod / Semua pelajar telah mendaftar masuk.</td></tr>`;
+        if (!dataBelum || dataBelum.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Syabas! Semua pelajar telah mendaftar masuk.</td></tr>`;
             return;
         }
-        senarai.forEach((m, idx) => {
+        dataBelum.forEach((p, index) => {
             tbody.innerHTML += `
                 <tr>
-                    <td class="p-2.5 border border-slate-700 text-center text-slate-400">${idx + 1}</td>
-                    <td class="p-2.5 border border-slate-700 font-bold text-slate-200">${m.nama}</td>
-                    <td class="p-2.5 text-center border border-slate-700">${m.tingkatan}</td>
-                    <td class="p-2.5 text-center border border-slate-700 text-indigo-400 font-semibold">${m.dorm}</td>
-                    <td class="p-2.5 text-center border border-slate-700"><span class="px-2 py-0.5 bg-rose-950/60 text-rose-400 border border-rose-900 rounded text-[10px] font-bold">BELUM MASUK</span></td>
+                    <td class="p-2.5 border border-slate-700 text-center">${index + 1}</td>
+                    <td class="p-2.5 border border-slate-700 font-semibold">${p.nama}</td>
+                    <td class="p-2.5 border border-slate-700 text-center">Tingkatan ${p.tingkatan}</td>
+                    <td class="p-2.5 border border-slate-700 text-center">${p.dorm || '-'}</td>
+                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">${p.status}</td>
                 </tr>
             `;
         });
@@ -616,28 +658,23 @@
 
     function tapisSenaraiBelumMasuk() {
         const keyword = document.getElementById('carian-pelajar').value.toLowerCase();
-        const senaraiTapis = cacheBelumMasuk.filter(m => 
-            m.nama.toLowerCase().includes(keyword) || 
-            m.dorm.toLowerCase().includes(keyword) || 
-            m.tingkatan.toLowerCase().includes(keyword)
+        const ditapis = cacheBelumMasuk.filter(p => 
+            p.nama.toLowerCase().includes(keyword) || 
+            (p.dorm && p.dorm.toLowerCase().includes(keyword)) ||
+            p.tingkatan.toLowerCase().includes(keyword)
         );
-        paparSenaraiBelumMasuk(senaraiTapis);
+        renderSenaraiBelumMasuk(ditapis);
     }
 
     function eksportKeExcel() {
         if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
-            alert("Tiada data senarai belum masuk untuk dieksport.");
+            alert("Tiada data untuk dieksport.");
             return;
         }
-        
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-        csvContent += "Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
-        
-        cacheBelumMasuk.forEach((m, index) => {
-            let row = `"${index + 1}","${m.nama}","${m.tingkatan}","${m.dorm}","BELUM MASUK"`;
-            csvContent += row + "\r\n";
+        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
+        cacheBelumMasuk.forEach((p, index) => {
+            csvContent += `${index + 1},"${p.nama}","${p.tingkatan}","${p.dorm || '-'}","${p.status}"\r\n`;
         });
-
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -647,80 +684,47 @@
         document.body.removeChild(link);
     }
 
-    function prosesPenghantaranData(idPelajar) {
-        if (sedangMemproses) return;
-        sedangMemproses = true;
-
-        const checkboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
-        let senaraiKesalahan = [];
-        checkboxes.forEach((cb) => {
-            senaraiKesalahan.push(cb.value);
-            cb.checked = false; 
-        });
-
-        const urlTerus = `${urlAPI}?action=scan&id=${encodeURIComponent(idPelajar)}&arah=${encodeURIComponent(statusSemasaArah)}&kesalahan=${encodeURIComponent(senaraiKesalahan.join(", "))}`;
-
-        if (!navigator.onLine) {
-            simpanKeQueueOffline({ id: idPelajar, arahPergerakan: statusSemasaArah, kesalahan: senaraiKesalahan });
-            sedangMemproses = false;
-            return;
-        }
-
-        fetch(urlTerus)
-        .then(res => res.json())
-        .then(resData => {
-            if (resData.status === "SUCCESS") {
-                paparNotifikasiBerjayaDiterima(idPelajar, resData.nama, resData.dorm, statusSemasaArah);
-            } else {
-                paparNotifikasiBerjayaDiterima(idPelajar, "TIDAK DIKENALI", "-", statusSemasaArah);
+    function bukaGrafModal() {
+        document.getElementById('modal-graf').classList.remove('hidden');
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (chartTrendInstance) chartTrendInstance.destroy();
+        
+        let labelTingkatan = [];
+        let dataMasukTingkatan = [];
+        if (cacheStatistikGlobal && cacheStatistikGlobal.tingkatan) {
+            for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+                labelTingkatan.push(`Ting ${ting}`);
+                dataMasukTingkatan.push(info.masuk || 0);
             }
-            muatNaikStatistik();
-            setTimeout(() => { sedangMemproses = false; }, 1500);
-        })
-        .catch(() => {
-            paparNotifikasiBerjayaDiterima(idPelajar, "GAGAL DIHUBUNGI", "-", statusSemasaArah);
-            sedangMemproses = false;
+        }
+        
+        chartTrendInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labelTingkatan,
+                datasets: [{
+                    label: 'Pelajar Masuk Mengikut Tingkatan',
+                    data: dataMasukTingkatan,
+                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
+                    borderColor: 'rgba(99, 102, 241, 1)',
+                    borderWidth: 1,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
+                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+                },
+                plugins: { legend: { labels: { color: '#f8fafc' } } }
+            }
         });
     }
 
-    function paparNotifikasiBerjayaDiterima(id, namaPelajar, dormPelajar, arah) {
-        const badge = document.getElementById("notifikasi-badge");
-        const kotakInfo = document.getElementById("kotak-maklumat");
-        
-        badge.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-500 text-slate-950 block animate-bounce";
-        badge.innerText = `BERJAYA DIREKOD (${arah})!`;
-        
-        kotakInfo.classList.remove("hidden");
-        document.getElementById("data-nama").innerText = namaPelajar;
-        document.getElementById("data-dorm").innerText = "Dorm: " + dormPelajar + " | ID: " + id;
-        document.getElementById("data-status").innerText = arah;
-        document.getElementById("data-status").className = arah === 'MASUK' ? "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-emerald-600 text-white" : "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-red-600 text-white";
-
-        lancarConfetti();
-
-        setTimeout(() => {
-            badge.classList.add("hidden");
-        }, 4000);
-    }
-
-    function simpanKeQueueOffline(data) {
-        let queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-        queue.push(data);
-        localStorage.setItem('offlineQueue', JSON.stringify(queue));
-        cekQueueOffline();
-        alert("Mod Luar Talian: Data disimpan dalam peranti.");
-        sedangMemproses = false;
-    }
-
-    function cekQueueOffline() {
-        let queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
-        const bar = document.getElementById('bar-status-offline');
-        if (queue.length > 0) {
-            bar.classList.remove('hidden');
-            document.getElementById('jumlah-queue').innerText = queue.length;
-        } else {
-            bar.classList.add('hidden');
-        }
+    function tutupGrafModal() {
+        document.getElementById('modal-graf').classList.add('hidden');
     }
   </script>
 </body>
