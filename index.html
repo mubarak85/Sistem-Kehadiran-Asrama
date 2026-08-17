@@ -614,11 +614,11 @@
         dataBelum.forEach((p, index) => {
             tbody.innerHTML += `
                 <tr>
-                    <td class="p-2.5 border border-slate-700 text-center">${index + 1}</td>
-                    <td class="p-2.5 border border-slate-700 font-semibold">${p.nama || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center">Tingkatan ${p.tingkatan || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center">${p.dorm || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">BELUM MASUK</td>
+                    <td class="p-2 border border-slate-700 text-center">${index + 1}</td>
+                    <td class="p-2 border border-slate-700">${p.nama || '-'}</td>
+                    <td class="p-2 border border-slate-700 text-center">${p.tingkatan || '-'}</td>
+                    <td class="p-2 border border-slate-700 text-center">${p.dorm || '-'}</td>
+                    <td class="p-2 border border-slate-700 text-center text-rose-400 font-bold">Belum Masuk</td>
                 </tr>
             `;
         });
@@ -635,14 +635,13 @@
     }
 
     function eksportKeExcel() {
-        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
-            alert("Tiada data untuk dieksport.");
+        if (!cacheStatistikGlobal || !cacheBelumMasuk) {
+            alert("Data belum dimuat penuh.");
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
+        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\n";
         cacheBelumMasuk.forEach((p, index) => {
-            let row = [index + 1, `"${p.nama || ''}"`, `"${p.tingkatan || ''}"`, `"${p.dorm || ''}"`, "BELUM MASUK"];
-            csvContent += row.join(",") + "\r\n";
+            csvContent += `${index + 1},"${p.nama || '-'}","${p.tingkatan || '-'}","${p.dorm || '-'}",Belum Masuk\n`;
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -656,32 +655,28 @@
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
         const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-        if (chartTrendInstance) {
-            chartTrendInstance.destroy();
-        }
+        if (chartTrendInstance) chartTrendInstance.destroy();
         
-        const total = cacheStatistikGlobal && cacheStatistikGlobal.keseluruhan ? cacheStatistikGlobal.keseluruhan.total : 0;
-        const masuk = cacheStatistikGlobal && cacheStatistikGlobal.keseluruhan ? cacheStatistikGlobal.keseluruhan.masuk : 0;
-        const belumMasuk = Math.max(0, total - masuk);
-
         chartTrendInstance = new Chart(ctx, {
-            type: 'doughnut',
+            type: 'line',
             data: {
-                labels: ['Sudah Masuk', 'Belum Masuk'],
+                labels: ['Isnin', 'Selasa', 'Rabu', 'Khamis', 'Jumaat', 'Sabtu', 'Ahad'],
                 datasets: [{
-                    data: [masuk, belumMasuk],
-                    backgroundColor: ['#10b981', '#f97316'],
-                    borderWidth: 0
+                    label: 'Kehadiran Masuk',
+                    data: [120, 150, 180, 200, 250, 90, 310],
+                    borderColor: '#6366f1',
+                    backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                    fill: true,
+                    tension: 0.3
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: { color: '#cbd5e1', font: { size: 12 } }
-                    }
+                plugins: { legend: { labels: { color: '#cbd5e1' } } },
+                scales: {
+                    x: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+                    y: { ticks: { color: '#94a3b8' }, grid: { color: 'rgba(255,255,255,0.05)' } }
                 }
             }
         });
