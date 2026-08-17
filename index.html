@@ -267,9 +267,9 @@
           <p class="text-[11px] text-emerald-400 uppercase font-semibold">Sudah Masuk</p>
           <p id="laporan-stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p>
         </div>
-        <div class="bg-rose-950/40 p-3.5 rounded-2xl border border-rose-900/50">
-          <p class="text-[11px] text-rose-400 uppercase font-semibold">Keluar / Outing</p>
-          <p id="laporan-stat-keluar" class="text-xl font-black text-rose-400 mt-1">0</p>
+        <div class="bg-orange-950/40 p-3.5 rounded-2xl border border-orange-900/50">
+          <p class="text-[11px] text-orange-400 uppercase font-semibold">Baki Masuk</p>
+          <p id="laporan-stat-keluar" class="text-xl font-black text-orange-400 mt-1">0</p>
         </div>
         <div class="bg-indigo-950/40 p-3.5 rounded-2xl border border-indigo-900/50">
           <p class="text-[11px] text-indigo-400 uppercase font-semibold">Peratusan</p>
@@ -501,7 +501,7 @@
             
             document.getElementById('stat-total').innerText = data.keseluruhan ? data.keseluruhan.total : 0;
             document.getElementById('stat-masuk').innerText = data.keseluruhan ? data.keseluruhan.masuk : 0;
-            document.getElementById('stat-keluar').innerText = data.keseluruhan ? data.keseluruhan.keluar : 0;
+            document.getElementById('stat-keluar').innerText = data.keseluruhan ? Math.max(0, data.keseluruhan.total - data.keseluruhan.masuk) : 0;
             
             renderRingkasanTingkatan(data.tingkatan);
 
@@ -557,7 +557,7 @@
         
         document.getElementById('laporan-stat-total').innerText = kes.total;
         document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
-        document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
+        document.getElementById('laporan-stat-keluar').innerText = Math.max(0, kes.total - kes.masuk);
         
         const peratus = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) + '%' : '0%';
         document.getElementById('laporan-stat-peratus').innerText = peratus;
