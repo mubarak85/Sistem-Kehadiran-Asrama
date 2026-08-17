@@ -491,27 +491,20 @@
         }
     }
 
-    function muatNaikStatistik() {
-        const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        fetch(urlAPI + "?tarikh=" + tarikhPilih)
-        .then(res => res.json())
-        .then(data => {
-            if(data.error) return;
-            cacheStatistikGlobal = data;
-            
-            document.getElementById('stat-total').innerText = data.keseluruhan ? data.keseluruhan.total : 0;
-            document.getElementById('stat-masuk').innerText = data.keseluruhan ? data.keseluruhan.masuk : 0;
-            document.getElementById('stat-keluar').innerText = data.keseluruhan ? Math.max(0, data.keseluruhan.total - data.keseluruhan.masuk) : 0;
-            
-            renderRingkasanTingkatan(data.tingkatan);
-
-            if (data.belumMasuk) {
-                cacheBelumMasuk = data.belumMasuk;
-            }
-        })
-        .catch(err => console.error("Ralat Statistik:", err));
-    }
-
+  // Gantikan fungsi muatNaikStatistik anda dengan ini:
+function muatNaikStatistik() {
+    const tarikh = document.getElementById('pilih-tarikh').value;
+    // URL perlu memanggil doGet tanpa parameter 'action'
+    fetch(`${urlAPI}?tarikh=${tarikh}`) 
+    .then(res => res.json())
+    .then(data => {
+        cacheStatistikGlobal = data;
+        cacheBelumMasuk = data.belumMasuk; // Kemaskini data pelajar belum masuk
+        cacheSudahMasuk = data.sudahMasuk; // Jika ada
+        updateUIModalRasmi(); // Panggil fungsi untuk kemaskini paparan
+    })
+    .catch(err => console.error("Gagal ambil data:", err));
+}
     function bukaModalLaporanRasmi() {
         const tarikhPilih = document.getElementById('pilih-tarikh').value;
         document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
@@ -719,17 +712,17 @@
             return;
         }
 
-        fetch(urlTerus)
-        .then(res => res.json())
-        .then(resData => {
-            if (resData.status === "SUCCESS") {
-                paparNotifikasiBerjayaDiterima(idPelajar, resData.nama, resData.dorm, statusSemasaArah);
-            } else {
-                paparNotifikasiBerjayaDiterima(idPelajar, "TIDAK DIKENALI", "-", statusSemasaArah);
-            }
-            muatNaikStatistik();
-            setTimeout(() => { sedangMemproses = false; }, 1500);
-        })
+       // Dalam fungsi prosesPenghantaranData, pastikan selepas fetch success, muatNaikStatistik dipanggil:
+fetch(urlTerus)
+.then(res => res.json())
+.then(resData => {
+    if (resData.status === "SUCCESS") {
+        paparNotifikasiBerjayaDiterima(idPelajar, resData.nama, resData.dorm, statusSemasaArah);
+        // INI BAHAGIAN PENTING:
+        muatNaikStatistik(); 
+    }
+    sedangMemproses = false;
+})
         .catch(() => {
             paparNotifikasiBerjayaDiterima(idPelajar, "GAGAL DIHUBUNGI", "-", statusSemasaArah);
             sedangMemproses = false;
