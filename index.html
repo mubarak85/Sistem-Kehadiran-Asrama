@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v4.9 - Format Tarikh & Cetak Bersih</title>
+  <title>HostelScan Pro v5.0 - Ringan & Dioptimumkan</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -182,7 +182,7 @@
       </div>
     </div>
 
-    <!-- KOLOM 2: ANALISIS & RINGKASAN WARDEN -->
+    <!-- KOLOM 2: ANALISIS & RINGKASAN WARDEN (DIINGANKAN) -->
     <div class="lg:col-span-6 space-y-6 w-full">
       <div id="kad-tarikh" class="cyber-card p-4 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2.5">
@@ -192,13 +192,14 @@
         <input type="date" id="pilih-tarikh" onchange="muatNaikStatistik()" class="glass-input rounded-2xl px-3 py-1.5 text-sm font-semibold text-slate-200 focus:outline-none w-full sm:w-auto">
       </div>
 
-      <div class="cyber-card p-4 rounded-3xl shadow-2xl bg-gradient-to-r from-indigo-900/40 to-blue-900/40 border border-indigo-500/40 text-center">
-        <button onclick="bukaModalLaporanRasmi()" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black rounded-2xl text-sm shadow-lg shadow-indigo-600/30 cursor-pointer transition-all flex items-center justify-center gap-2">
-          <span>📊</span> BUKA LAPORAN RASMI HARIAN
+      <div class="cyber-card p-5 rounded-3xl shadow-2xl bg-gradient-to-r from-indigo-900/40 to-blue-900/40 border border-indigo-500/40 text-center space-y-3">
+        <button onclick="bukaModalLaporanRasmi()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black rounded-2xl text-sm shadow-lg shadow-indigo-600/30 cursor-pointer transition-all flex items-center justify-center gap-2">
+          <span>📊</span> BUKA LAPORAN RASMI & SENARAI PELAJAR
         </button>
+        <p class="text-[11px] text-slate-300">Semua senarai terperinci, carian nama pelajar & cetakan kini dikumpul di dalam laporan rasmi untuk melancarkan sistem imbasan.</p>
       </div>
       
-   <div id="kad-analisa" class="cyber-card p-6 rounded-3xl shadow-2xl">
+      <div id="kad-analisa" class="cyber-card p-6 rounded-3xl shadow-2xl">
         <h2 class="font-bold text-slate-200 text-base border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
           <span class="flex items-center gap-2"><span>📊</span> Analisa Keseluruhan</span>
           <button onclick="bukaGrafModal()" class="text-xs bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-400 border border-indigo-500/30 px-2.5 py-1 rounded-xl cursor-pointer font-bold transition-all">📈 Graf Trend</button>
@@ -226,21 +227,10 @@
           </table>
         </div>
       </div>
-
-      <div id="kad-belum-masuk" class="cyber-card p-6 rounded-3xl shadow-2xl">
-        <div class="border-b border-slate-800 pb-3 mb-4 flex items-center justify-between">
-          <h2 class="font-bold text-rose-400 text-base flex items-center gap-2"><span>⚠️</span> Pelajar Belum Masuk</h2>
-          <div class="flex gap-2 butang-aksi">
-            <button onclick="eksportKeExcel()" class="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">💾 Excel</button>
-            <button onclick="eksportKePDF()" class="bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 text-xs font-bold py-1.5 px-3 rounded-xl cursor-pointer transition-all">📄 PDF</button>
-          </div>
-        </div>
-        <div class="overflow-x-auto"><table class="w-full text-left border-collapse tabel-cetak"><thead class="bg-slate-950 text-slate-400 text-xs uppercase font-bold"><tr><th class="p-3 rounded-l-xl">Nama</th><th class="p-3 text-center">Ting.</th><th class="p-3 text-center">Dorm</th><th class="p-3 text-center rounded-r-xl">Status</th></tr></thead><tbody id="jadual-belum-masuk" class="text-xs divide-y divide-slate-800/40"></tbody></table></div>
-      </div>
     </div>
   </div>
 
-  <!-- MODAL LAPORAN RASMI HARIAN -->
+  <!-- MODAL LAPORAN RASMI HARIAN & SENARAI PENCARIAN -->
   <div id="modal-laporan-rasmi" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
     <div class="cyber-card kotak-laporan-modal p-6 sm:p-10 rounded-3xl max-w-4xl w-full relative max-h-[92vh] overflow-y-auto border border-indigo-500/30 space-y-6 cetak-hitam-putih">
       
@@ -293,17 +283,21 @@
         </div>
       </div>
 
+      <!-- BAHAGIAN BELUM MASUK DENGAN CARIAN PANTAS -->
       <div id="bahagian-belum-masuk" class="space-y-3 pt-2">
-        <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Nama Pelajar Belum Mendaftar Masuk Asrama</h3>
-        <div class="overflow-x-auto">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Pelajar Belum Mendaftar Masuk</h3>
+          <input type="text" id="carian-pelajar" oninput="tapisSenaraiBelumMasuk()" placeholder="🔍 Cari nama / dorm..." class="glass-input px-3 py-1.5 rounded-xl text-xs text-white w-full sm:w-64 focus:outline-none butang-aksi">
+        </div>
+        <div class="overflow-x-auto max-h-60 overflow-y-auto">
           <table class="w-full text-left text-xs border-collapse">
-            <thead class="bg-slate-900 text-slate-300 uppercase font-bold">
+            <thead class="bg-slate-900 text-slate-300 uppercase font-bold sticky top-0">
               <tr>
-                <th class="p-3 border border-slate-700 w-12 text-center">Bil</th>
-                <th class="p-3 border border-slate-700">Nama Pelajar</th>
-                <th class="p-3 text-center border border-slate-700">Tingkatan</th>
-                <th class="p-3 text-center border border-slate-700">Dorm</th>
-                <th class="p-3 text-center border border-slate-700">Status Terakhir</th>
+                <th class="p-2.5 border border-slate-700 w-12 text-center">Bil</th>
+                <th class="p-2.5 border border-slate-700">Nama Pelajar</th>
+                <th class="p-2.5 text-center border border-slate-700">Tingkatan</th>
+                <th class="p-2.5 text-center border border-slate-700">Dorm</th>
+                <th class="p-2.5 text-center border border-slate-700">Status</th>
               </tr>
             </thead>
             <tbody id="laporan-jadual-belum-masuk" class="divide-y divide-slate-800"></tbody>
@@ -362,7 +356,6 @@
     let cacheBelumMasuk = [];
     let cacheStatistikGlobal = null;
     let html5QrCode = null;
-    let chartInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbxdEB5L8D2sRcitOeryn4hwZwQ24oLaS0XNSaH2wNQCb37KBbCbrz0OmJtxvLsmX5J3Kg/exec";
     
     function formatTarikhDDMMYY(tarikhStr) {
@@ -508,21 +501,122 @@
 
             if (data.belumMasuk) {
                 cacheBelumMasuk = data.belumMasuk;
-                const tbodyBelum = document.getElementById("jadual-belum-masuk");
-                tbodyBelum.innerHTML = "";
-                data.belumMasuk.forEach(m => {
-                    tbodyBelum.innerHTML += `
-                      <tr>
-                        <td class="p-3 font-bold text-slate-200">${m.nama}</td>
-                        <td class="p-3 text-center">${m.tingkatan}</td>
-                        <td class="p-3 text-center text-indigo-400 font-semibold">${m.dorm}</td>
-                        <td class="p-3 text-center"><span class="px-2 py-0.5 bg-rose-950/60 text-rose-400 border border-rose-900 rounded text-[10px] font-bold">BELUM MASUK</span></td>
-                      </tr>
-                    `;
-                });
             }
         })
         .catch(err => console.error("Ralat Statistik:", err));
+    }
+
+    function bukaModalLaporanRasmi() {
+        const tarikhPilih = document.getElementById('pilih-tarikh').value;
+        document.getElementById('laporan-tarikh-papar').innerText = formatTarikhDDMMYY(tarikhPilih);
+        document.getElementById('tarikh-cetakan-semasa').innerText = new Date().toLocaleString('ms-MY');
+        
+        if (cacheStatistikGlobal) {
+            updateUIModalRasmi();
+        } else {
+            muatNaikStatistik();
+            setTimeout(updateUIModalRasmi, 500);
+        }
+        document.getElementById('modal-laporan-rasmi').classList.remove('hidden');
+    }
+
+    function tutupModalLaporanRasmi() {
+        document.getElementById('modal-laporan-rasmi').classList.add('hidden');
+    }
+
+    function tukarModLaporanRasmi(mod) {
+        modLaporanRasmi = mod;
+        const btnMasuk = document.getElementById('btn-mod-laporan-masuk');
+        const btnKeluar = document.getElementById('btn-mod-laporan-keluar');
+        const tajukUtama = document.getElementById('tajuk-laporan-utama');
+        const tajukBelum = document.getElementById('bahagian-belum-masuk');
+
+        if (mod === 'MASUK') {
+            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all";
+            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            tajukUtama.innerText = "LAPORAN RASMI PENDAFTARAN MASUK PELAJAR";
+            tajukBelum.style.display = "block";
+        } else {
+            btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
+            btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-red-600 text-white cursor-pointer shadow-md transition-all";
+            tajukUtama.innerText = "LAPORAN RASMI KELUAR / OUTING PELAJAR";
+            tajukBelum.style.display = "none"; // Boleh sesuaikan ikut keperluan laporan keluar
+        }
+        updateUIModalRasmi();
+    }
+
+    function updateUIModalRasmi() {
+        if (!cacheStatistikGlobal) return;
+        const kes = cacheStatistikGlobal.keseluruhan || { total: 0, masuk: 0, keluar: 0 };
+        
+        document.getElementById('laporan-stat-total').innerText = kes.total;
+        document.getElementById('laporan-stat-masuk').innerText = kes.masuk;
+        document.getElementById('laporan-stat-keluar').innerText = kes.keluar;
+        
+        const peratus = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) + '%' : '0%';
+        document.getElementById('laporan-stat-peratus').innerText = peratus;
+
+        // Render jadual ringkasan tingkatan dalam modal
+        const kepala = document.getElementById('kepala-jadual-tingkatan');
+        const tbody = document.getElementById('laporan-jadual-tingkatan');
+        
+        kepala.innerHTML = `
+            <th class="p-2.5 border border-slate-700">Tingkatan</th>
+            <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
+            <th class="p-2.5 text-center border border-slate-700">Masuk</th>
+            <th class="p-2.5 text-center border border-slate-700">Keluar</th>
+            <th class="p-2.5 text-center border border-slate-700">Peratusan</th>
+        `;
+        tbody.innerHTML = "";
+
+        for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
+            const t = info.total || 0;
+            const m = info.masuk || 0;
+            const k = info.keluar || 0;
+            const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
+            
+            tbody.innerHTML += `
+                <tr>
+                    <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
+                    <td class="p-2.5 text-center border border-slate-700">${t}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">${k}</td>
+                    <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
+                </tr>
+            `;
+        }
+
+        paparSenaraiBelumMasuk(cacheBelumMasuk);
+    }
+
+    function paparSenaraiBelumMasuk(senarai) {
+        const tbody = document.getElementById('laporan-jadual-belum-masuk');
+        tbody.innerHTML = "";
+        if (!senarai || senarai.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod / Semua pelajar telah mendaftar masuk.</td></tr>`;
+            return;
+        }
+        senarai.forEach((m, idx) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td class="p-2.5 border border-slate-700 text-center text-slate-400">${idx + 1}</td>
+                    <td class="p-2.5 border border-slate-700 font-bold text-slate-200">${m.nama}</td>
+                    <td class="p-2.5 text-center border border-slate-700">${m.tingkatan}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-indigo-400 font-semibold">${m.dorm}</td>
+                    <td class="p-2.5 text-center border border-slate-700"><span class="px-2 py-0.5 bg-rose-950/60 text-rose-400 border border-rose-900 rounded text-[10px] font-bold">BELUM MASUK</span></td>
+                </tr>
+            `;
+        });
+    }
+
+    function tapisSenaraiBelumMasuk() {
+        const keyword = document.getElementById('carian-pelajar').value.toLowerCase();
+        const senaraiTapis = cacheBelumMasuk.filter(m => 
+            m.nama.toLowerCase().includes(keyword) || 
+            m.dorm.toLowerCase().includes(keyword) || 
+            m.tingkatan.toLowerCase().includes(keyword)
+        );
+        paparSenaraiBelumMasuk(senaraiTapis);
     }
 
     function prosesPenghantaranData(idPelajar) {
