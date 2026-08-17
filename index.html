@@ -340,7 +340,6 @@
     }
     
     window.onload = function() { 
-        // Menggunakan format tarikh YYYY-MM-DD mengikut input date HTML
         const hariIni = new Date();
         const tahun = hariIni.getFullYear();
         const bulan = String(hariIni.getMonth() + 1).padStart(2, '0');
@@ -494,10 +493,9 @@
     }
 
     function muatNaikStatistik() {
-        const tarikhInput = document.getElementById('pilih-tarikh').value; // Format: YYYY-MM-DD
+        const tarikhInput = document.getElementById('pilih-tarikh').value; 
         let tarikhParam = tarikhInput;
         
-        // Tukar kepada format DD/MM/YYYY untuk diselaraskan dengan Apps Script (doGet)
         if (tarikhInput && tarikhInput.includes('-')) {
             const [thn, bln, hr] = tarikhInput.split('-');
             tarikhParam = `${hr}/${bln}/${thn}`;
