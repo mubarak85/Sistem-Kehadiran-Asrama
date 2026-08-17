@@ -90,7 +90,7 @@
             SMKA <span class="text-amber-400">TOK BACHOK</span>
           </h1>
           <p class="text-xs font-semibold tracking-wide text-slate-300 bg-slate-900/80 px-3 py-1 rounded-full border border-slate-800 inline-block">
-            سكوله ملهدومع اسيمه ومفوه توك باجوق
+            سكوله منغه كبڠسأن اگام توك باچوق
           </p>
           <p class="text-xs font-bold text-amber-300/90 tracking-widest pt-0.5">DISIPLIN • AMANAH • KECEMERLANGAN</p>
         </div>
@@ -287,21 +287,32 @@
       </div>
     </div>
 
-    <!-- BAHAGIAN BAWAH: ASPURA & ASPURI -->
+    <!-- BAHAGIAN BAWAH: ASPURA & ASPURI (DENGAN SENARAI NAMA KLIK) -->
     <div class="relative z-10 grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-      <div class="bg-gradient-to-r from-blue-950/60 to-slate-900/60 p-4 rounded-2xl border border-blue-900/40 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl shrink-0">🏠</div>
-        <div>
-          <h3 class="text-xs font-black text-blue-400 uppercase tracking-widest">ASPURA</h3>
-          <p class="text-sm font-bold text-white tracking-wide">ASRAMA PUTERA</p>
+      <!-- KOTAK ASPURA -->
+      <div onclick="bukaModalAsrama('LELAKI')" class="bg-gradient-to-r from-blue-950/60 to-slate-900/60 p-4 rounded-2xl border border-blue-900/40 flex items-center justify-between cursor-pointer hover:border-blue-500/60 transition-all group shadow-xl">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">🏠</div>
+          <div>
+            <h3 class="text-xs font-black text-blue-400 uppercase tracking-widest">ASPURA</h3>
+            <p class="text-sm font-bold text-white tracking-wide">ASRAMA PUTERA</p>
+            <p id="info-jumlah-aspura" class="text-[11px] text-slate-400 mt-0.5">Klik untuk lihat senarai penuh</p>
+          </div>
         </div>
+        <div class="text-blue-400 text-sm font-bold bg-blue-500/10 px-3 py-1.5 rounded-xl border border-blue-500/20">Senarai ➔</div>
       </div>
-      <div class="bg-gradient-to-r from-purple-950/60 to-slate-900/60 p-4 rounded-2xl border border-purple-900/40 flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl shrink-0">🏠</div>
-        <div>
-          <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">ASPURI</h3>
-          <p class="text-sm font-bold text-white tracking-wide">ASRAMA PUTERI</p>
+
+      <!-- KOTAK ASPURI -->
+      <div onclick="bukaModalAsrama('PEREMPUAN')" class="bg-gradient-to-r from-purple-950/60 to-slate-900/60 p-4 rounded-2xl border border-purple-900/40 flex items-center justify-between cursor-pointer hover:border-purple-500/60 transition-all group shadow-xl">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center text-2xl shrink-0 group-hover:scale-110 transition-transform">🏠</div>
+          <div>
+            <h3 class="text-xs font-black text-purple-400 uppercase tracking-widest">ASPURI</h3>
+            <p class="text-sm font-bold text-white tracking-wide">ASRAMA PUTERI</p>
+            <p id="info-jumlah-aspuri" class="text-[11px] text-slate-400 mt-0.5">Klik untuk lihat senarai penuh</p>
+          </div>
         </div>
+        <div class="text-purple-400 text-sm font-bold bg-purple-500/10 px-3 py-1.5 rounded-xl border border-purple-500/20">Senarai ➔</div>
       </div>
     </div>
 
@@ -318,6 +329,45 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- MODAL SENARAI ASPURA / ASPURI -->
+  <div id="modal-asrama" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="cyber-card p-6 sm:p-8 rounded-3xl max-w-3xl w-full relative max-h-[90vh] flex flex-col border border-amber-500/30 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <div>
+          <h3 id="modal-asrama-tajuk" class="text-base sm:text-lg font-black text-white uppercase tracking-wide">SENARAI PELAJAR ASRAMA</h3>
+          <p id="modal-asrama-sub" class="text-xs text-amber-400 font-semibold mt-0.5">Berdasarkan data pangkalan DataPelajar</p>
+        </div>
+        <button onclick="tutupModalAsrama()" class="text-slate-400 hover:text-white font-bold p-2 text-base cursor-pointer">✕</button>
+      </div>
+      
+      <div class="flex gap-2">
+        <input type="text" id="carian-asrama-input" oninput="tapisSenaraiAsrama()" placeholder="🔍 Cari nama, ID, dorm atau tingkatan..." class="glass-input px-3 py-2 rounded-xl text-xs text-white w-full focus:outline-none">
+      </div>
+
+      <div class="overflow-y-auto flex-1 max-h-[60vh] border border-slate-800 rounded-2xl">
+        <table class="w-full text-left text-xs border-collapse">
+          <thead class="bg-slate-900 text-slate-300 uppercase font-bold sticky top-0">
+            <tr>
+              <th class="p-2.5 border-b border-slate-700 w-12 text-center">Bil</th>
+              <th class="p-2.5 border-b border-slate-700">ID / Nama Pelajar</th>
+              <th class="p-2.5 border-b border-slate-700 text-center">Tingkatan / Kelas</th>
+              <th class="p-2.5 border-b border-slate-700 text-center">Dorm</th>
+              <th class="p-2.5 border-b border-slate-700 text-center">Status Hari Ini</th>
+            </tr>
+          </thead>
+          <tbody id="modal-asrama-tbody" class="divide-y divide-slate-800">
+            <tr><td colspan="5" class="p-6 text-center text-slate-400">Memuatkan data pelajar...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex justify-between items-center pt-2 text-xs text-slate-400 border-t border-slate-800">
+        <span id="modal-asrama-kiraan">Jumlah: 0 pelajar</span>
+        <button onclick="tutupModalAsrama()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-4 py-2 rounded-xl font-bold cursor-pointer">Tutup</button>
+      </div>
+    </div>
   </div>
 
   <!-- MODAL LAPORAN RASMI HARIAN & EKSPORT EXCEL -->
@@ -417,6 +467,8 @@
     let modLaporanRasmi = "MASUK"; 
     let cacheBelumMasuk = [];
     let cacheStatistikGlobal = null;
+    let cacheSemuaPelajarAsrama = { lelaki: [], perempuan: [] };
+    let senaraiSemasaModalAsrama = [];
     let html5QrCode = null;
     let chartTrendInstance = null;
     const urlAPI = "https://script.google.com/macros/s/AKfycbwHjyw9Wmlprdvsxj8GwOUyDzpEH2l2S08zPReVt_xkIQz7uSH_rMRx9M_7fROk-TZ89A/exec";
@@ -638,8 +690,86 @@
             if (data.belumMasuk) {
                 cacheBelumMasuk = data.belumMasuk;
             }
+
+            if (data.senaraiAsrama) {
+                cacheSemuaPelajarAsrama = data.senaraiAsrama;
+                const totalLelaki = (cacheSemuaPelajarAsrama.lelaki || []).length;
+                const totalPerempuan = (cacheSemuaPelajarAsrama.perempuan || []).length;
+                if(totalLelaki > 0) document.getElementById('info-jumlah-aspura').innerText = `${totalLelaki} Pelajar Asrama Putera`;
+                if(totalPerempuan > 0) document.getElementById('info-jumlah-aspuri').innerText = `${totalPerempuan} Pelajar Asrama Puteri`;
+            }
         })
         .catch(err => console.error("Ralat Statistik:", err));
+    }
+
+    function bukaModalAsrama(jantina) {
+        const modal = document.getElementById('modal-asrama');
+        const tajukEl = document.getElementById('modal-asrama-tajuk');
+        const subEl = document.getElementById('modal-asrama-sub');
+        
+        document.getElementById('carian-asrama-input').value = '';
+        
+        if (jantina === 'LELAKI') {
+            tajukEl.innerText = "ASRAMA PUTERA (ASPURA) - SENARAI PELAJAR";
+            subEl.innerText = "Senarai lengkap pelajar lelaki dari tab DataPelajar";
+            senaraiSemasaModalAsrama = cacheSemuaPelajarAsrama.lelaki || [];
+        } else {
+            tajukEl.innerText = "ASRAMA PUTERI (ASPURI) - SENARAI PELAJAR";
+            subEl.innerText = "Senarai lengkap pelajar perempuan dari tab DataPelajar";
+            senaraiSemasaModalAsrama = cacheSemuaPelajarAsrama.perempuan || [];
+        }
+
+        renderTabelModalAsrama(senaraiSemasaModalAsrama);
+        modal.classList.remove('hidden');
+    }
+
+    function tutupModalAsrama() {
+        document.getElementById('modal-asrama').classList.add('hidden');
+    }
+
+    function renderTabelModalAsrama(senarai) {
+        const tbody = document.getElementById('modal-asrama-tbody');
+        const kiraanEl = document.getElementById('modal-asrama-kiraan');
+        if (!tbody) return;
+        
+        tbody.innerHTML = "";
+        kiraanEl.innerText = `Jumlah: ${senarai.length} pelajar`;
+
+        if (senarai.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-slate-400">Tiada rekod pelajar ditemui.</td></tr>`;
+            return;
+        }
+
+        senarai.forEach((p, idx) => {
+            const statusBadge = p.statusMasuk === 'MASUK' 
+                ? '<span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-bold">Sudah Masuk</span>'
+                : '<span class="px-2 py-0.5 bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-full font-bold">Belum Masuk</span>';
+
+            tbody.innerHTML += `
+                <tr class="hover:bg-slate-900/60 transition-colors">
+                    <td class="p-2.5 border-b border-slate-800 text-center text-slate-400">${idx + 1}</td>
+                    <td class="p-2.5 border-b border-slate-800">
+                        <div class="font-bold text-white">${p.nama || '-'}</div>
+                        <div class="text-[10px] text-amber-400 font-mono">${p.id || '-'}</div>
+                    </td>
+                    <td class="p-2.5 border-b border-slate-800 text-center font-medium">Tingkatan ${p.tingkatan || '-'} (${p.kelas || '-'})</td>
+                    <td class="p-2.5 border-b border-slate-800 text-center font-semibold text-blue-300">${p.dorm || '-'}</td>
+                    <td class="p-2.5 border-b border-slate-800 text-center">${statusBadge}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function tapisSenaraiAsrama() {
+        const keyword = document.getElementById('carian-asrama-input').value.toLowerCase();
+        const senaraiTapis = senaraiSemasaModalAsrama.filter(p => 
+            (p.nama && p.nama.toLowerCase().includes(keyword)) ||
+            (p.id && p.id.toLowerCase().includes(keyword)) ||
+            (p.dorm && p.dorm.toLowerCase().includes(keyword)) ||
+            (p.tingkatan && String(p.tingkatan).includes(keyword)) ||
+            (p.kelas && p.kelas.toLowerCase().includes(keyword))
+        );
+        renderTabelModalAsrama(senaraiTapis);
     }
 
     async function bukaModalLaporanRasmi() {
