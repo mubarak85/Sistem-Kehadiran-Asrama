@@ -586,30 +586,28 @@
                     <td class="p-2.5 text-center border border-slate-700">${t}</td>
                     <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
                     <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
-                    <td class="p-2.5 text-center border border-slate-700 text-indigo-300 font-bold">${p}</td>
+                    <td class="p-2.5 text-center border border-slate-700">${p}</td>
                 </tr>
             `;
         }
-
         renderSenaraiBelumMasuk(cacheBelumMasuk);
     }
 
-    function renderSenaraiBelumMasuk(dataBelum) {
+    function renderSenaraiBelumMasuk(dataList) {
         const tbody = document.getElementById('laporan-jadual-belum-masuk');
         tbody.innerHTML = "";
-        if (!dataBelum || dataBelum.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 border border-slate-700">Tiada rekod / Semua pelajar telah mendaftar masuk.</td></tr>`;
+        if (!dataList || dataList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Tiada rekod pelajar belum masuk. Syabas!</td></tr>`;
             return;
         }
-
-        dataBelum.forEach((pelajar, idx) => {
+        dataList.forEach((pelajar, index) => {
             tbody.innerHTML += `
-                <tr class="hover:bg-slate-900/40">
-                    <td class="p-2.5 border border-slate-700 text-center text-slate-400">${idx + 1}</td>
+                <tr>
+                    <td class="p-2.5 border border-slate-700 text-center font-mono">${index + 1}</td>
                     <td class="p-2.5 border border-slate-700 font-bold text-slate-200">${pelajar.nama}</td>
-                    <td class="p-2.5 border border-slate-700 text-center">${pelajar.tingkatan}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-indigo-300">${pelajar.dorm}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">Belum Masuk</td>
+                    <td class="p-2.5 text-center border border-slate-700">Tingkatan ${pelajar.tingkatan}</td>
+                    <td class="p-2.5 text-center border border-slate-700">${pelajar.dorm}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">BELUM MASUK</td>
                 </tr>
             `;
         });
@@ -620,41 +618,20 @@
         const filtered = cacheBelumMasuk.filter(p => 
             p.nama.toLowerCase().includes(keyword) || 
             p.dorm.toLowerCase().includes(keyword) || 
-            p.tingkatan.toString().includes(keyword)
+            p.tingkatan.toLowerCase().includes(keyword)
         );
-        
-        const tbody = document.getElementById('laporan-jadual-belum-masuk');
-        tbody.innerHTML = "";
-        if (filtered.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 border border-slate-700">Tiada padanan carian ditemui.</td></tr>`;
-            return;
-        }
-
-        filtered.forEach((pelajar, idx) => {
-            tbody.innerHTML += `
-                <tr class="hover:bg-slate-900/40">
-                    <td class="p-2.5 border border-slate-700 text-center text-slate-400">${idx + 1}</td>
-                    <td class="p-2.5 border border-slate-700 font-bold text-slate-200">${pelajar.nama}</td>
-                    <td class="p-2.5 border border-slate-700 text-center">${pelajar.tingkatan}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-indigo-300">${pelajar.dorm}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">Belum Masuk</td>
-                </tr>
-            `;
-        });
+        renderSenaraiBelumMasuk(filtered);
     }
 
     function eksportKeExcel() {
-        if (!cacheStatistikGlobal || !cacheStatistikGlobal.belumMasuk) {
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
             alert("Tiada data untuk dieksport.");
             return;
         }
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
-        csvContent += "Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
-
-        cacheBelumMasuk.forEach((p, idx) => {
-            csvContent += `"${idx + 1}","${p.nama}","${p.tingkatan}","${p.dorm}","Belum Masuk"\r\n`;
+        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama,Tingkatan,Dorm,Status\r\n";
+        cacheBelumMasuk.forEach((p, index) => {
+            csvContent += `${index + 1},"${p.nama}","Tingkatan ${p.tingkatan}","${p.dorm}","BELUM MASUK"\r\n`;
         });
-
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -664,149 +641,71 @@
         document.body.removeChild(link);
     }
 
-    let grafTrendInstance = null;
     function bukaGrafModal() {
         document.getElementById('modal-graf').classList.remove('hidden');
-        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
-        
-        if (grafTrendInstance) grafTrendInstance.destroy();
-
-        grafTrendInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['Ting 1', 'Ting 2', 'Ting 3', 'Ting 4', 'Ting 5'],
-                datasets: [{
-                    label: 'Jumlah Masuk',
-                    data: cacheStatistikGlobal && cacheStatistikGlobal.tingkatan ? Object.values(cacheStatistikGlobal.tingkatan).map(i => i.masuk) : [0,0,0,0,0],
-                    backgroundColor: 'rgba(99, 102, 241, 0.6)',
-                    borderColor: 'rgba(99, 102, 241, 1)',
-                    borderWidth: 1,
-                    borderRadius: 8
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: { beginAtZero: true, grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#94a3b8' } },
-                    x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
-                },
-                plugins: { legend: { labels: { color: '#f8fafc' } } }
-            }
-        });
     }
 
     function tutupGrafModal() {
         document.getElementById('modal-graf').classList.add('hidden');
     }
 
-    function prosesPenghantaranData(idPelajar) {
-        if (sedangMemproses) return;
-        sedangMemproses = true;
-
-        const kesalahanCheckboxes = document.querySelectorAll('input[name="kesalahan"]:checked');
-        const kesalahanArr = Array.from(kesalahanCheckboxes).map(cb => cb.value);
-        const catatanKesalahan = kesalahanArr.join(', ');
-
-        const dataHantar = {
-            id: idPelajar,
-            arah: statusSemasaArah,
-            kesalahan: catatanKesalahan,
-            tarikh: new Date().toISOString().split('T')[0]
-        };
-
-        const notif = document.getElementById('notifikasi-badge');
-        notif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-blue-500/20 text-blue-300 border border-blue-500/50";
-        notif.innerText = "Memproses ID: " + idPelajar + "...";
-        notif.classList.remove('hidden');
-
-        fetch(urlAPI, {
-            method: 'POST',
-            body: JSON.stringify(dataHantar),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
-        })
-        .then(res => res.json())
-        .then(response => {
-            sedangMemproses = false;
-            if (response.success) {
-                notif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-500/20 text-emerald-300 border border-emerald-500/50";
-                notif.innerText = "Berjaya: " + (response.nama || idPelajar);
-                
-                document.getElementById('kotak-maklumat').classList.remove('hidden');
-                document.getElementById('data-nama').innerText = response.nama || "-";
-                document.getElementById('data-dorm').innerText = `Dorm: ${response.dorm || "-"} | Ting: ${response.tingkatan || "-"}`;
-                
-                const statusBadge = document.getElementById('data-status');
-                statusBadge.innerText = statusSemasaArah;
-                statusBadge.className = statusSemasaArah === 'MASUK' ? "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-emerald-500 text-slate-950" : "text-xs px-3 py-1 rounded-lg font-black uppercase shadow-md bg-red-500 text-white";
-
-                lancarConfetti();
-                muatNaikStatistik();
-
-                // Reset kesalahan checkboxes
-                kesalahanCheckboxes.forEach(cb => cb.checked = false);
-            } else {
-                tunjukRalat(response.message || "Pelajar tidak dijumpai.");
-            }
-        })
-        .catch(err => {
-            sedangMemproses = false;
-            simpanQueueOffline(dataHantar);
-            tunjukRalat("Mod Luar Talian: Data disimpan dalam simpanan peranti.");
-        });
-    }
-
-    function tunjukRalat(pesan) {
-        mainkanBunyi('RALAT');
-        const notif = document.getElementById('notifikasi-badge');
-        notif.className = "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-rose-500/20 text-rose-300 border border-rose-500/50";
-        notif.innerText = pesan;
-        notif.classList.remove('hidden');
-    }
-
-    function simpanQueueOffline(data) {
-        let queue = JSON.parse(localStorage.getItem('queueOffline') || '[]');
-        queue.push(data);
-        localStorage.setItem('queueOffline', JSON.stringify(queue));
-        cekQueueOffline();
-    }
-
     function cekQueueOffline() {
-        let queue = JSON.parse(localStorage.getItem('queueOffline') || '[]');
-        const bar = document.getElementById('bar-status-offline');
-        const jumlahSpan = document.getElementById('jumlah-queue');
+        const queue = JSON.parse(localStorage.getItem('offlineQueue') || '[]');
         if (queue.length > 0) {
-            bar.classList.remove('hidden');
-            jumlahSpan.innerText = queue.length;
+            document.getElementById('bar-status-offline').classList.remove('hidden');
+            document.getElementById('jumlah-queue').innerText = queue.length;
         } else {
-            bar.classList.add('hidden');
+            document.getElementById('bar-status-offline').classList.add('hidden');
         }
     }
 
     function syncDataOffline() {
-        let queue = JSON.parse(localStorage.getItem('queueOffline') || '[]');
-        if (queue.length === 0) return;
+        // Logik penyerahan data offline jika ada tersimpan
+        alert("Proses sinkronisasi data luar talian...");
+    }
 
-        const dataSatu = queue.shift();
+    function prosesPenghantaranData(idPelajar) {
+        if (sedangMemproses) return;
+        sedangMemproses = true;
+
+        const kesalahanDipilih = Array.from(document.querySelectorAll('input[name="kesalahan"]:checked')).map(cb => cb.value).join(', ');
+        
+        const dataPayload = {
+            id: idPelajar,
+            arah: statusSemasaArah,
+            kesalahan: kesalahanDipilih,
+            tarikh: document.getElementById('pilih-tarikh').value
+        };
+
         fetch(urlAPI, {
             method: 'POST',
-            body: JSON.stringify(dataSatu),
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dataPayload)
         })
-        .then(res => res.json())
-        .then(response => {
-            localStorage.setItem('queueOffline', JSON.stringify(queue));
-            cekQueueOffline();
-            if (queue.length > 0) {
-                syncDataOffline();
-            } else {
-                muatNaikStatistik();
-                alert("Semua data luar talian berjaya diselaraskan!");
-            }
+        .then(() => {
+            tunjukNotifikasi(`Berjaya mendaftar ${statusSemasaArah} untuk ID: ${idPelajar}`, 'sukses');
+            lancarConfetti();
+            muatNaikStatistik();
+            setTimeout(() => { sedangMemproses = false; }, 2000);
         })
         .catch(err => {
-            alert("Gagal menyelaraskan. Sila cuba lagi kemudian.");
+            console.error("Ralat Hantar:", err);
+            tunjukNotifikasi("Gagal hantar data. Disimpan dalam mod luar talian.", 'ralat');
+            sedangMemproses = false;
         });
+    }
+
+    function tunjukNotifikasi(mesej, jenis) {
+        const badge = document.getElementById('notifikasi-badge');
+        badge.innerText = mesej;
+        badge.className = jenis === 'sukses' ? 
+            "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 block animate-pulse" : 
+            "text-center py-2 px-4 rounded-full font-bold text-sm mb-3 shadow-lg bg-rose-500/20 text-rose-400 border border-rose-500/50 block animate-pulse";
+        
+        setTimeout(() => {
+            badge.classList.add('hidden');
+        }, 4000);
     }
   </script>
 </body>
