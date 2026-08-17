@@ -71,7 +71,6 @@
         max-height: none !important;
         overflow: visible !important;
       }
-      /* PENTING: Buka had ketinggian jadual semasa cetak supaya SEMUA nama keluar */
       .wadah-skrol-cetak {
         max-height: none !important;
         overflow: visible !important;
@@ -570,7 +569,7 @@
             <th class="p-2.5 border border-slate-700">Tingkatan</th>
             <th class="p-2.5 text-center border border-slate-700">Jumlah</th>
             <th class="p-2.5 text-center border border-slate-700">Masuk</th>
-            <th class="p-2.5 text-center border border-slate-700">Keluar</th>
+            <th class="p-2.5 text-center border border-slate-700 text-orange-400">Baki Masuk</th>
             <th class="p-2.5 text-center border border-slate-700">Peratusan</th>
         `;
         tbody.innerHTML = "";
@@ -578,7 +577,7 @@
         for (const [ting, info] of Object.entries(cacheStatistikGlobal.tingkatan)) {
             const t = info.total || 0;
             const m = info.masuk || 0;
-            const k = info.keluar || 0;
+            const baki = Math.max(0, t - m);
             const p = t > 0 ? ((m / t) * 100).toFixed(1) + '%' : '0%';
             
             tbody.innerHTML += `
@@ -586,7 +585,7 @@
                     <td class="p-2.5 border border-slate-700 font-bold">Tingkatan ${ting}</td>
                     <td class="p-2.5 text-center border border-slate-700">${t}</td>
                     <td class="p-2.5 text-center border border-slate-700 text-emerald-400 font-bold">${m}</td>
-                    <td class="p-2.5 text-center border border-slate-700 text-rose-400 font-bold">${k}</td>
+                    <td class="p-2.5 text-center border border-slate-700 text-orange-400 font-bold">${baki}</td>
                     <td class="p-2.5 text-center border border-slate-700 font-bold text-indigo-300">${p}</td>
                 </tr>
             `;
@@ -625,7 +624,6 @@
         paparSenaraiBelumMasuk(senaraiTapis);
     }
 
-    // FUNGSI EKSPORT KE EXCEL (.CSV)
     function eksportKeExcel() {
         if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
             alert("Tiada data senarai belum masuk untuk dieksport.");
