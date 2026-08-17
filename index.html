@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>HostelScan Pro v5.0 - Ringan & Dioptimumkan</title>
+  <title>HostelScan Pro v5.1 - Laporan Penuh & Excel</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -69,6 +69,12 @@
         padding: 10mm !important;
         margin: 0 !important;
         max-height: none !important;
+        overflow: visible !important;
+      }
+      /* PENTING: Buka had ketinggian jadual semasa cetak supaya SEMUA nama keluar */
+      .wadah-skrol-cetak {
+        max-height: none !important;
+        overflow: visible !important;
       }
       .butang-aksi {
         display: none !important;
@@ -182,7 +188,7 @@
       </div>
     </div>
 
-    <!-- KOLOM 2: ANALISIS & RINGKASAN WARDEN (DIINGANKAN) -->
+    <!-- KOLOM 2: ANALISIS & RINGKASAN WARDEN -->
     <div class="lg:col-span-6 space-y-6 w-full">
       <div id="kad-tarikh" class="cyber-card p-4 rounded-3xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
         <div class="flex items-center gap-2.5">
@@ -196,7 +202,7 @@
         <button onclick="bukaModalLaporanRasmi()" class="w-full py-3.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-black rounded-2xl text-sm shadow-lg shadow-indigo-600/30 cursor-pointer transition-all flex items-center justify-center gap-2">
           <span>📊</span> BUKA LAPORAN RASMI & SENARAI PELAJAR
         </button>
-        <p class="text-[11px] text-slate-300">Semua senarai terperinci, carian nama pelajar & cetakan kini dikumpul di dalam laporan rasmi untuk melancarkan sistem imbasan.</p>
+        <p class="text-[11px] text-slate-300">Semua senarai terperinci, muat turun Excel & cetakan PDF dikumpulkan di sini.</p>
       </div>
       
       <div id="kad-analisa" class="cyber-card p-6 rounded-3xl shadow-2xl">
@@ -230,7 +236,7 @@
     </div>
   </div>
 
-  <!-- MODAL LAPORAN RASMI HARIAN & SENARAI PENCARIAN -->
+  <!-- MODAL LAPORAN RASMI HARIAN & EKSPORT EXCEL -->
   <div id="modal-laporan-rasmi" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
     <div class="cyber-card kotak-laporan-modal p-6 sm:p-10 rounded-3xl max-w-4xl w-full relative max-h-[92vh] overflow-y-auto border border-indigo-500/30 space-y-6 cetak-hitam-putih">
       
@@ -246,8 +252,9 @@
           <button id="btn-mod-laporan-masuk" onclick="tukarModLaporanRasmi('MASUK')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all">📥 LAPORAN MASUK</button>
           <button id="btn-mod-laporan-keluar" onclick="tukarModLaporanRasmi('KELUAR')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all">📤 LAPORAN KELUAR</button>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto justify-end">
-          <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>🖨️</span> Cetak / PDF</button>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+          <button onclick="eksportKeExcel()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>📥</span> Excel (.csv)</button>
+          <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>🖨️</span> Cetak / PDF</button>
           <button onclick="tutupModalLaporanRasmi()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs cursor-pointer">Tutup</button>
         </div>
       </div>
@@ -283,13 +290,13 @@
         </div>
       </div>
 
-      <!-- BAHAGIAN BELUM MASUK DENGAN CARIAN PANTAS -->
+      <!-- BAHAGIAN BELUM MASUK DENGAN CARIAN & PENGESAHAN CETAKAN PENUH -->
       <div id="bahagian-belum-masuk" class="space-y-3 pt-2">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Pelajar Belum Mendaftar Masuk</h3>
           <input type="text" id="carian-pelajar" oninput="tapisSenaraiBelumMasuk()" placeholder="🔍 Cari nama / dorm..." class="glass-input px-3 py-1.5 rounded-xl text-xs text-white w-full sm:w-64 focus:outline-none butang-aksi">
         </div>
-        <div class="overflow-x-auto max-h-60 overflow-y-auto">
+        <div class="wadah-skrol-cetak overflow-x-auto max-h-60 overflow-y-auto">
           <table class="w-full text-left text-xs border-collapse">
             <thead class="bg-slate-900 text-slate-300 uppercase font-bold sticky top-0">
               <tr>
@@ -540,7 +547,7 @@
             btnMasuk.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all";
             btnKeluar.className = "flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-red-600 text-white cursor-pointer shadow-md transition-all";
             tajukUtama.innerText = "LAPORAN RASMI KELUAR / OUTING PELAJAR";
-            tajukBelum.style.display = "none"; // Boleh sesuaikan ikut keperluan laporan keluar
+            tajukBelum.style.display = "none";
         }
         updateUIModalRasmi();
     }
@@ -556,7 +563,6 @@
         const peratus = kes.total > 0 ? ((kes.masuk / kes.total) * 100).toFixed(1) + '%' : '0%';
         document.getElementById('laporan-stat-peratus').innerText = peratus;
 
-        // Render jadual ringkasan tingkatan dalam modal
         const kepala = document.getElementById('kepala-jadual-tingkatan');
         const tbody = document.getElementById('laporan-jadual-tingkatan');
         
@@ -617,6 +623,30 @@
             m.tingkatan.toLowerCase().includes(keyword)
         );
         paparSenaraiBelumMasuk(senaraiTapis);
+    }
+
+    // FUNGSI EKSPORT KE EXCEL (.CSV)
+    function eksportKeExcel() {
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            alert("Tiada data senarai belum masuk untuk dieksport.");
+            return;
+        }
+        
+        let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+        csvContent += "Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
+        
+        cacheBelumMasuk.forEach((m, index) => {
+            let row = `"${index + 1}","${m.nama}","${m.tingkatan}","${m.dorm}","BELUM MASUK"`;
+            csvContent += row + "\r\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `Laporan_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     }
 
     function prosesPenghantaranData(idPelajar) {
