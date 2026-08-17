@@ -97,12 +97,6 @@
         padding: 6px !important;
         font-size: 10pt !important;
       }
-      .tandatangan-cetak {
-        display: flex !important;
-        justify-content: space-between !important;
-        margin-top: 40px !important;
-        page-break-inside: avoid;
-      }
     }
   </style>
 </head>
@@ -346,7 +340,13 @@
     }
     
     window.onload = function() { 
-        document.getElementById('pilih-tarikh').value = new Date().toISOString().split('T')[0]; 
+        // Menggunakan format tarikh YYYY-MM-DD mengikut input date HTML
+        const hariIni = new Date();
+        const tahun = hariIni.getFullYear();
+        const bulan = String(hariIni.getMonth() + 1).padStart(2, '0');
+        const hari = String(hariIni.getDate()).padStart(2, '0');
+        document.getElementById('pilih-tarikh').value = `${tahun}-${bulan}-${hari}`; 
+        
         muatNaikStatistik(); 
         setInterval(muatNaikStatistik, 60000); 
         mulakanKamera();
@@ -494,8 +494,16 @@
     }
 
     function muatNaikStatistik() {
-        const tarikhPilih = document.getElementById('pilih-tarikh').value;
-        fetch(urlAPI + "?tarikh=" + tarikhPilih)
+        const tarikhInput = document.getElementById('pilih-tarikh').value; // Format: YYYY-MM-DD
+        let tarikhParam = tarikhInput;
+        
+        // Tukar kepada format DD/MM/YYYY untuk diselaraskan dengan Apps Script (doGet)
+        if (tarikhInput && tarikhInput.includes('-')) {
+            const [thn, bln, hr] = tarikhInput.split('-');
+            tarikhParam = `${hr}/${bln}/${thn}`;
+        }
+
+        fetch(urlAPI + "?tarikh=" + encodeURIComponent(tarikhParam))
         .then(res => res.json())
         .then(data => {
             if(data.error) return;
@@ -612,45 +620,77 @@
                     <td class="p-2.5 border border-slate-700 font-semibold">${p.nama || '-'}</td>
                     <td class="p-2.5 border border-slate-700 text-center">Tingkatan ${p.tingkatan || '-'}</td>
                     <td class="p-2.5 border border-slate-700 text-center">${p.dorm || '-'}</td>
-                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">${p.status || 'Belum Masuk'}</td>
+                    <td class="p-2.5 border border-slate-700 text-center text-rose-400 font-bold">BELUM MASUK</td>
                 </tr>
             `;
         });
     }
 
     function tapisSenaraiBelumMasuk() {
-        const carian = document.getElementById('carian-pelajar').value.toLowerCase();
+        const keyword = document.getElementById('carian-pelajar').value.toLowerCase();
         const senaraiTapis = cacheBelumMasuk.filter(p => 
-            (p.nama && p.nama.toLowerCase().includes(carian)) || 
-            (p.dorm && p.dorm.toLowerCase().includes(carian)) ||
-            (p.tingkatan && p.tingkatan.toString().toLowerCase().includes(carian))
+            (p.nama && p.nama.toLowerCase().includes(keyword)) || 
+            (p.dorm && p.dorm.toLowerCase().includes(keyword)) ||
+            (p.tingkatan && p.tingkatan.toLowerCase().includes(keyword))
         );
         renderSenaraiBelumMasuk(senaraiTapis);
     }
 
-    function bukaGrafModal() {
-        document.getElementById('modal-graf').classList.remove('hidden');
-        // Logik paparan chart.js jika diperlukan
-    }
-
-    function tutupGrafModal() {
-        document.getElementById('modal-graf').classList.add('hidden');
-    }
-
     function eksportKeExcel() {
-        if (!cacheBelumMasuk) return;
-        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama,Tingkatan,Dorm,Status\r\n";
+        if (!cacheBelumMasuk || cacheBelumMasuk.length === 0) {
+            alert("Tiada data untuk dieksport.");
+            return;
+        }
+        let csvContent = "data:text/csv;charset=utf-8,Bil,Nama Pelajar,Tingkatan,Dorm,Status\r\n";
         cacheBelumMasuk.forEach((p, index) => {
-            let row = [index + 1, `"${p.nama || ''}"`, p.tingkatan || '', `"${p.dorm || ''}"`, `"${p.status || ''}"`];
+            let row = [index + 1, `"${p.nama || ''}"`, `"${p.tingkatan || ''}"`, `"${p.dorm || ''}"`, "BELUM MASUK"];
             csvContent += row.join(",") + "\r\n";
         });
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "laporan_belum_masuk.csv");
+        link.setAttribute("download", `Laporan_Belum_Masuk_${document.getElementById('pilih-tarikh').value}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+    }
+
+    function bukaGrafModal() {
+        document.getElementById('modal-graf').classList.remove('hidden');
+        const ctx = document.getElementById('grafTrendCanvas').getContext('2d');
+        if (chartTrendInstance) {
+            chartTrendInstance.destroy();
+        }
+        
+        const total = cacheStatistikGlobal && cacheStatistikGlobal.keseluruhan ? cacheStatistikGlobal.keseluruhan.total : 0;
+        const masuk = cacheStatistikGlobal && cacheStatistikGlobal.keseluruhan ? cacheStatistikGlobal.keseluruhan.masuk : 0;
+        const belumMasuk = Math.max(0, total - masuk);
+
+        chartTrendInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Sudah Masuk', 'Belum Masuk'],
+                datasets: [{
+                    data: [masuk, belumMasuk],
+                    backgroundColor: ['#10b981', '#f97316'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#cbd5e1', font: { size: 12 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function tutupGrafModal() {
+        document.getElementById('modal-graf').classList.add('hidden');
     }
   </script>
 </body>
