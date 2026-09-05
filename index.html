@@ -583,111 +583,47 @@
         }
     }
 
-// Pemboleh ubah global (letakkan di bahagian atas skrip)
-let gunaKameraDepan = false; 
-
-// Fungsi Utama Membuka Kamera
 async function mulakanKamera() {
     try {
-        paparNotifikasi("Sedang membuka kamera...", "INFO");
+        paparNotifikasi("Menguji akses kamera peranti...", "INFO");
 
-        // 1. Jika objek sudah wujud, hentikan dan lupuskan sepenuhnya
-        if (html5QrCode) {
-            try {
-                if (html5QrCode.isScanning) {
-                    await html5QrCode.stop();
-                }
-                await html5QrCode.clear();
-            } catch (e) {
-                console.log("Nota pembersihan:", e);
-            }
-            html5QrCode = null;
-        }
+        // Paksa minta kebenaran media secara langsung daripada pelayar
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+            video: { facingMode: gunaKameraDepan ? "user" : "environment" },
+            audio: false 
+        });
 
-        // 2. Pastikan elemen div 'reader' wujud dan bersih daripada saki-baki video lama
-        let container = document.getElementById("reader");
-        if (!container) {
-            console.error("Elemen #reader tidak dijumpai dalam HTML!");
-            return;
-        }
-        container.innerHTML = ""; // Kosongkan manual untuk elak konflik DOM
-
-        // 3. Cipta semula instans baharu
-        html5QrCode = new Html5Qrcode("reader");
-
-        const config = { 
-            fps: 10, 
-            qrbox: { width: 250, height: 250 },
-            aspectRatio: 1.0
-        };
+        // Jika berjaya lepas, hentikan sebentar stream ujian dan teruskan dengan pengimbas
+        stream.getTracks().forEach(track => track.stop());
         
-        // 4. Cuba guna pilihan facingMode standard terlebih dahulu
-        const constraintKamera = { 
-            facingMode: gunaKameraDepan ? "user" : { exact: "environment" } 
-        };
+        paparNotifikasi("Kebenaran OK! Membuka pengimbas...", "BERJAYA");
 
-        try {
-            await html5QrCode.start(constraintKamera, config, onScanBerjaya, onScanGagal);
-            paparNotifikasi("Kamera berjaya dibuka!", "BERJAYA");
-            return;
-        } catch (errMode) {
-            console.log("Percubaan facingMode gagal, beralih kepada senarai peranti...", errMode);
+        // Selepas lulus ujian, mulakan html5-qrcode seperti biasa
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
         }
-
-        // 5. Fallback: Dapatkan senarai kamera peranti secara manual (Sangat stabil untuk iPhone/Safari & Android)
-        const devices = await Html5Qrcode.getCameras();
-        if (devices && devices.length > 0) {
-            // Pilih kamera mengikut pilihan depan atau belakang
-            let selectedId = devices[0].id; // Default belakang
-            
-            if (gunaKameraDepan) {
-                const frontCam = devices.find(d => d.label.toLowerCase().includes('front') || d.label.toLowerCase().includes('depan') || d.label.toLowerCase().includes('user'));
-                if (frontCam) selectedId = frontCam.id;
-            } else {
-                const backCam = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('belakang') || d.label.toLowerCase().includes('environment'));
-                if (backCam) selectedId = backCam.id;
-                else if (devices.length > 1) selectedId = devices[devices.length - 1].id;
-            }
-
-            await html5QrCode.start(selectedId, config, onScanBerjaya, onScanGagal);
-            paparNotifikasi("Kamera berjaya dibuka!", "BERJAYA");
-        } else {
-            throw new Error("Tiada peranti kamera dikesan.");
-        }
+        
+        await html5QrCode.start(
+            { facingMode: gunaKameraDepan ? "user" : "environment" },
+            { fps: 10, qrbox: { width: 250, height: 250 } },
+            onScanBerjaya,
+            onScanGagal
+        );
 
     } catch (err) {
-        console.error("Ralat kritikal kamera: ", err);
-        paparNotifikasi("Gagal akses kamera. Sila pastikan kebenaran pelayar diberi dan tiada tab lain menggunakannya.", "RALAT");
-    }
-}
-
-// Fungsi Menukar Kamera Depan / Belakang
-async function tukarKamera() {
-    gunaKameraDepan = !gunaKameraDepan; 
-    const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
-    paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
-    
-    // Panggil semula fungsi mula untuk reset dan buka dengan mod baharu
-    await mulakanKamera();
-}
-
-// Fungsi Menutup Kamera
-async function tutupKamera() {
-    try {
-        if (html5QrCode) {
-            if (html5QrCode.isScanning) {
-                await html5QrCode.stop();
-            }
-            await html5QrCode.clear();
-            html5QrCode = null;
-        }
-        // Bersihkan paparan manual
-        const container = document.getElementById("reader");
-        if (container) container.innerHTML = "";
+        console.error("Ralat Diagnostik Kamera:", err);
         
-        paparNotifikasi("Kamera ditutup.", "INFO");
-    } catch (err) {
-        console.error("Ralat semasa menutup kamera: ", err);
+        // Paparkan mesej ralat sebenar dari telefon di skrin untuk kita kenal pasti
+        let mesejRalat = "Gagal: " + (err.name || err.message);
+        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
+            mesejRalat = "Ralat: Anda 'Block' kebenaran kamera di tetapan pelayar!";
+        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
+            mesejRalat = "Ralat: Tiada kamera dikesan pada peranti ini.";
+        } else if (window.location.protocol !== 'https:') {
+            mesejRalat = "Ralat: Pelayar wajibkan HTTPS untuk guna kamera!";
+        }
+        
+        paparNotifikasi(mesejRalat, "RALAT");
     }
 }
     async function muatNaikStatistik() {
