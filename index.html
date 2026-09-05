@@ -168,15 +168,15 @@
         </div>
 
         <div class="p-5 space-y-4">
-          <!-- KOTAK KAMERA QR -->
-          <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/30 p-2 shadow-inner">
-            <div id="reader" class="w-full min-h-[240px] relative"></div>
-            <div class="flex gap-2 mt-3">
-              <button onclick="mulakanKamera()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
-              <button onclick="tutupKamera()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
-            </div>
-          </div>
-
+      <!-- KOTAK KAMERA QR -->
+<div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/30 p-2 shadow-inner">
+  <div id="reader" class="w-full min-h-[240px] relative"></div>
+  <div class="grid grid-cols-3 gap-2 mt-3">
+    <button onclick="mulakanKamera()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
+    <button onclick="tukarKamera()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tukar Kamera</button>
+    <button onclick="tutupKamera()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
+  </div>
+</div>
           <!-- NOTIFIKASI STATUS -->
           <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm shadow-lg transition-all animate-pulse"></div>
 
@@ -583,38 +583,49 @@
         }
     }
 
-    function mulakanKamera() {
-        if (html5QrCode) {
-            tutupKamera().then(() => mulakanKameraBaru());
-        } else {
-            mulakanKameraBaru();
+   // 👇 GANTI ATAU TAMBAHKAN FUNGSI-FUNGSI INI DI DALAM TAG <SCRIPT>
+    async function mulakanKamera() {
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
         }
-    }
+        
+        // Jika kamera sedang menyala, tutup dulu sebelum buka semula dengan mod baharu
+        if (html5QrCode.isScanning) {
+            await tutupKamera();
+        }
 
-    function mulakanKameraBaru() {
-        html5QrCode = new Html5Qrcode("reader");
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        
+        // Pilih arah kamera berdasarkan status gunaKameraDepan
+        const constraintKamera = { 
+            facingMode: gunaKameraDepan ? "user" : "environment" 
+        };
+
         html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 15, qrbox: { width: 220, height: 220 } },
-            (decodedText) => {
-                hantarDataScan(decodedText);
-            },
-            (errorMessage) => {}
+            constraintKamera, 
+            config, 
+            onScanBerjaya, 
+            onScanGagal
         ).catch(err => {
-            paparNotifikasi("Gagal buka kamera. Sila beri kebenaran.", "GAGAL");
+            console.error("Gagal membuka kamera: ", err);
+            paparNotifikasi("Gagal akses kamera. Sila beri kebenaran.", "RALAT");
         });
     }
 
-    async function tutupKamera() {
-        if (html5QrCode) {
-            try {
-                await html5QrCode.stop();
-                html5QrCode.clear();
-            } catch(e) {}
-            html5QrCode = null;
-        }
+    // Fungsi baharu untuk menukar antara kamera depan dan belakang
+    async function tukarKamera() {
+        gunaKameraDepan = !gunaKameraDepan; // Tukar nilai Boolean
+        const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
+        paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
+        await mulakanKamera();
     }
 
+    async function tutupKamera() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            await html5QrCode.stop();
+            html5QrCode.clear();
+        }
+    }
     async function muatNaikStatistik() {
         const inputTarikh = document.getElementById('pilih-tarikh').value;
         let tarikhParam = "";
