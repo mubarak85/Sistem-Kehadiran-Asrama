@@ -583,19 +583,23 @@
         }
     }
 
- // Pemboleh ubah global (letakkan di bahagian atas skrip bersama yang lain)
+// Pemboleh ubah global (letakkan di bahagian atas skrip bersama yang lain)
 let gunaKameraDepan = false; // False = kamera belakang (utama), True = kamera depan
 
-// Fungsi untuk mulakan kamera yang telah dioptimumkan
+// Fungsi untuk mulakan kamera yang telah dibaiki
 async function mulakanKamera() {
     try {
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode("reader");
         }
         
-        // Pastikan kamera ditutup sepenuhnya jika sedang menyala
-        if (html5QrCode && html5QrCode.isScanning) {
-            await html5QrCode.stop();
+        // Pastikan kamera ditutup sepenuhnya dan selamat sebelum buka baru
+        try {
+            if (html5QrCode.isScanning) {
+                await html5QrCode.stop();
+            }
+        } catch (e) {
+            console.log("Nota: Kamera sudahpun berhenti.", e);
         }
 
         const config = { 
@@ -603,7 +607,7 @@ async function mulakanKamera() {
             qrbox: { width: 250, height: 250 } 
         };
         
-        // Format parameter facingMode yang serasi dengan html5-qrcode
+        // Pilihan kamera: 'user' untuk depan, 'environment' untuk belakang
         const constraintKamera = { 
             facingMode: gunaKameraDepan ? "user" : "environment" 
         };
@@ -617,7 +621,27 @@ async function mulakanKamera() {
 
     } catch (err) {
         console.error("Gagal membuka kamera: ", err);
-        paparNotifikasi("Gagal akses kamera. Sila semak kebenaran pelayar.", "RALAT");
+        
+        // Fallback: Jika gagal dengan facingMode, cuba guna ID kamera peranti secara terus
+        try {
+            const devices = await Html5Qrcode.getCameras();
+            if (devices && devices.length > 0) {
+                // Pilih kamera pertama jika belakang gagal, atau terakhir jika depan
+                let chosenId = gunaKameraDepan ? devices[devices.length - 1].id : devices[0].id;
+                
+                await html5QrCode.start(
+                    chosenId, 
+                    { fps: 10, qrbox: { width: 250, height: 250 } }, 
+                    onScanBerjaya, 
+                    onScanGagal
+                );
+                return; // Berjaya lepas fallback
+            }
+        } catch (fallbackErr) {
+            console.error("Fallback kamera turut gagal: ", fallbackErr);
+        }
+
+        paparNotifikasi("Gagal akses kamera. Sila pastikan kebenaran pelayar dibenarkan.", "RALAT");
     }
 }
 
@@ -627,18 +651,20 @@ async function tukarKamera() {
     const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
     paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
     
-    // Pastikan proses penutupan selesai sebelum buka semula
-    await tutupKamera();
+    // Panggil mulakanKamera terus kerana ia sudah mengandungi mekanisme tutup automatik
     await mulakanKamera();
 }
 
-// Fungsi tutup kamera yang lebih kemas
+// Fungsi tutup kamera yang selamat
 async function tutupKamera() {
     try {
-        if (html5QrCode && html5QrCode.isScanning) {
-            await html5QrCode.stop();
+        if (html5QrCode) {
+            if (html5QrCode.isScanning) {
+                await html5QrCode.stop();
+            }
             await html5QrCode.clear();
         }
+        paparNotifikasi("Kamera ditutup.", "INFO");
     } catch (err) {
         console.error("Ralat semasa menutup kamera: ", err);
     }
