@@ -459,14 +459,10 @@
     </div>
   </div>
 
-<script>
+  <script>
     let sedangMemproses = false; 
     let statusSemasaArah = "MASUK";
     let modLaporanRasmi = "MASUK"; 
-    
-    // Pemboleh ubah baharu untuk pengurusan kamera
-    let gunaKameraDepan = false; // False = kamera belakang (utama), True = kamera depan
-
     let cacheBelumMasuk = [];
     let cacheStatistikGlobal = null;
     let cacheSemuaPelajarAsrama = { lelaki: [], perempuan: [] };
@@ -483,14 +479,6 @@
             return `${parts[2]}/${parts[1]}/${tahunDuaDigit}`;
         }
         return tarikhStr;
-    }
-
-    // Fungsi untuk memastikan nombor IC/ID mengekalkan angka '0' di depan
-    function formatNoIC(icInput) {
-        if (!icInput) return "";
-        let icBersih = String(icInput).trim().replace(/\D/g, '');
-        // Jika format IC standard 12 digit, boleh kekalkan padStart atau biarkan string asal jika bentuk ID abjad/huruf
-        return icBersih.length === 12 ? icBersih.padStart(12, '0') : String(icInput).trim();
     }
 
     function mainkanBunyi(jenis) {
@@ -555,9 +543,7 @@
     async function hantarDataScan(idPelajar) {
         if (!idPelajar || sedangMemproses) return;
         sedangMemproses = true;
-        
-        // Format ID untuk pastikan nombor 0 di depan tidak dibuang
-        const idBersih = formatNoIC(idPelajar);
+        const idBersih = idPelajar.trim().toUpperCase();
         
         const senaraiKesalahan = Array.from(document.querySelectorAll('input[name="kesalahan"]:checked')).map(cb => cb.value).join(', ');
 
@@ -597,67 +583,33 @@
         }
     }
 
-    // Fungsi Kamera yang Dioptimumkan (Sokong Depan/Belakang & Stabil untuk iOS)
-    async function mulakanKamera() {
-        try {
-            if (!html5QrCode) {
-                html5QrCode = new Html5Qrcode("reader");
-            }
-            
-            if (html5QrCode.isScanning) {
-                await tutupKamera();
-            }
-
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            const constraintKamera = { 
-                facingMode: gunaKameraDepan ? "user" : "environment" 
-            };
-
-            await html5QrCode.start(
-                constraintKamera, 
-                config, 
-                (decodedText) => { hantarDataScan(decodedText); },
-                (errorMessage) => {}
-            );
-        } catch (err) {
-            console.error("Gagal membuka kamera: ", err);
-            
-            // Fallback: Cuba dapatkan senarai peranti fizikal jika facingMode gagal
-            try {
-                const devices = await Html5Qrcode.getCameras();
-                if (devices && devices.length > 0) {
-                    let chosenId = gunaKameraDepan ? devices[devices.length - 1].id : devices[0].id;
-                    await html5QrCode.start(
-                        chosenId, 
-                        { fps: 10, qrbox: { width: 250, height: 250 } }, 
-                        (decodedText) => { hantarDataScan(decodedText); }, 
-                        (errorMessage) => {}
-                    );
-                    return;
-                }
-            } catch (fallbackErr) {
-                console.error("Fallback kamera turut gagal:", fallbackErr);
-            }
-
-            paparNotifikasi("Gagal akses kamera. Sila beri kebenaran.", "GAGAL");
+    function mulakanKamera() {
+        if (html5QrCode) {
+            tutupKamera().then(() => mulakanKameraBaru());
+        } else {
+            mulakanKameraBaru();
         }
     }
 
-    // Fungsi Menukar Kamera Depan / Belakang
-    async function tukarKamera() {
-        gunaKameraDepan = !gunaKameraDepan; 
-        const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
-        paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
-        await mulakanKamera();
+    function mulakanKameraBaru() {
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 15, qrbox: { width: 220, height: 220 } },
+            (decodedText) => {
+                hantarDataScan(decodedText);
+            },
+            (errorMessage) => {}
+        ).catch(err => {
+            paparNotifikasi("Gagal buka kamera. Sila beri kebenaran.", "GAGAL");
+        });
     }
 
     async function tutupKamera() {
         if (html5QrCode) {
             try {
-                if (html5QrCode.isScanning) {
-                    await html5QrCode.stop();
-                }
-                await html5QrCode.clear();
+                await html5QrCode.stop();
+                html5QrCode.clear();
             } catch(e) {}
             html5QrCode = null;
         }
@@ -695,6 +647,7 @@
             document.getElementById('poster-stat-belum').innerText = belum;
             document.getElementById('poster-stat-peratus').innerText = peratus + "%";
 
+            // Jadual Tingkatan Ringkas
             let htmlTing = "";
             const statTing = data.tingkatan || {};
             Object.keys(statTing).sort().forEach(ting => {
@@ -786,6 +739,7 @@
         document.getElementById('laporan-stat-keluar').innerText = keluar;
         document.getElementById('laporan-stat-peratus').innerText = peratus + "%";
 
+        // Kepala jadual laporan mengikut mod
         let kepalaHTML = "";
         if (modLaporanRasmi === 'MASUK') {
             kepalaHTML = `<tr><th class="p-2.5 border border-slate-700">Tingkatan</th><th class="p-2.5 border border-slate-700 text-center">Jumlah Penuh</th><th class="p-2.5 border border-slate-700 text-center text-emerald-400">Sudah Masuk</th><th class="p-2.5 border border-slate-700 text-center text-orange-400">Baki Belum Masuk</th><th class="p-2.5 border border-slate-700 text-center">Peratusan</th></tr>`;
