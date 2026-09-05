@@ -583,47 +583,60 @@
         }
     }
 
+// 1. Pastikan pemboleh ubah global ini wujud di bahagian ATAS sekali dalam tag <script>
+let html5QrCode = null;
+let gunaKameraDepan = false;
+
+// 2. Fungsi mulakan kamera yang selamat dari ralat ReferenceError
 async function mulakanKamera() {
     try {
-        paparNotifikasi("Menguji akses kamera peranti...", "INFO");
+        // Semak adakah pustaka Html5Qrcode dimuatkan dalam HTML
+        if (typeof Html5Qrcode === 'undefined') {
+            alert("Ralat: Pustaka html5-qrcode belum dimuatkan dalam HTML head.");
+            return;
+        }
 
-        // Paksa minta kebenaran media secara langsung daripada pelayar
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-            video: { facingMode: gunaKameraDepan ? "user" : "environment" },
-            audio: false 
-        });
-
-        // Jika berjaya lepas, hentikan sebentar stream ujian dan teruskan dengan pengimbas
-        stream.getTracks().forEach(track => track.stop());
-        
-        paparNotifikasi("Kebenaran OK! Membuka pengimbas...", "BERJAYA");
-
-        // Selepas lulus ujian, mulakan html5-qrcode seperti biasa
+        // Inisialisasi jika belum wujud
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode("reader");
         }
-        
+
+        // Hentikan jika sedang scan
+        if (html5QrCode.isScanning) {
+            await html5QrCode.stop();
+        }
+
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        const constraintKamera = { facingMode: gunaKameraDepan ? "user" : "environment" };
+
         await html5QrCode.start(
-            { facingMode: gunaKameraDepan ? "user" : "environment" },
-            { fps: 10, qrbox: { width: 250, height: 250 } },
-            onScanBerjaya,
-            onScanGagal
+            constraintKamera, 
+            config, 
+            typeof onScanBerjaya === 'function' ? onScanBerjaya : (text) => console.log(text), 
+            typeof onScanGagal === 'function' ? onScanGagal : (err) => console.log(err)
         );
 
     } catch (err) {
-        console.error("Ralat Diagnostik Kamera:", err);
-        
-        // Paparkan mesej ralat sebenar dari telefon di skrin untuk kita kenal pasti
-        let mesejRalat = "Gagal: " + (err.name || err.message);
-        if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-            mesejRalat = "Ralat: Anda 'Block' kebenaran kamera di tetapan pelayar!";
-        } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-            mesejRalat = "Ralat: Tiada kamera dikesan pada peranti ini.";
-        } else if (window.location.protocol !== 'https:') {
-            mesejRalat = "Ralat: Pelayar wajibkan HTTPS untuk guna kamera!";
+        console.error("Ralat Kamera:", err);
+        alert("Gagal buka kamera. Sila pastikan kebenaran pelayar diberi.");
+    }
+}
+
+// 3. Fungsi tukar kamera
+async function tukarKamera() {
+    gunaKameraDepan = !gunaKameraDepan;
+    await mulakanKamera();
+}
+
+// 4. Fungsi tutup kamera
+async function tutupKamera() {
+    try {
+        if (html5QrCode && html5QrCode.isScanning) {
+            await html5QrCode.stop();
+            await html5QrCode.clear();
         }
-        
-        paparNotifikasi(mesejRalat, "RALAT");
+    } catch (err) {
+        console.error("Ralat tutup kamera:", err);
     }
 }
     async function muatNaikStatistik() {
