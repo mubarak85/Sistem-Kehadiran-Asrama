@@ -168,15 +168,15 @@
         </div>
 
         <div class="p-5 space-y-4">
-      <!-- KOTAK KAMERA QR -->
-<div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/30 p-2 shadow-inner">
-  <div id="reader" class="w-full min-h-[240px] relative"></div>
-  <div class="grid grid-cols-3 gap-2 mt-3">
-    <button onclick="mulakanKamera()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
-    <button onclick="tukarKamera()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tukar Kamera</button>
-    <button onclick="tutupKamera()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-2 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
-  </div>
-</div>
+          <!-- KOTAK KAMERA QR -->
+          <div class="relative w-full rounded-2xl overflow-hidden bg-slate-900 border-2 border-amber-500/30 p-2 shadow-inner">
+            <div id="reader" class="w-full min-h-[240px] relative"></div>
+            <div class="flex gap-2 mt-3">
+              <button onclick="mulakanKamera()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Buka Kamera</button>
+              <button onclick="tutupKamera()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">Tutup Kamera</button>
+            </div>
+          </div>
+
           <!-- NOTIFIKASI STATUS -->
           <div id="notifikasi-badge" class="hidden text-center py-2 px-4 rounded-full font-bold text-sm shadow-lg transition-all animate-pulse"></div>
 
@@ -583,62 +583,38 @@
         }
     }
 
-// 1. Pastikan pemboleh ubah global ini wujud di bahagian ATAS sekali dalam tag <script>
-let html5QrCode = null;
-let gunaKameraDepan = false;
-
-// 2. Fungsi mulakan kamera yang selamat dari ralat ReferenceError
-async function mulakanKamera() {
-    try {
-        // Semak adakah pustaka Html5Qrcode dimuatkan dalam HTML
-        if (typeof Html5Qrcode === 'undefined') {
-            alert("Ralat: Pustaka html5-qrcode belum dimuatkan dalam HTML head.");
-            return;
+    function mulakanKamera() {
+        if (html5QrCode) {
+            tutupKamera().then(() => mulakanKameraBaru());
+        } else {
+            mulakanKameraBaru();
         }
-
-        // Inisialisasi jika belum wujud
-        if (!html5QrCode) {
-            html5QrCode = new Html5Qrcode("reader");
-        }
-
-        // Hentikan jika sedang scan
-        if (html5QrCode.isScanning) {
-            await html5QrCode.stop();
-        }
-
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-        const constraintKamera = { facingMode: gunaKameraDepan ? "user" : "environment" };
-
-        await html5QrCode.start(
-            constraintKamera, 
-            config, 
-            typeof onScanBerjaya === 'function' ? onScanBerjaya : (text) => console.log(text), 
-            typeof onScanGagal === 'function' ? onScanGagal : (err) => console.log(err)
-        );
-
-    } catch (err) {
-        console.error("Ralat Kamera:", err);
-        alert("Gagal buka kamera. Sila pastikan kebenaran pelayar diberi.");
     }
-}
 
-// 3. Fungsi tukar kamera
-async function tukarKamera() {
-    gunaKameraDepan = !gunaKameraDepan;
-    await mulakanKamera();
-}
-
-// 4. Fungsi tutup kamera
-async function tutupKamera() {
-    try {
-        if (html5QrCode && html5QrCode.isScanning) {
-            await html5QrCode.stop();
-            await html5QrCode.clear();
-        }
-    } catch (err) {
-        console.error("Ralat tutup kamera:", err);
+    function mulakanKameraBaru() {
+        html5QrCode = new Html5Qrcode("reader");
+        html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 15, qrbox: { width: 220, height: 220 } },
+            (decodedText) => {
+                hantarDataScan(decodedText);
+            },
+            (errorMessage) => {}
+        ).catch(err => {
+            paparNotifikasi("Gagal buka kamera. Sila beri kebenaran.", "GAGAL");
+        });
     }
-}
+
+    async function tutupKamera() {
+        if (html5QrCode) {
+            try {
+                await html5QrCode.stop();
+                html5QrCode.clear();
+            } catch(e) {}
+            html5QrCode = null;
+        }
+    }
+
     async function muatNaikStatistik() {
         const inputTarikh = document.getElementById('pilih-tarikh').value;
         let tarikhParam = "";
