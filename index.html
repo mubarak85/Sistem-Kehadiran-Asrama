@@ -583,49 +583,66 @@
         }
     }
 
-   // 👇 GANTI ATAU TAMBAHKAN FUNGSI-FUNGSI INI DI DALAM TAG <SCRIPT>
-    async function mulakanKamera() {
+ // Pemboleh ubah global (letakkan di bahagian atas skrip bersama yang lain)
+let gunaKameraDepan = false; // False = kamera belakang (utama), True = kamera depan
+
+// Fungsi untuk mulakan kamera yang telah dioptimumkan
+async function mulakanKamera() {
+    try {
         if (!html5QrCode) {
             html5QrCode = new Html5Qrcode("reader");
         }
         
-        // Jika kamera sedang menyala, tutup dulu sebelum buka semula dengan mod baharu
-        if (html5QrCode.isScanning) {
-            await tutupKamera();
+        // Pastikan kamera ditutup sepenuhnya jika sedang menyala
+        if (html5QrCode && html5QrCode.isScanning) {
+            await html5QrCode.stop();
         }
 
-        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        const config = { 
+            fps: 10, 
+            qrbox: { width: 250, height: 250 } 
+        };
         
-        // Pilih arah kamera berdasarkan status gunaKameraDepan
+        // Format parameter facingMode yang serasi dengan html5-qrcode
         const constraintKamera = { 
             facingMode: gunaKameraDepan ? "user" : "environment" 
         };
 
-        html5QrCode.start(
+        await html5QrCode.start(
             constraintKamera, 
             config, 
             onScanBerjaya, 
             onScanGagal
-        ).catch(err => {
-            console.error("Gagal membuka kamera: ", err);
-            paparNotifikasi("Gagal akses kamera. Sila beri kebenaran.", "RALAT");
-        });
-    }
+        );
 
-    // Fungsi baharu untuk menukar antara kamera depan dan belakang
-    async function tukarKamera() {
-        gunaKameraDepan = !gunaKameraDepan; // Tukar nilai Boolean
-        const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
-        paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
-        await mulakanKamera();
+    } catch (err) {
+        console.error("Gagal membuka kamera: ", err);
+        paparNotifikasi("Gagal akses kamera. Sila semak kebenaran pelayar.", "RALAT");
     }
+}
 
-    async function tutupKamera() {
+// Fungsi untuk menukar antara kamera depan dan belakang
+async function tukarKamera() {
+    gunaKameraDepan = !gunaKameraDepan; // Tukar status
+    const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
+    paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
+    
+    // Pastikan proses penutupan selesai sebelum buka semula
+    await tutupKamera();
+    await mulakanKamera();
+}
+
+// Fungsi tutup kamera yang lebih kemas
+async function tutupKamera() {
+    try {
         if (html5QrCode && html5QrCode.isScanning) {
             await html5QrCode.stop();
-            html5QrCode.clear();
+            await html5QrCode.clear();
         }
+    } catch (err) {
+        console.error("Ralat semasa menutup kamera: ", err);
     }
+}
     async function muatNaikStatistik() {
         const inputTarikh = document.getElementById('pilih-tarikh').value;
         let tarikhParam = "";
