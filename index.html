@@ -583,79 +583,95 @@
         }
     }
 
-// Pemboleh ubah global (letakkan di bahagian atas skrip bersama yang lain)
-let gunaKameraDepan = false; // False = kamera belakang (utama), True = kamera depan
+// Pemboleh ubah global (letakkan di bahagian atas skrip)
+let gunaKameraDepan = false; 
 
-// Fungsi untuk mulakan kamera yang telah dibaiki
+// Fungsi Utama Membuka Kamera
 async function mulakanKamera() {
     try {
-        if (!html5QrCode) {
-            html5QrCode = new Html5Qrcode("reader");
-        }
-        
-        // Pastikan kamera ditutup sepenuhnya dan selamat sebelum buka baru
-        try {
-            if (html5QrCode.isScanning) {
-                await html5QrCode.stop();
+        paparNotifikasi("Sedang membuka kamera...", "INFO");
+
+        // 1. Jika objek sudah wujud, hentikan dan lupuskan sepenuhnya
+        if (html5QrCode) {
+            try {
+                if (html5QrCode.isScanning) {
+                    await html5QrCode.stop();
+                }
+                await html5QrCode.clear();
+            } catch (e) {
+                console.log("Nota pembersihan:", e);
             }
-        } catch (e) {
-            console.log("Nota: Kamera sudahpun berhenti.", e);
+            html5QrCode = null;
         }
+
+        // 2. Pastikan elemen div 'reader' wujud dan bersih daripada saki-baki video lama
+        let container = document.getElementById("reader");
+        if (!container) {
+            console.error("Elemen #reader tidak dijumpai dalam HTML!");
+            return;
+        }
+        container.innerHTML = ""; // Kosongkan manual untuk elak konflik DOM
+
+        // 3. Cipta semula instans baharu
+        html5QrCode = new Html5Qrcode("reader");
 
         const config = { 
             fps: 10, 
-            qrbox: { width: 250, height: 250 } 
+            qrbox: { width: 250, height: 250 },
+            aspectRatio: 1.0
         };
         
-        // Pilihan kamera: 'user' untuk depan, 'environment' untuk belakang
+        // 4. Cuba guna pilihan facingMode standard terlebih dahulu
         const constraintKamera = { 
-            facingMode: gunaKameraDepan ? "user" : "environment" 
+            facingMode: gunaKameraDepan ? "user" : { exact: "environment" } 
         };
 
-        await html5QrCode.start(
-            constraintKamera, 
-            config, 
-            onScanBerjaya, 
-            onScanGagal
-        );
-
-    } catch (err) {
-        console.error("Gagal membuka kamera: ", err);
-        
-        // Fallback: Jika gagal dengan facingMode, cuba guna ID kamera peranti secara terus
         try {
-            const devices = await Html5Qrcode.getCameras();
-            if (devices && devices.length > 0) {
-                // Pilih kamera pertama jika belakang gagal, atau terakhir jika depan
-                let chosenId = gunaKameraDepan ? devices[devices.length - 1].id : devices[0].id;
-                
-                await html5QrCode.start(
-                    chosenId, 
-                    { fps: 10, qrbox: { width: 250, height: 250 } }, 
-                    onScanBerjaya, 
-                    onScanGagal
-                );
-                return; // Berjaya lepas fallback
-            }
-        } catch (fallbackErr) {
-            console.error("Fallback kamera turut gagal: ", fallbackErr);
+            await html5QrCode.start(constraintKamera, config, onScanBerjaya, onScanGagal);
+            paparNotifikasi("Kamera berjaya dibuka!", "BERJAYA");
+            return;
+        } catch (errMode) {
+            console.log("Percubaan facingMode gagal, beralih kepada senarai peranti...", errMode);
         }
 
-        paparNotifikasi("Gagal akses kamera. Sila pastikan kebenaran pelayar dibenarkan.", "RALAT");
+        // 5. Fallback: Dapatkan senarai kamera peranti secara manual (Sangat stabil untuk iPhone/Safari & Android)
+        const devices = await Html5Qrcode.getCameras();
+        if (devices && devices.length > 0) {
+            // Pilih kamera mengikut pilihan depan atau belakang
+            let selectedId = devices[0].id; // Default belakang
+            
+            if (gunaKameraDepan) {
+                const frontCam = devices.find(d => d.label.toLowerCase().includes('front') || d.label.toLowerCase().includes('depan') || d.label.toLowerCase().includes('user'));
+                if (frontCam) selectedId = frontCam.id;
+            } else {
+                const backCam = devices.find(d => d.label.toLowerCase().includes('back') || d.label.toLowerCase().includes('belakang') || d.label.toLowerCase().includes('environment'));
+                if (backCam) selectedId = backCam.id;
+                else if (devices.length > 1) selectedId = devices[devices.length - 1].id;
+            }
+
+            await html5QrCode.start(selectedId, config, onScanBerjaya, onScanGagal);
+            paparNotifikasi("Kamera berjaya dibuka!", "BERJAYA");
+        } else {
+            throw new Error("Tiada peranti kamera dikesan.");
+        }
+
+    } catch (err) {
+        console.error("Ralat kritikal kamera: ", err);
+        paparNotifikasi("Gagal akses kamera. Sila pastikan kebenaran pelayar diberi dan tiada tab lain menggunakannya.", "RALAT");
     }
 }
 
-// Fungsi untuk menukar antara kamera depan dan belakang
+// Fungsi Menukar Kamera Depan / Belakang
 async function tukarKamera() {
-    gunaKameraDepan = !gunaKameraDepan; // Tukar status
+    gunaKameraDepan = !gunaKameraDepan; 
     const jenis = gunaKameraDepan ? "Kamera Depan (Selfie)" : "Kamera Belakang";
     paparNotifikasi(`Menukar ke ${jenis}...`, "INFO");
     
-    // Panggil mulakanKamera terus kerana ia sudah mengandungi mekanisme tutup automatik
+    // Panggil semula fungsi mula untuk reset dan buka dengan mod baharu
     await mulakanKamera();
 }
 
-// Fungsi tutup kamera yang selamat
+// Fungsi Menutup Kamera
 async function tutupKamera() {
     try {
         if (html5QrCode) {
@@ -663,7 +679,12 @@ async function tutupKamera() {
                 await html5QrCode.stop();
             }
             await html5QrCode.clear();
+            html5QrCode = null;
         }
+        // Bersihkan paparan manual
+        const container = document.getElementById("reader");
+        if (container) container.innerHTML = "";
+        
         paparNotifikasi("Kamera ditutup.", "INFO");
     } catch (err) {
         console.error("Ralat semasa menutup kamera: ", err);
