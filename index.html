@@ -591,30 +591,46 @@
         }
     }
 
-    function mulakanKameraBaru() {
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 15, qrbox: { width: 220, height: 220 } },
-            (decodedText) => {
-                hantarDataScan(decodedText);
-            },
-            (errorMessage) => {}
-        ).catch(err => {
-            paparNotifikasi("Gagal buka kamera. Sila beri kebenaran.", "GAGAL");
-        });
-    }
+  // Pembolehubah global tambahan
+let facingModeSemasa = "environment"; // Tetapan laluan: kamera belakang
 
-    async function tutupKamera() {
-        if (html5QrCode) {
-            try {
-                await html5QrCode.stop();
-                html5QrCode.clear();
-            } catch(e) {}
-            html5QrCode = null;
-        }
+function mulakanKamera() {
+    if (html5QrCode) {
+        tutupKamera().then(() => mulakanKameraBaru());
+    } else {
+        mulakanKameraBaru();
     }
+}
 
+function mulakanKameraBaru() {
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+        { facingMode: facingModeSemasa },
+        { fps: 15, qrbox: { width: 220, height: 220 } },
+        (decodedText) => {
+            hantarDataScan(decodedText);
+        },
+        (errorMessage) => {}
+    ).catch(err => {
+        paparNotifikasi("Gagal buka kamera. Sila beri kebenaran.", "GAGAL");
+    });
+}
+
+async function tutupKamera() {
+    if (html5QrCode) {
+        try {
+            await html5QrCode.stop();
+            html5QrCode.clear();
+        } catch(e) {}
+        html5QrCode = null;
+    }
+}
+
+// Fungsi tambahan untuk tukar kamera (Depan / Belakang)
+async function tukarKamera() {
+    facingModeSemasa = (facingModeSemasa === "environment") ? "user" : "environment";
+    mulakanKamera();
+}
     async function muatNaikStatistik() {
         const inputTarikh = document.getElementById('pilih-tarikh').value;
         let tarikhParam = "";
