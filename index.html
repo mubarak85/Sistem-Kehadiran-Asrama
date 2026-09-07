@@ -583,23 +583,6 @@
         }
     }
 
-  <!-- 1. BAHAGIAN HTML (Letak di kawasan paparan UI anda) -->
-<div class="flex flex-col items-center justify-center gap-4 p-4">
-    <!-- Paparan Kamera QR Code -->
-    <div id="reader" class="w-full max-w-md overflow-hidden rounded-xl shadow-lg border border-gray-200"></div>
-
-    <!-- Butang Tukar Kamera -->
-    <button onclick="tukarKamera()" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-xl text-xs transition-all cursor-pointer shadow-md">
-        Tukar Kamera
-    </button>
-</div>
-
-<!-- 2. BAHAGIAN JAVASCRIPT (Letak di dalam tag <script> atau fail .js anda) -->
-<script>
-    // Pembolehubah global
-    let html5QrCode = null;
-    let facingModeSemasa = "environment"; // Tetapan laluan: kamera belakang
-
     function mulakanKamera() {
         if (html5QrCode) {
             tutupKamera().then(() => mulakanKameraBaru());
@@ -611,7 +594,7 @@
     function mulakanKameraBaru() {
         html5QrCode = new Html5Qrcode("reader");
         html5QrCode.start(
-            { facingMode: facingModeSemasa },
+            { facingMode: "environment" },
             { fps: 15, qrbox: { width: 220, height: 220 } },
             (decodedText) => {
                 hantarDataScan(decodedText);
@@ -632,12 +615,6 @@
         }
     }
 
-    // Fungsi untuk tukar kamera (Depan / Belakang)
-    async function tukarKamera() {
-        facingModeSemasa = (facingModeSemasa === "environment") ? "user" : "environment";
-        mulakanKamera();
-    }
-</script>
     async function muatNaikStatistik() {
         const inputTarikh = document.getElementById('pilih-tarikh').value;
         let tarikhParam = "";
