@@ -204,18 +204,56 @@
           </div>
 
           <!-- TAIP ID MANUAL -->
-          <details class="group border-t border-slate-1000 pt-2">
-            <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-1000 cursor-pointer py-1 hover:text-amber-1000 transition-colors"><span>✏️ Taip ID Manual Cepat</span><span class="transition group-open:rotate-180 text-[10px]">▼</span></summary>
-            <div class="mt-2">
-              <input type="text" id="id-manual" oninput="lewatTaipID(this.value)" placeholder="Taip ID (Auto-hantar selepas selesai)..." class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none">
-            </div>
-          </details>
-        </div>
+<details class="group border-t border-slate-800 pt-2">
+  <summary class="list-none flex justify-between items-center font-semibold text-xs text-slate-400 cursor-pointer py-1 hover:text-amber-400 transition-colors">
+    <span>✏️ Taip ID Manual Cepat</span>
+    <span class="transition group-open:rotate-180 text-[10px]">▼</span>
+  </summary>
+  
+  <div class="mt-2 flex gap-2">
+    <!-- Petak Input -->
+    <input 
+      type="text" 
+      id="id-manual" 
+      onkeydown="if(event.key === 'Enter') kendalikanHantarID()" 
+      placeholder="Taip ID di sini..." 
+      class="w-full px-3 py-2.5 glass-input rounded-xl text-sm uppercase font-mono text-white focus:outline-none"
+    >
+    
+    <!-- Butang Hantar -->
+    <button 
+      type="button" 
+      onclick="kendalikanHantarID()" 
+      class="px-4 py-2.5 bg-amber-500 hover:bg-amber-600 active:scale-95 text-slate-950 font-bold text-xs rounded-xl transition-all duration-200 flex items-center justify-center gap-1 shrink-0 shadow-lg shadow-amber-500/20"
+    >
+      <span>Hantar</span>
+      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+      </svg>
+    </button>
+  </div>
+</details>
 
-        <div class="p-4 bg-slate-900/40 border-t border-slate-800 text-center">
-          <p class="text-[11px] text-amber-400 font-semibold">"LETAKKAN QR DI HADAPAN KAMERA • SILA IMBAS KAD PELAJAR"</p>
-        </div>
-      </div>
+<div class="p-4 bg-slate-900/40 border-t border-slate-800 text-center">
+  <p class="text-[11px] text-amber-400 font-semibold">"LETAKKAN QR DI HADAPAN KAMERA • SILA IMBAS KAD PELAJAR"</p>
+</div>
+
+<script>
+function kendalikanHantarID() {
+  const input = document.getElementById('id-manual');
+  const nilaiID = input.value.trim();
+
+  if (!nilaiID) return;
+
+  // Memanggil fungsi pendaftaran data asal anda
+  if (typeof lewatTaipID === 'function') {
+    lewatTaipID(nilaiID);
+  }
+
+  // Kosongkan petak input selepas hantar
+  input.value = '';
+}
+</script>
 
       <!-- KOLOM KANAN: BUTANG TINDAKAN & ANALISIS WARDEN -->
       <div class="lg:col-span-3 space-y-4">
