@@ -42,26 +42,77 @@
       border-radius: 1rem;
     }
     
+    @page {
+      size: A4 portrait;
+      margin: 5mm 8mm; /* Kecilkan margin kertas supaya muat 1 muka surat */
+    }
+
     @media print {
       body * { visibility: hidden !important; }
       #modal-laporan-rasmi, #modal-laporan-rasmi * { visibility: visible !important; }
+      
       #modal-laporan-rasmi {
-        position: absolute !important; left: 0 !important; top: 0 !important;
-        width: 100% !important; height: auto !important; background: white !important;
-        display: block !important; padding: 0 !important; margin: 0 !important;
-        backdrop-filter: none !important; overflow: visible !important; z-index: 999999 !important;
+        position: absolute !important; 
+        left: 0 !important; 
+        top: 0 !important;
+        width: 100% !important; 
+        height: auto !important; 
+        background: white !important;
+        display: block !important; 
+        padding: 0 !important; 
+        margin: 0 !important;
+        backdrop-filter: none !important; 
+        overflow: visible !important; 
+        z-index: 999999 !important;
       }
+
       .kotak-laporan-modal {
-        background: white !important; border: none !important; box-shadow: none !important;
-        width: 100% !important; max-width: 100% !important; color: black !important;
-        padding: 10mm !important; margin: 0 !important; max-height: none !important; overflow: visible !important;
+        background: white !important; 
+        border: none !important; 
+        box-shadow: none !important;
+        width: 100% !important; 
+        max-width: 100% !important; 
+        color: black !important;
+        padding: 0 !important; 
+        margin: 0 !important; 
+        max-height: none !important; 
+        overflow: visible !important;
+        page-break-inside: avoid !important; /* Mencegah helaian daripada terpisah */
       }
-      .wadah-skrol-cetak { max-height: none !important; overflow: visible !important; }
-      .butang-aksi { display: none !important; }
-      .cetak-hitam-putih { color: black !important; border-color: #000 !important; }
-      table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
-      tr { page-break-inside: avoid; page-break-after: auto; }
-      th, td { border: 1px solid #000 !important; color: black !important; padding: 6px !important; font-size: 10pt !important; }
+
+      .wadah-skrol-cetak { 
+        max-height: none !important; 
+        overflow: visible !important; 
+      }
+
+      .butang-aksi { 
+        display: none !important; 
+      }
+
+      .cetak-hitam-putih { 
+        color: black !important; 
+        border-color: #000 !important; 
+      }
+
+      /* Kawalan Jadual & Ruang */
+      table { 
+        border-collapse: collapse !important; 
+        width: 100% !important; 
+        page-break-inside: avoid !important; /* Kekalkan jadual dalam 1 helaian */
+        margin-top: 6px !important;
+      }
+
+      tr { 
+        page-break-inside: avoid !important; 
+        page-break-after: auto; 
+      }
+
+      th, td { 
+        border: 1px solid #000 !important; 
+        color: black !important; 
+        padding: 3px 6px !important; /* Kecilkan padding sel */
+        font-size: 8.5pt !important; /* Kecilkan fon sikit */
+      }
     }
   </style>
 </head>
