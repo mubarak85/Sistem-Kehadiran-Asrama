@@ -42,77 +42,26 @@
       border-radius: 1rem;
     }
     
-    @page {
-      size: A4 portrait;
-      margin: 5mm 8mm; /* Kecilkan margin kertas supaya muat 1 muka surat */
-    }
-
     @media print {
       body * { visibility: hidden !important; }
       #modal-laporan-rasmi, #modal-laporan-rasmi * { visibility: visible !important; }
-      
       #modal-laporan-rasmi {
-        position: absolute !important; 
-        left: 0 !important; 
-        top: 0 !important;
-        width: 100% !important; 
-        height: auto !important; 
-        background: white !important;
-        display: block !important; 
-        padding: 0 !important; 
-        margin: 0 !important;
-        backdrop-filter: none !important; 
-        overflow: visible !important; 
-        z-index: 999999 !important;
+        position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 100% !important; height: auto !important; background: white !important;
+        display: block !important; padding: 0 !important; margin: 0 !important;
+        backdrop-filter: none !important; overflow: visible !important; z-index: 999999 !important;
       }
-
       .kotak-laporan-modal {
-        background: white !important; 
-        border: none !important; 
-        box-shadow: none !important;
-        width: 100% !important; 
-        max-width: 100% !important; 
-        color: black !important;
-        padding: 0 !important; 
-        margin: 0 !important; 
-        max-height: none !important; 
-        overflow: visible !important;
-        page-break-inside: avoid !important; /* Mencegah helaian daripada terpisah */
+        background: white !important; border: none !important; box-shadow: none !important;
+        width: 100% !important; max-width: 100% !important; color: black !important;
+        padding: 10mm !important; margin: 0 !important; max-height: none !important; overflow: visible !important;
       }
-
-      .wadah-skrol-cetak { 
-        max-height: none !important; 
-        overflow: visible !important; 
-      }
-
-      .butang-aksi { 
-        display: none !important; 
-      }
-
-      .cetak-hitam-putih { 
-        color: black !important; 
-        border-color: #000 !important; 
-      }
-
-      /* Kawalan Jadual & Ruang */
-      table { 
-        border-collapse: collapse !important; 
-        width: 100% !important; 
-        page-break-inside: avoid !important; /* Kekalkan jadual dalam 1 helaian */
-        margin-top: 6px !important;
-      }
-
-      tr { 
-        page-break-inside: avoid !important; 
-        page-break-after: auto; 
-      }
-
-      th, td { 
-        border: 1px solid #000 !important; 
-        color: black !important; 
-        padding: 3px 6px !important; /* Kecilkan padding sel */
-        font-size: 8.5pt !important; /* Kecilkan fon sikit */
-      }
+      .wadah-skrol-cetak { max-height: none !important; overflow: visible !important; }
+      .butang-aksi { display: none !important; }
+      .cetak-hitam-putih { color: black !important; border-color: #000 !important; }
+      table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      th, td { border: 1px solid #000 !important; color: black !important; padding: 6px !important; font-size: 10pt !important; }
     }
   </style>
 </head>
@@ -456,158 +405,84 @@ function kendalikanHantarID() {
     </div>
   </div>
 
- <!-- MODAL LAPORAN RASMI (STRUKTUR LENGKAP RASMI) -->
-<div id="modal-laporan-rasmi" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 z-50">
-  <div class="kotak-laporan-modal bg-white text-slate-900 w-full max-w-4xl max-h-[92vh] overflow-y-auto rounded-2xl shadow-2xl p-6 sm:p-10 wadah-skrol-cetak border border-slate-200">
-    
-    <!-- KEPALA SURAT / HEADER RASMI KPM -->
-    <div class="border-b-2 border-slate-900 pb-3 mb-4">
-      <div class="flex items-center justify-between gap-4">
-        <!-- Logo KPM (Menggunakan SVG Vector) -->
-        <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center">
-          <svg viewBox="0 0 100 100" class="w-full h-full fill-slate-900">
-            <path d="M50 5 L15 25 L15 75 L50 95 L85 75 L85 25 Z" fill="none" stroke="currentColor" stroke-width="5"/>
-            <path d="M50 15 L25 30 L25 70 L50 85 L75 70 L75 30 Z" fill="currentColor" opacity="0.15"/>
-            <text x="50" y="58" font-size="28" font-weight="bold" text-anchor="middle" fill="currentColor">KPM</text>
-          </svg>
-        </div>
+  <!-- MODAL LAPORAN RASMI HARIAN & EKSPORT EXCEL -->
+  <div id="modal-laporan-rasmi" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden overflow-y-auto">
+    <div class="cyber-card kotak-laporan-modal p-6 sm:p-10 rounded-3xl max-w-4xl w-full relative max-h-[92vh] overflow-y-auto border border-amber-500/30 space-y-6 cetak-hitam-putih">
+      
+      <div class="text-center border-b-2 border-slate-700 pb-4 space-y-1">
+        <p class="text-xs font-bold uppercase tracking-widest text-amber-400">KEMENTERIAN PENDIDIKAN MALAYSIA</p>
+        <h2 class="text-lg sm:text-xl font-black text-slate-100 uppercase tracking-wide">UNIT PENGURUSAN ASRAMA SMK AGAMA TOK BACHOK</h2>
+        <h1 id="tajuk-laporan-utama" class="text-xl sm:text-2xl font-extrabold text-white uppercase">LAPORAN RASMI PENDAFTARAN MASUK PELAJAR</h1>
+        <p class="text-xs text-slate-400 pt-1">Tarikh Rujukan Laporan: <span id="laporan-tarikh-papar" class="font-bold text-amber-300"></span></p>
+      </div>
 
-        <div class="text-center flex-1">
-          <h1 class="text-xs font-bold text-amber-600 tracking-wider uppercase">Kementerian Pendidikan Malaysia</h1>
-          <h2 class="text-lg font-black text-slate-900 uppercase tracking-tight leading-snug">Sekolah Menengah Kebangsaan Agama Tok Bachok</h2>
-          <p class="text-[10px] text-slate-600 font-medium">16050 Bachok, Kelantan Darul Naim | Tel: 09-7788900 | E-mel: smkatokbachok@moe.edu.my</p>
-          <div class="mt-1 inline-block bg-slate-100 px-3 py-0.5 rounded-full border border-slate-300">
-            <span class="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Unit Pengurusan Asrama & Hal Ehwal Murid</span>
-          </div>
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-3 bg-slate-900/60 p-3 rounded-2xl border border-slate-800 butang-aksi">
+        <div class="flex gap-2 w-full sm:w-auto">
+          <button id="btn-mod-laporan-masuk" onclick="tukarModLaporanRasmi('MASUK')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-emerald-600 text-white cursor-pointer shadow-md transition-all">📥 LAPORAN MASUK</button>
+          <button id="btn-mod-laporan-keluar" onclick="tukarModLaporanRasmi('KELUAR')" class="flex-1 sm:flex-none px-4 py-2 rounded-xl text-xs font-black bg-slate-800 text-slate-400 border border-slate-700 cursor-pointer shadow-md transition-all">📤 LAPORAN KELUAR</button>
         </div>
-
-        <!-- Tag Versi / Kod Dokumen -->
-        <div class="w-16 text-right text-[9px] text-slate-500 font-mono hidden sm:block">
-          <div>DOKUMEN RASMI</div>
-          <div>HSPro-v6.0</div>
-          <div>A4-PORTRAIT</div>
+        <div class="flex flex-wrap gap-2 w-full sm:w-auto justify-end">
+          <button onclick="eksportKeExcel()" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>📥</span> Excel (.csv)</button>
+          <button onclick="window.print()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-3 py-2 rounded-xl cursor-pointer shadow-md transition-all flex items-center gap-1.5"><span>🖨️</span> Cetak / PDF</button>
+          <button onclick="tutupModalLaporanRasmi()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold px-3 py-2 rounded-xl text-xs cursor-pointer">Tutup</button>
         </div>
       </div>
-    </div>
 
-    <!-- TAJUK & META LAPORAN -->
-    <div class="text-center mb-5">
-      <h3 class="text-xl font-extrabold text-slate-900 uppercase tracking-wide">Laporan Rasmi Pendaftaran Masuk Pelajar</h3>
-      <div class="flex justify-center items-center gap-4 text-xs font-semibold text-slate-600 mt-1">
-        <span>Tarikh Laporan: <strong class="text-slate-900">03/10/2026</strong></span>
-        <span>•</span>
-        <span>Masa Generasi: <strong class="text-slate-900">11:35 PM</strong></span>
-        <span>•</span>
-        <span>Status: <strong class="text-emerald-700 uppercase">Dikemas Kini</strong></span>
-      </div>
-    </div>
-
-    <!-- CARD RINGKASAN STATISTIK (HIGHLIGHT) -->
-    <div class="grid grid-cols-4 gap-3 mb-5">
-      <div class="p-3 bg-slate-50 rounded-xl border border-slate-300 text-center">
-        <span class="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Jumlah Pelajar</span>
-        <span class="text-2xl font-black text-slate-800">708</span>
-      </div>
-      <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-300 text-center">
-        <span class="block text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Sudah Masuk</span>
-        <span class="text-2xl font-black text-emerald-600">659</span>
-      </div>
-      <div class="p-3 bg-amber-50 rounded-xl border border-amber-300 text-center">
-        <span class="block text-[10px] font-bold text-amber-700 uppercase tracking-wider">Baki Masuk</span>
-        <span class="text-2xl font-black text-amber-600">49</span>
-      </div>
-      <div class="p-3 bg-blue-50 rounded-xl border border-blue-300 text-center">
-        <span class="block text-[10px] font-bold text-blue-700 uppercase tracking-wider">Peratusan</span>
-        <span class="text-2xl font-black text-blue-600">93.1%</span>
-      </div>
-    </div>
-
-    <!-- JADUAL ANALISA UTAMA -->
-    <div class="mb-5">
-      <div class="flex items-center justify-between mb-2">
-        <h4 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-          <span>📈</span> Ringkasan Analisa, Peratusan & Bilangan Mengikut Tingkatan
-        </h4>
-        <span class="text-[10px] font-mono text-slate-500">Jumlah Tingkatan: 7 Class Groups</span>
-      </div>
-
-      <table class="w-full text-center border-collapse border border-slate-900 text-xs">
-        <thead>
-          <tr class="bg-slate-900 text-white font-bold uppercase text-[11px]">
-            <th class="border border-slate-900 p-2 text-left px-3">Tingkatan</th>
-            <th class="border border-slate-900 p-2">Jumlah Penuh</th>
-            <th class="border border-slate-900 p-2">Sudah Masuk</th>
-            <th class="border border-slate-900 p-2">Baki Belum Masuk</th>
-            <th class="border border-slate-900 p-2">Peratusan</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-slate-300 font-medium">
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T1</td><td class="border border-slate-900 p-1.5">136</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">123</td><td class="border border-slate-900 p-1.5 text-amber-700">13</td><td class="border border-slate-900 p-1.5 font-bold">90.4%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T2</td><td class="border border-slate-900 p-1.5">140</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">132</td><td class="border border-slate-900 p-1.5 text-amber-700">8</td><td class="border border-slate-900 p-1.5 font-bold">94.3%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T3</td><td class="border border-slate-900 p-1.5">115</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">104</td><td class="border border-slate-900 p-1.5 text-amber-700">11</td><td class="border border-slate-900 p-1.5 font-bold">90.4%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T4</td><td class="border border-slate-900 p-1.5">134</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">125</td><td class="border border-slate-900 p-1.5 text-amber-700">9</td><td class="border border-slate-900 p-1.5 font-bold">93.3%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T5</td><td class="border border-slate-900 p-1.5">125</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">123</td><td class="border border-slate-900 p-1.5 text-amber-700">2</td><td class="border border-slate-900 p-1.5 font-bold">98.4%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T6(A)</td><td class="border border-slate-900 p-1.5">27</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">23</td><td class="border border-slate-900 p-1.5 text-amber-700">4</td><td class="border border-slate-900 p-1.5 font-bold">85.2%</td></tr>
-          <tr class="hover:bg-slate-50"><td class="border border-slate-900 p-1.5 text-left px-3 font-bold">T6(R)</td><td class="border border-slate-900 p-1.5">31</td><td class="border border-slate-900 p-1.5 font-bold text-slate-900">29</td><td class="border border-slate-900 p-1.5 text-amber-700">2</td><td class="border border-slate-900 p-1.5 font-bold">93.5%</td></tr>
-        </tbody>
-        <tfoot>
-          <tr class="bg-slate-200 text-slate-900 font-black text-xs">
-            <td class="border border-slate-900 p-2 text-left px-3 uppercase">JUMLAH KESELURUHAN</td>
-            <td class="border border-slate-900 p-2">708</td>
-            <td class="border border-slate-900 p-2 text-emerald-800">659</td>
-            <td class="border border-slate-900 p-2 text-amber-800">49</td>
-            <td class="border border-slate-900 p-2">93.1%</td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <!-- RUANG CATATAN / ULASAN RASMI -->
-    <div class="mb-6 p-3 bg-slate-50 border border-slate-300 rounded-lg text-[11px] text-slate-700">
-      <strong class="block text-slate-900 font-bold uppercase mb-1">📌 Catatan / Ulasan Warden On-Duty:</strong>
-      <p class="leading-relaxed">
-        Pendaftaran berjalan dengan lancar. Baki 49 orang pelajar yang belum mendaftar telah mengemukakan surat permohonan kebenaran lewat atas urusan keluarga dan hal-hal kesihatan. Kesemua mereka dijangka mendaftar sebelum jam 8:00 malam.
-      </p>
-    </div>
-
-    <!-- BLOCK PENGESAHAN & TANDATANGAN (MEMENUHI BAHAGIAN BAWAH A4) -->
-    <div class="mt-8 pt-4 border-t border-slate-300">
-      <div class="grid grid-cols-2 gap-12 text-xs">
-        <div>
-          <p class="text-slate-600 font-semibold mb-12">Disediakan Oleh:</p>
-          <div class="border-b border-slate-800 w-48 mb-1"></div>
-          <p class="font-extrabold text-slate-900 uppercase">Warden Bertugas / Penyelia Asrama</p>
-          <p class="text-[10px] text-slate-500">SMK Agama Tok Bachok</p>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800">
+          <p class="text-[11px] text-slate-400 uppercase font-semibold">Jumlah Pelajar</p>
+          <p id="laporan-stat-total" class="text-xl font-black text-slate-100 mt-1">0</p>
         </div>
-
-        <div class="text-right flex flex-col items-end">
-          <p class="text-slate-600 font-semibold mb-12 text-left w-48">Disahkan Oleh:</p>
-          <div class="border-b border-slate-800 w-48 mb-1"></div>
-          <p class="font-extrabold text-slate-900 uppercase text-left w-48">Pengetua / PK HEM</p>
-          <p class="text-[10px] text-slate-500 text-left w-48">SMK Agama Tok Bachok</p>
+        <div class="bg-emerald-950/40 p-3.5 rounded-2xl border border-emerald-900/50">
+          <p class="text-[11px] text-emerald-400 uppercase font-semibold">Sudah Masuk</p>
+          <p id="laporan-stat-masuk" class="text-xl font-black text-emerald-400 mt-1">0</p>
+        </div>
+        <div class="bg-orange-950/40 p-3.5 rounded-2xl border border-orange-900/50">
+          <p class="text-[11px] text-orange-400 uppercase font-semibold">Baki Masuk</p>
+          <p id="laporan-stat-keluar" class="text-xl font-black text-orange-400 mt-1">0</p>
+        </div>
+        <div class="bg-amber-950/40 p-3.5 rounded-2xl border border-amber-900/50">
+          <p class="text-[11px] text-amber-400 uppercase font-semibold">Peratusan</p>
+          <p id="laporan-stat-peratus" class="text-xl font-black text-amber-300 mt-1">0%</p>
         </div>
       </div>
-    </div>
 
-    <!-- FOOTER CETAKAN LAPORAN -->
-    <div class="mt-8 pt-3 border-t border-dashed border-slate-300 flex justify-between items-center text-[9px] text-slate-400 font-mono">
-      <span>Dicetak secara automatik menerusi Sistem HostelScan Pro v6.0</span>
-      <span>Muka Surat 1 daripada 1</span>
-    </div>
+      <div class="space-y-3">
+        <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2"><span>📈</span> Ringkasan Analisa, Peratusan & Bilangan Mengikut Tingkatan</h3>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-900 text-slate-300 uppercase font-bold">
+              <tr id="kepala-jadual-tingkatan"></tr>
+            </thead>
+            <tbody id="laporan-jadual-tingkatan" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
 
-    <!-- BUTANG AKSI (SEMBUNYI SAAT PRINT) -->
-    <div class="mt-6 flex justify-end gap-3 butang-aksi border-t pt-4 border-slate-200">
-      <button onclick="document.getElementById('modal-laporan-rasmi').classList.add('hidden')" class="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 font-bold rounded-xl text-xs transition">
-        Tutup
-      </button>
-      <button onclick="window.print()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs transition flex items-center gap-2 shadow-lg">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 002-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 002-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-        Cetak Laporan Rasmi
-      </button>
-    </div>
+      <div id="bahagian-belum-masuk" class="space-y-3 pt-2">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <h3 class="font-bold text-sm text-rose-400 flex items-center gap-2"><span>⚠️</span> Senarai Pelajar Belum Mendaftar Masuk</h3>
+          <input type="text" id="carian-pelajar" oninput="tapisSenaraiBelumMasuk()" placeholder="🔍 Cari nama / dorm..." class="glass-input px-3 py-1.5 rounded-xl text-xs text-white w-full sm:w-64 focus:outline-none butang-aksi">
+        </div>
+        <div class="wadah-skrol-cetak overflow-x-auto max-h-60 overflow-y-auto">
+          <table class="w-full text-left text-xs border-collapse">
+            <thead class="bg-slate-900 text-slate-300 uppercase font-bold sticky top-0">
+              <tr>
+                <th class="p-2.5 border border-slate-700 w-12 text-center">Bil</th>
+                <th class="p-2.5 border border-slate-700">Nama Pelajar</th>
+                <th class="p-2.5 text-center border border-slate-700">Tingkatan</th>
+                <th class="p-2.5 text-center border border-slate-700">Dorm</th>
+                <th class="p-2.5 text-center border border-slate-700">Status</th>
+              </tr>
+            </thead>
+            <tbody id="laporan-jadual-belum-masuk" class="divide-y divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
 
+    </div>
   </div>
-</div>
+
   <!-- MODAL GRAF TREND -->
   <div id="modal-graf" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="cyber-card p-6 rounded-3xl max-w-2xl w-full relative">
