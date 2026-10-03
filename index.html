@@ -42,81 +42,27 @@
       border-radius: 1rem;
     }
     
-@media print {
-  /* 1. Tetapkan tetapan halaman cetakan (A4 Portrait) */
-  @page {
-    size: A4 portrait;
-    margin: 8mm 10mm; /* Margin kecil supaya muat lebih banyak kandungan */
-  }
-
-  /* 2. Format semula badan halaman */
-  body {
-    background-color: #ffffff !important;
-    color: #000000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    font-size: 11px !important; /* Saiz teks asas lebih kecil */
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-  }
-
-  /* 3. Sembunyikan latar belakang gelap, bayang, atau bar nav luar */
-  .no-print, header, footer, nav, .sidebar {
-    display: none !important;
-  }
-
-  /* 4. Pastikan pembalut utama (container) guna lebar penuh tanpa latar gelap */
-  .container, .wrapper, main, div {
-    background: transparent !important;
-    box-shadow: none !important;
-    width: 100% !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-
-  /* 5. Kecilkan saiz kad ringkasan (Stat Cards) */
-  .card, .stat-card, .summary-box {
-    padding: 6px 8px !important;
-    margin-bottom: 8px !important;
-    font-size: 11px !important;
-  }
-
-  .card h2, .card .value, .stat-card .number {
-    font-size: 16px !important; /* Kecilkan saiz nombor besar */
-  }
-
-  /* 6. Mampatkan Jadual */
-  table {
-    width: 100% !important;
-    border-collapse: collapse !important;
-    margin-bottom: 10px !important;
-    page-break-inside: auto;
-  }
-
-  tr {
-    page-break-inside: avoid;
-    page-break-after: auto;
-  }
-
-  th, td {
-    padding: 4px 6px !important; /* Kecilkan padding ruang baris jadual */
-    font-size: 10px !important;  /* Saiz teks jadual compact */
-    line-height: 1.2 !important;
-  }
-
-  /* 7. Elakkan tajuk seksyen terpisah daripada jadual di bawahnya */
-  h1, h2, h3, h4, .section-title {
-    page-break-after: avoid;
-    margin-top: 8px !important;
-    margin-bottom: 4px !important;
-  }
-
-  /* 8. Beri paksaan agar laporan Utama & Ringkasan Tingkatan muat 1 muka surat */
-  .summary-section {
-    page-break-after: avoid;
-  }
-}
+    @media print {
+      body * { visibility: hidden !important; }
+      #modal-laporan-rasmi, #modal-laporan-rasmi * { visibility: visible !important; }
+      #modal-laporan-rasmi {
+        position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 100% !important; height: auto !important; background: white !important;
+        display: block !important; padding: 0 !important; margin: 0 !important;
+        backdrop-filter: none !important; overflow: visible !important; z-index: 999999 !important;
+      }
+      .kotak-laporan-modal {
+        background: white !important; border: none !important; box-shadow: none !important;
+        width: 100% !important; max-width: 100% !important; color: black !important;
+        padding: 10mm !important; margin: 0 !important; max-height: none !important; overflow: visible !important;
+      }
+      .wadah-skrol-cetak { max-height: none !important; overflow: visible !important; }
+      .butang-aksi { display: none !important; }
+      .cetak-hitam-putih { color: black !important; border-color: #000 !important; }
+      table { border-collapse: collapse !important; width: 100% !important; page-break-inside: auto; }
+      tr { page-break-inside: avoid; page-break-after: auto; }
+      th, td { border: 1px solid #000 !important; color: black !important; padding: 6px !important; font-size: 10pt !important; }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen p-3 sm:p-6 selection:bg-amber-500 selection:text-slate-950">
@@ -308,7 +254,6 @@ function kendalikanHantarID() {
   input.value = '';
 }
 </script>
-
       <!-- KOLOM KANAN: BUTANG TINDAKAN & ANALISIS WARDEN -->
       <div class="lg:col-span-3 space-y-4">
         <div class="cyber-card p-4 rounded-2xl space-y-3 shadow-xl">
