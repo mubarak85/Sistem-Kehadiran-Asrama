@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HostelScan Pro v6.3 - SMKA Tok Bachok</title>
+  <title>HostelScan Pro v6.5 - SMKA Tok Bachok</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -86,7 +86,7 @@
 
     <!-- HEADER KOMPAK & BERWIBAWA -->
     <header class="premium-card-gold rounded-2xl sm:rounded-3xl p-4 sm:p-6">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
         <div class="flex items-center gap-3.5 sm:gap-4">
           <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 p-0.5 shadow-lg shrink-0">
             <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center p-1.5">
@@ -108,17 +108,39 @@
         </div>
 
         <!-- MENU PANTAS & MASA LANGSUNG -->
-        <div class="flex flex-wrap items-center justify-between lg:justify-end gap-2 sm:gap-3 pt-2.5 lg:pt-0 border-t lg:border-t-0 border-slate-800/80">
-          <a
-            href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="min-h-[38px] inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-black bg-gradient-to-r from-amber-500/20 to-yellow-500/15 hover:from-amber-500 hover:to-yellow-500 text-amber-300 hover:text-slate-950 border border-amber-500/40 transition-all shadow-sm"
-          >
-            <span>📋</span>
-            <span>E-Pemantauan</span>
-            <span class="text-[10px] opacity-80">↗</span>
-          </a>
+        <div class="flex flex-wrap items-center justify-between xl:justify-end gap-2 pt-2.5 xl:pt-0 border-t xl:border-t-0 border-slate-800/80">
+          <div class="flex flex-wrap items-center gap-2">
+            <a
+              href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/35 transition-all"
+            >
+              <span>📋</span>
+              <span>E-Pemantauan</span>
+              <span class="text-[10px] opacity-80">↗</span>
+            </a>
+            <a
+              href="https://script.google.com/macros/s/AKfycbxFstsHqbNE6SxAh-jOOe_EnL8iOZ_s2E7Q54Y61qniUG9-19bJ69I6ni4JQV_AjGSaPg/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/35 transition-all"
+            >
+              <span>🛡️</span>
+              <span>Portal Warden</span>
+              <span class="text-[10px] opacity-80">↗</span>
+            </a>
+            <a
+              href="https://script.google.com/macros/s/AKfycbw6Q6OZUy2MZPNVI9SsLFzqn9-K6qgmrqm0mQb_2Ng6TGA4NIjGbaXYX07Do3Q5ND-a7Q/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="min-h-[38px] inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/35 transition-all"
+            >
+              <span>👨‍👩‍👧</span>
+              <span>Portal Ibubapa</span>
+              <span class="text-[10px] opacity-80">↗</span>
+            </a>
+          </div>
 
           <div class="flex items-center gap-2">
             <div class="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-900/80 px-3 py-2 rounded-xl border border-slate-800">
@@ -216,21 +238,39 @@
             <span id="terakhir-masa" class="text-xs font-mono font-bold bg-slate-950 px-2.5 py-1.5 rounded-xl text-amber-300 border border-slate-800 shrink-0">-</span>
           </div>
 
-          <!-- SUIS KAEDAH IMBASAN -->
+          <!-- SUIS KAEDAH IMBASAN (KAMERA DIUTAMAKAN DI PERTAMA) -->
           <div class="bg-slate-950/70 p-1 rounded-xl border border-slate-800 grid grid-cols-3 gap-1">
-            <button type="button" id="subtab-alat" onclick="pilihKaedahImbas('ALAT')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all">
-              🔫 Alat Scan
+            <button type="button" id="subtab-kamera" onclick="pilihKaedahImbas('KAMERA')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all">
+              📷 Kamera
             </button>
-            <button type="button" id="subtab-kamera" onclick="pilihKaedahImbas('KAMERA')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
-              📷 Kamera HP
+            <button type="button" id="subtab-alat" onclick="pilihKaedahImbas('ALAT')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
+              🔫 Alat Scan
             </button>
             <button type="button" id="subtab-manual" onclick="pilihKaedahImbas('MANUAL')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
               ⌨️ Taip ID
             </button>
           </div>
 
-          <!-- PANEL 1: ALAT SCAN FIZIKAL -->
-          <div id="panel-kaedah-alat" class="p-3.5 sm:p-4 bg-slate-900/75 rounded-2xl border border-amber-500/25 space-y-3">
+          <!-- PANEL 1 (UTAMA): KAMERA HP / WEBCAM TERUS TERBUKA -->
+          <div id="panel-kaedah-kamera" class="space-y-3">
+            <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-amber-500/25 p-2">
+              <div id="reader" class="w-full min-h-[240px] relative"></div>
+              <div class="grid grid-cols-3 gap-2 mt-2.5">
+                <button onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                  ▶ Buka Semula
+                </button>
+                <button onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                  🔄 Tukar
+                </button>
+                <button onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                  ⏹ Tutup
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- PANEL 2: ALAT SCAN FIZIKAL -->
+          <div id="panel-kaedah-alat" class="hidden p-3.5 sm:p-4 bg-slate-900/75 rounded-2xl border border-amber-500/25 space-y-3">
             <div class="flex items-center justify-between gap-2">
               <div class="flex items-center gap-2">
                 <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" id="indikator-scanner"></span>
@@ -254,26 +294,8 @@
               </button>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Alat scan berfungsi secara automatik sebaik kad diimbas. Anda juga boleh bertukar ke tab <span class="text-slate-200 font-semibold">Kamera HP</span> pada bila-bila masa.
+              Alat scan berfungsi secara automatik sebaik kad diimbas walaupun anda berada di tab <span class="text-slate-200 font-semibold">Kamera</span>.
             </p>
-          </div>
-
-          <!-- PANEL 2: KAMERA HP / WEBCAM -->
-          <div id="panel-kaedah-kamera" class="hidden space-y-3">
-            <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-slate-800 p-2">
-              <div id="reader" class="w-full min-h-[230px] relative"></div>
-              <div class="grid grid-cols-3 gap-2 mt-2.5">
-                <button onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
-                  ▶ Buka
-                </button>
-                <button onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
-                  🔄 Tukar
-                </button>
-                <button onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
-                  ⏹ Tutup
-                </button>
-              </div>
-            </div>
           </div>
 
           <!-- PANEL 3: TAIP ID MANUAL -->
@@ -324,10 +346,10 @@
       <!-- ZONA 2: PEMANTAUAN WARDEN & RINGKASAN -->
       <aside id="seksyen-warden" class="lg:col-span-5 space-y-4">
 
-        <!-- TINDAKAN PANTAS WARDEN -->
+        <!-- TINDAKAN PANTAS WARDEN & PORTAL -->
         <div class="premium-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-            <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest">Panel Kawalan Warden</h3>
+            <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest">Panel Kawalan & Portal</h3>
             <span class="text-[10px] text-slate-400">Akses Pantas</span>
           </div>
 
@@ -340,16 +362,40 @@
             </button>
           </div>
 
-          <!-- MENU PAUTAN E-PEMANTAUAN HARIAN -->
-          <a
-            href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="min-h-[46px] w-full py-2.5 px-3.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-200 border border-blue-500/35 font-bold rounded-xl text-xs transition-all flex items-center justify-between"
-          >
-            <span class="flex items-center gap-2"><span>📋</span> Sistem E-Pemantauan Harian Asrama</span>
-            <span class="text-xs font-black text-blue-300">Buka ↗</span>
-          </a>
+          <!-- MENU PAUTAN SISTEM & PORTAL -->
+          <div class="space-y-2 pt-0.5">
+            <a
+              href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="min-h-[44px] w-full py-2 px-3.5 bg-blue-600/20 hover:bg-blue-600/30 text-blue-200 border border-blue-500/35 font-bold rounded-xl text-xs transition-all flex items-center justify-between"
+            >
+              <span class="flex items-center gap-2"><span>📋</span> Sistem E-Pemantauan Harian</span>
+              <span class="text-xs font-black text-blue-300">Buka ↗</span>
+            </a>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <a
+                href="https://script.google.com/macros/s/AKfycbxFstsHqbNE6SxAh-jOOe_EnL8iOZ_s2E7Q54Y61qniUG9-19bJ69I6ni4JQV_AjGSaPg/exec"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="min-h-[44px] py-2 px-3 bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/35 font-bold rounded-xl text-xs transition-all flex items-center justify-between"
+              >
+                <span class="flex items-center gap-1.5"><span>🛡️</span> Portal Warden</span>
+                <span class="text-[11px] font-black text-amber-300">↗</span>
+              </a>
+
+              <a
+                href="https://script.google.com/macros/s/AKfycbw6Q6OZUy2MZPNVI9SsLFzqn9-K6qgmrqm0mQb_2Ng6TGA4NIjGbaXYX07Do3Q5ND-a7Q/exec"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="min-h-[44px] py-2 px-3 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/35 font-bold rounded-xl text-xs transition-all flex items-center justify-between"
+              >
+                <span class="flex items-center gap-1.5"><span>👨‍👩‍👧</span> Portal Ibubapa</span>
+                <span class="text-[11px] font-black text-emerald-300">↗</span>
+              </a>
+            </div>
+          </div>
 
           <div class="pt-1">
             <label for="pilih-tarikh" class="block text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">📅 Tarikh Rujukan Data</label>
@@ -412,15 +458,11 @@
   </div>
 
   <!-- BAR NAVIGASI BAWAH KHAS UNTUK TELEFON PINTAR (THUMB-FRIENDLY) -->
-  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-1.5 pt-2 safe-bottom">
-    <div class="max-w-lg mx-auto grid grid-cols-5 gap-1">
-      <button onclick="tatalKeSeksyen('seksyen-imbasan')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
-        <span class="text-base">🔫</span>
-        <span class="text-[10px] font-bold mt-0.5">Imbas</span>
-      </button>
-      <button onclick="tatalKeSeksyen('seksyen-statistik')" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-300 hover:bg-slate-900 cursor-pointer">
-        <span class="text-base">📈</span>
-        <span class="text-[10px] font-semibold mt-0.5">Ringkasan</span>
+  <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 pt-2 safe-bottom">
+    <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
+      <button onclick="aktifkanKameraTerus()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
+        <span class="text-base">📷</span>
+        <span class="text-[10px] font-bold mt-0.5">Kamera</span>
       </button>
       <button onclick="bukaModalLaporanRasmi()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-slate-300 hover:bg-slate-900 cursor-pointer">
         <span class="text-base">📊</span>
@@ -430,17 +472,53 @@
         <span class="text-base">👤</span>
         <span class="text-[10px] font-semibold mt-0.5">Profil</span>
       </button>
-      <a
-        href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="flex flex-col items-center justify-center py-1.5 rounded-xl text-blue-300 hover:bg-slate-900"
-      >
-        <span class="text-base">📋</span>
-        <span class="text-[10px] font-semibold mt-0.5">Pantau ↗</span>
-      </a>
+      <button onclick="bukaModalPortal()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-blue-300 hover:bg-slate-900 cursor-pointer">
+        <span class="text-base">🌐</span>
+        <span class="text-[10px] font-semibold mt-0.5">Portal</span>
+      </button>
     </div>
   </nav>
+
+  <!-- MODAL MENU PORTAL (TELEFON PINTAR) -->
+  <div id="modal-portal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
+    <div class="premium-card-gold p-5 sm:p-7 rounded-t-3xl sm:rounded-3xl max-w-md w-full relative space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-sm sm:text-base font-black text-white uppercase tracking-wide flex items-center gap-2">
+          <span>🌐</span> Menu Portal & Sistem
+        </h3>
+        <button onclick="tutupModalPortal()" class="w-9 h-9 rounded-xl bg-slate-800 text-slate-300 hover:text-white font-bold flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+      <div class="space-y-2.5 text-xs">
+        <a
+          href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-blue-500/15 hover:bg-blue-500/25 text-blue-200 border border-blue-500/35 font-bold flex items-center justify-between"
+        >
+          <span class="flex items-center gap-2.5"><span>📋</span><span>Sistem E-Pemantauan Harian</span></span>
+          <span class="font-black text-blue-300">Buka ↗</span>
+        </a>
+        <a
+          href="https://script.google.com/macros/s/AKfycbxFstsHqbNE6SxAh-jOOe_EnL8iOZ_s2E7Q54Y61qniUG9-19bJ69I6ni4JQV_AjGSaPg/exec"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-200 border border-amber-500/35 font-bold flex items-center justify-between"
+        >
+          <span class="flex items-center gap-2.5"><span>🛡️</span><span>Portal Warden Asrama</span></span>
+          <span class="font-black text-amber-300">Buka ↗</span>
+        </a>
+        <a
+          href="https://script.google.com/macros/s/AKfycbw6Q6OZUy2MZPNVI9SsLFzqn9-K6qgmrqm0mQb_2Ng6TGA4NIjGbaXYX07Do3Q5ND-a7Q/exec"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="min-h-[48px] w-full px-4 py-3 rounded-2xl bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-200 border border-emerald-500/35 font-bold flex items-center justify-between"
+        >
+          <span class="flex items-center gap-2.5"><span>👨‍👩‍👧</span><span>Portal Ibubapa Pelajar</span></span>
+          <span class="font-black text-emerald-300">Buka ↗</span>
+        </a>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL ASRAMA -->
   <div id="modal-asrama" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 hidden">
@@ -585,6 +663,7 @@
     let cacheSemuaPelajarAsrama = { lelaki: [], perempuan: [] };
     let senaraiSemasaModalAsrama = [];
     let html5QrCode = null;
+    let kameraSedangAktif = false;
     let chartTrendInstance = null;
     let gunaKameraBelakang = true;
 
@@ -602,10 +681,23 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
+    function aktifkanKameraTerus() {
+      tatalKeSeksyen('seksyen-imbasan');
+      pilihKaedahImbas('KAMERA');
+    }
+
+    function bukaModalPortal() {
+      document.getElementById('modal-portal').classList.remove('hidden');
+    }
+
+    function tutupModalPortal() {
+      document.getElementById('modal-portal').classList.add('hidden');
+    }
+
     function pilihKaedahImbas(mod) {
       const tabs = {
-        ALAT: { btn: 'subtab-alat', panel: 'panel-kaedah-alat' },
         KAMERA: { btn: 'subtab-kamera', panel: 'panel-kaedah-kamera' },
+        ALAT: { btn: 'subtab-alat', panel: 'panel-kaedah-alat' },
         MANUAL: { btn: 'subtab-manual', panel: 'panel-kaedah-manual' }
       };
 
@@ -621,11 +713,16 @@
         }
       });
 
-      if (mod === 'ALAT') {
-        setTimeout(() => fokusAlatScan(), 100);
-      } else if (mod === 'MANUAL') {
-        const manualEl = document.getElementById('id-manual');
-        if (manualEl) setTimeout(() => manualEl.focus(), 100);
+      if (mod === 'KAMERA') {
+        mulakanKamera();
+      } else {
+        tutupKamera();
+        if (mod === 'ALAT') {
+          setTimeout(() => fokusAlatScan(), 120);
+        } else if (mod === 'MANUAL') {
+          const manualEl = document.getElementById('id-manual');
+          if (manualEl) setTimeout(() => manualEl.focus(), 120);
+        }
       }
     }
 
@@ -836,15 +933,18 @@
       input.value = '';
     }
 
-    function mulakanKamera() {
-      if (html5QrCode) {
-        tutupKamera().then(() => mulakanKameraBaru());
-      } else {
-        mulakanKameraBaru();
+    async function mulakanKamera() {
+      if (kameraSedangAktif && html5QrCode) {
+        return;
       }
+      if (html5QrCode) {
+        await tutupKamera();
+      }
+      mulakanKameraBaru();
     }
 
     function mulakanKameraBaru() {
+      if (!document.getElementById("reader")) return;
       html5QrCode = new Html5Qrcode("reader");
       const tetapanKamera = gunaKameraBelakang ? { facingMode: "environment" } : { facingMode: "user" };
 
@@ -853,30 +953,31 @@
         { fps: 15, qrbox: { width: 210, height: 210 } },
         (decodedText) => { hantarDataScan(decodedText); },
         () => {}
-      ).catch(() => {
-        paparNotifikasi("Gagal buka kamera. Sila beri kebenaran pelayar.", "GAGAL");
+      ).then(() => {
+        kameraSedangAktif = true;
+      }).catch(() => {
+        kameraSedangAktif = false;
+        paparNotifikasi("Kamera tidak dapat dibuka. Sila benarkan akses kamera pada pelayar.", "GAGAL");
       });
     }
 
     async function tukarKamera() {
       gunaKameraBelakang = !gunaKameraBelakang;
       paparNotifikasi(gunaKameraBelakang ? "📷 Mod: Kamera Belakang" : "🤳 Mod: Kamera Depan", "AMARAN");
-
-      if (html5QrCode) {
-        await tutupKamera();
-        mulakanKameraBaru();
-      } else {
-        mulakanKamera();
-      }
+      await tutupKamera();
+      mulakanKameraBaru();
     }
 
     async function tutupKamera() {
       if (html5QrCode) {
         try {
-          await html5QrCode.stop();
+          if (kameraSedangAktif) {
+            await html5QrCode.stop();
+          }
           html5QrCode.clear();
         } catch (e) {}
         html5QrCode = null;
+        kameraSedangAktif = false;
       }
     }
 
@@ -1242,7 +1343,8 @@
       }, 1000);
 
       muatNaikStatistik();
-      setTimeout(() => fokusAlatScan(), 400);
+      // Kamera diutamakan dan cuba dibuka automatik apabila halaman dimuatkan
+      setTimeout(() => mulakanKamera(), 350);
     };
   </script>
 </body>
