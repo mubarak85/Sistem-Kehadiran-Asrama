@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HostelScan Pro v6.6 - SMKA Tok Bachok</title>
+  <title>HostelScan Pro v6.7 - SMKA Tok Bachok</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -249,16 +249,19 @@
             </button>
           </div>
 
-          <!-- PANEL 1 (UTAMA): KAMERA HP / WEBCAM -->
+          <!-- PANEL 1 (UTAMA): KAMERA HP / WEBCAM (MOD MANUAL) -->
           <div id="panel-kaedah-kamera" class="space-y-3">
             <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-amber-500/25 p-2">
               <div class="flex items-center justify-between px-2 pb-2 text-[11px]">
                 <span id="status-lensa-kamera" class="font-bold text-amber-300">📷 Lensa: Kamera Belakang</span>
-                <span id="status-aktif-kamera" class="text-slate-400">Menyambung...</span>
+                <span id="status-aktif-kamera" class="text-slate-400">Sedia (Mod Manual)</span>
               </div>
-              <div id="reader" class="w-full min-h-[240px] relative bg-slate-900/60 flex items-center justify-center"></div>
+              <div id="reader" class="w-full min-h-[220px] relative bg-slate-900/70 flex flex-col items-center justify-center p-4 text-center space-y-2">
+                <p class="text-xs text-slate-300 font-semibold">Tekan <span class="text-emerald-400 font-bold">▶ Buka Kamera</span> untuk mengaktifkan kamera secara manual.</p>
+                <p class="text-[11px] text-slate-400">Kaedah klik manual lebih stabil pada pelayar telefon pintar.</p>
+              </div>
               <div class="grid grid-cols-3 gap-2 mt-2.5">
-                <button type="button" onclick="mulakanKamera(true)" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                <button type="button" onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
                   ▶ Buka Kamera
                 </button>
                 <button type="button" onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
@@ -296,7 +299,7 @@
               </button>
             </div>
             <p class="text-[11px] text-slate-400 leading-relaxed">
-              Alat scan berfungsi secara automatik sebaik kad diimbas walaupun anda berada di tab <span class="text-slate-200 font-semibold">Kamera</span>.
+              Alat scan berfungsi secara automatik sebaik kad diimbas.
             </p>
           </div>
 
@@ -455,7 +458,7 @@
   <!-- BAR NAVIGASI BAWAH -->
   <nav class="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800 px-2 pt-2 safe-bottom">
     <div class="max-w-md mx-auto grid grid-cols-4 gap-1">
-      <button onclick="aktifkanKameraTerus()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
+      <button onclick="tatalKeKameraManual()" class="flex flex-col items-center justify-center py-1.5 rounded-xl text-amber-400 hover:bg-slate-900 cursor-pointer">
         <span class="text-base">📷</span>
         <span class="text-[10px] font-bold mt-0.5">Kamera</span>
       </button>
@@ -646,6 +649,8 @@
     let kameraSedangAktif = false;
     let chartTrendInstance = null;
     let gunaKameraBelakang = true;
+    let senaraiPerantiKamera = [];
+    let indeksKameraSemasa = -1;
 
     let modScannerAlatAktif = true;
     let bufferAlatScan = "";
@@ -660,7 +665,7 @@
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function aktifkanKameraTerus() {
+    function tatalKeKameraManual() {
       tatalKeSeksyen('seksyen-imbasan');
       pilihKaedahImbas('KAMERA');
     }
@@ -692,9 +697,7 @@
         }
       });
 
-      if (mod === 'KAMERA') {
-        mulakanKamera(true);
-      } else {
+      if (mod !== 'KAMERA') {
         tutupKamera();
         if (mod === 'ALAT') {
           setTimeout(() => fokusAlatScan(), 120);
@@ -912,11 +915,12 @@
       input.value = '';
     }
 
-    function kemaskiniLabelStatusKamera(aktif, mesej) {
+    function kemaskiniLabelStatusKamera(aktif, mesej, labelKamera = "") {
       const lensaEl = document.getElementById('status-lensa-kamera');
       const aktifEl = document.getElementById('status-aktif-kamera');
       if (lensaEl) {
-        lensaEl.innerText = gunaKameraBelakang ? "📷 Lensa: Kamera Belakang" : "🤳 Lensa: Kamera Depan";
+        const asas = gunaKameraBelakang ? "📷 Kamera Belakang" : "🤳 Kamera Depan";
+        lensaEl.innerText = labelKamera ? `${asas} (${labelKamera})` : asas;
       }
       if (aktifEl) {
         aktifEl.innerText = mesej;
@@ -924,21 +928,18 @@
       }
     }
 
-    async function mulakanKamera(dariKlikPengguna = false) {
-      if (kameraSedangAktif && html5QrCode) {
-        return;
-      }
+    async function mulakanKamera(pilihanKameraId = null) {
       if (html5QrCode) {
         await tutupKamera();
       }
-      await mulakanKameraBaru(dariKlikPengguna);
+      await mulakanKameraBaru(pilihanKameraId);
     }
 
-    async function mulakanKameraBaru(dariKlikPengguna = false) {
+    async function mulakanKameraBaru(pilihanKameraId = null) {
       const readerEl = document.getElementById("reader");
       if (!readerEl) return;
 
-      kemaskiniLabelStatusKamera(false, "Memulakan kamera...");
+      kemaskiniLabelStatusKamera(false, "Membuka...");
       html5QrCode = new Html5Qrcode("reader");
 
       const konfigurasiImbas = {
@@ -948,82 +949,87 @@
       };
 
       try {
-        // Langkah 1: Dapatkan senarai peranti kamera sebenar (sangat penting untuk iPhone / Android multi-lensa)
-        const senaraiKamera = await Html5Qrcode.getCameras();
+        if (!senaraiPerantiKamera || senaraiPerantiKamera.length === 0) {
+          senaraiPerantiKamera = await Html5Qrcode.getCameras() || [];
+        }
 
-        if (senaraiKamera && senaraiKamera.length > 0) {
-          let kameraDipilih = null;
+        if (pilihanKameraId) {
+          await html5QrCode.start(
+            pilihanKameraId,
+            konfigurasiImbas,
+            (decodedText) => { hantarDataScan(decodedText); },
+            () => {}
+          );
+          const camObj = senaraiPerantiKamera.find(c => c.id === pilihanKameraId);
+          kameraSedangAktif = true;
+          kemaskiniLabelStatusKamera(true, "● Aktif", camObj ? camObj.label : "");
+          return;
+        }
 
+        if (senaraiPerantiKamera.length > 0) {
+          let camDipilih = null;
           if (gunaKameraBelakang) {
-            // Cari kamera belakang utama (elak ultra-wide jika ada pilihan belakang lain)
-            const kameraBelakang = senaraiKamera.filter(cam =>
-              /back|rear|environment|belakang/i.test(cam.label)
-            );
-            if (kameraBelakang.length > 0) {
-              // Pada iPhone, kamera belakang utama biasanya item pertama atau yang berlabel "Back Camera"
-              kameraDipilih = kameraBelakang.find(c => /back camera|rear camera|camera 0/i.test(c.label)) || kameraBelakang[0];
-            } else if (senaraiKamera.length > 1) {
-              // Pada banyak telefon, indeks terakhir adalah kamera belakang
-              kameraDipilih = senaraiKamera[senaraiKamera.length - 1];
-            } else {
-              kameraDipilih = senaraiKamera[0];
-            }
+            const senaraiBelakang = senaraiPerantiKamera.filter(c => /back|rear|environment|belakang/i.test(c.label));
+            camDipilih = senaraiBelakang[0] || senaraiPerantiKamera[senaraiPerantiKamera.length - 1] || senaraiPerantiKamera[0];
           } else {
-            kameraDipilih = senaraiKamera.find(cam => /front|user|selfie|depan/i.test(cam.label)) || senaraiKamera[0];
+            camDipilih = senaraiPerantiKamera.find(c => /front|user|selfie|depan/i.test(c.label)) || senaraiPerantiKamera[0];
           }
 
+          indeksKameraSemasa = senaraiPerantiKamera.findIndex(c => c.id === camDipilih.id);
+
           await html5QrCode.start(
-            kameraDipilih.id,
+            camDipilih.id,
             konfigurasiImbas,
             (decodedText) => { hantarDataScan(decodedText); },
             () => {}
           );
 
           kameraSedangAktif = true;
-          kemaskiniLabelStatusKamera(true, "● Aktif");
+          kemaskiniLabelStatusKamera(true, "● Aktif", camDipilih.label);
           return;
         }
-      } catch (errSenarai) {
-        // Teruskan ke fallback facingMode di bawah
+      } catch (errDevice) {
+        // Fallback kepada facingMode jika getCameras() gagal pada peranti tertentu
       }
 
-      // Langkah 2 (Fallback): Guna facingMode longgar (tanpa 'exact' supaya tidak ditolak pelayar)
       try {
-        const kekanganFallback = gunaKameraBelakang
-          ? { facingMode: "environment" }
-          : { facingMode: "user" };
-
+        const kekangan = gunaKameraBelakang ? { facingMode: "environment" } : { facingMode: "user" };
         await html5QrCode.start(
-          kekanganFallback,
+          kekangan,
           konfigurasiImbas,
           (decodedText) => { hantarDataScan(decodedText); },
           () => {}
         );
-
         kameraSedangAktif = true;
         kemaskiniLabelStatusKamera(true, "● Aktif");
-      } catch (errAkhir) {
+      } catch (errFallback) {
         kameraSedangAktif = false;
-        kemaskiniLabelStatusKamera(false, "Tekan '▶ Buka Kamera'");
+        kemaskiniLabelStatusKamera(false, "Gagal dibuka");
         readerEl.innerHTML = `
-          <div class="p-6 text-center space-y-2.5">
-            <p class="text-xs font-bold text-amber-300">Kamera memerlukan kebenaran atau klik manual pada pelayar ini.</p>
-            <button type="button" onclick="mulakanKamera(true)" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs cursor-pointer">
-              📷 Ketik Untuk Buka Kamera Sekarang
+          <div class="p-4 text-center space-y-2">
+            <p class="text-xs font-bold text-rose-400">Kamera tidak dapat dibuka.</p>
+            <p class="text-[11px] text-slate-400">Pastikan kebenaran kamera dibenarkan pada pelayar dan pautan dibuka di Safari/Chrome (HTTPS).</p>
+            <button type="button" onclick="mulakanKamera()" class="px-4 py-2 rounded-xl bg-emerald-600 text-white font-bold text-xs cursor-pointer">
+              Cuba Buka Semula
             </button>
           </div>
         `;
-        if (dariKlikPengguna) {
-          paparNotifikasi("Sila benarkan akses kamera dalam tetapan Safari / Chrome.", "GAGAL");
-        }
+        paparNotifikasi("Gagal buka kamera. Semak kebenaran kamera pada pelayar.", "GAGAL");
       }
     }
 
     async function tukarKamera() {
-      gunaKameraBelakang = !gunaKameraBelakang;
-      paparNotifikasi(gunaKameraBelakang ? "📷 Bertukar ke Kamera Belakang" : "🤳 Bertukar ke Kamera Depan", "AMARAN");
-      await tutupKamera();
-      await mulakanKameraBaru(true);
+      if (senaraiPerantiKamera && senaraiPerantiKamera.length > 1) {
+        indeksKameraSemasa = (indeksKameraSemasa + 1) % senaraiPerantiKamera.length;
+        const camNext = senaraiPerantiKamera[indeksKameraSemasa];
+        gunaKameraBelakang = !/front|user|selfie|depan/i.test(camNext.label);
+        await mulakanKamera(camNext.id);
+        paparNotifikasi(`📷 Lensa: ${camNext.label || 'Kamera'}`, "AMARAN");
+      } else {
+        gunaKameraBelakang = !gunaKameraBelakang;
+        await mulakanKamera();
+        paparNotifikasi(gunaKameraBelakang ? "📷 Mod: Kamera Belakang" : "🤳 Mod: Kamera Depan", "AMARAN");
+      }
     }
 
     async function tutupKamera() {
@@ -1036,8 +1042,16 @@
         } catch (e) {}
         html5QrCode = null;
         kameraSedangAktif = false;
-        kemaskiniLabelStatusKamera(false, "Ditutup");
       }
+      const readerEl = document.getElementById("reader");
+      if (readerEl) {
+        readerEl.innerHTML = `
+          <div class="p-4 text-center space-y-2">
+            <p class="text-xs text-slate-300 font-semibold">Kamera ditutup. Tekan <span class="text-emerald-400 font-bold">▶ Buka Kamera</span> untuk mula mengimbas.</p>
+          </div>
+        `;
+      }
+      kemaskiniLabelStatusKamera(false, "Sedia (Mod Manual)");
     }
 
     async function muatNaikStatistik() {
@@ -1402,7 +1416,6 @@
       }, 1000);
 
       muatNaikStatistik();
-      setTimeout(() => mulakanKamera(false), 350);
     };
   </script>
 </body>
