@@ -82,13 +82,15 @@
 </head>
 <body class="app-shell bg-slate-950 text-slate-100 font-sans min-h-screen pb-24 lg:pb-8 selection:bg-amber-500 selection:text-slate-950">
 
-  <div class="max-w-7xl mx-auto px-3 sm:px-6 pt-3 sm:pt-6 space-y-4 sm:space-y-6">
+  <!-- Susunan HP: order-1 Imbasan/Kamera di atas sekali, order-2 Header, order-3 Statistik, order-4 Warden.
+       Susunan Laptop (lg:): Header di atas, Statistik di tengah, Main (Imbasan kiri + Warden kanan) di bawah. -->
+  <div class="max-w-7xl mx-auto px-3 sm:px-6 pt-2.5 sm:pt-6 flex flex-col gap-3 sm:gap-6">
 
-    <!-- HEADER KOMPAK & BERWIBAWA -->
-    <header class="premium-card-gold rounded-2xl sm:rounded-3xl p-4 sm:p-6">
+    <!-- HEADER KOMPAK & BERWIBAWA (Di bawah Imbasan pada HP, di atas pada Laptop) -->
+    <header class="order-2 lg:order-none premium-card-gold rounded-2xl sm:rounded-3xl p-3.5 sm:p-6">
       <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        <div class="flex items-center gap-3.5 sm:gap-4">
-          <div class="w-14 h-14 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 p-0.5 shadow-lg shrink-0">
+        <div class="flex items-center gap-3 sm:gap-4">
+          <div class="w-12 h-12 sm:w-20 sm:h-20 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 p-0.5 shadow-lg shrink-0">
             <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center p-1.5">
               <img src="https://lh3.googleusercontent.com/d/1prVsaI1eZg47A1CG2IIw3wnvYWqXsuPn=s400" alt="Logo SMKA Tok Bachok" class="w-full h-full object-contain">
             </div>
@@ -100,16 +102,16 @@
                 سكوله منغه كبڠسأن اگام توك باچوق
               </span>
             </div>
-            <h1 class="text-lg sm:text-2xl lg:text-3xl font-black tracking-tight text-white truncate mt-0.5">
+            <h1 class="text-base sm:text-2xl lg:text-3xl font-black tracking-tight text-white truncate mt-0.5">
               HostelScan <span class="text-amber-400">Pro</span>
             </h1>
-            <p class="text-[11px] sm:text-xs text-slate-400 font-medium">Sistem Pengurusan Kehadiran Digital Asrama • Beriman & Beristiqamah</p>
+            <p class="text-[10px] sm:text-xs text-slate-400 font-medium truncate">Sistem Pengurusan Kehadiran Digital Asrama • Beriman & Beristiqamah</p>
           </div>
         </div>
 
         <!-- MENU PANTAS & MASA LANGSUNG -->
         <div class="flex flex-wrap items-center justify-between xl:justify-end gap-2 pt-2.5 xl:pt-0 border-t xl:border-t-0 border-slate-800/80">
-          <div class="flex flex-wrap items-center gap-2">
+          <div class="hidden sm:flex flex-wrap items-center gap-2">
             <a
               href="https://script.google.com/macros/s/AKfycbz3NBV9G9BTnxEVze6I3mymaXIbWLxn14nNhllenXPcSzyKepOS2WT_ENAgbr_yfQRH/exec"
               target="_blank"
@@ -142,12 +144,12 @@
             </a>
           </div>
 
-          <div class="flex items-center gap-2">
-            <div class="flex items-center gap-1.5 text-xs text-slate-300 bg-slate-900/80 px-3 py-2 rounded-xl border border-slate-800">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-300 bg-slate-900/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-800">
               <span class="text-amber-400">📅</span>
               <span id="footer-tarikh" class="font-semibold">-</span>
             </div>
-            <div class="flex items-center gap-1.5 text-xs text-amber-300 bg-slate-900/80 px-3 py-2 rounded-xl border border-amber-500/25 font-mono font-bold">
+            <div class="flex items-center gap-1.5 text-[11px] sm:text-xs text-amber-300 bg-slate-900/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-amber-500/25 font-mono font-bold">
               <span>⏰</span>
               <span id="footer-masa">--:--:--</span>
             </div>
@@ -155,8 +157,8 @@
         </div>
       </div>
 
-      <!-- JALUR KELEBIHAN RINGKAS -->
-      <div class="mt-4 pt-3 border-t border-slate-800/70 flex items-center gap-2 overflow-x-auto no-scrollbar text-[11px]">
+      <!-- JALUR KELEBIHAN RINGKAS (Laptop sahaja supaya HP kekal ringkas) -->
+      <div class="hidden sm:flex mt-4 pt-3 border-t border-slate-800/70 items-center gap-2 overflow-x-auto no-scrollbar text-[11px]">
         <span class="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-semibold shrink-0">🛡️ Data Awan Selamat</span>
         <span class="px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-300 border border-blue-500/20 font-semibold shrink-0">⏱️ Rekod Pantas</span>
         <span class="px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 font-semibold shrink-0">☁️ 100% Digital</span>
@@ -164,73 +166,73 @@
       </div>
     </header>
 
-    <!-- STATISTIK UTAMA -->
-    <section id="seksyen-statistik" class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
-      <div class="premium-card p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center text-lg shrink-0">👥</div>
+    <!-- STATISTIK UTAMA (order-3 pada HP, di atas Main pada Laptop) -->
+    <section id="seksyen-statistik" class="order-3 lg:order-none grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4">
+      <div class="premium-card p-3 sm:p-4 rounded-2xl flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-800 text-slate-200 flex items-center justify-center text-base sm:text-lg shrink-0">👥</div>
         <div class="min-w-0">
           <p class="text-[10px] sm:text-[11px] text-slate-400 uppercase font-bold tracking-wider truncate">Jumlah Pelajar</p>
-          <p id="poster-stat-total" class="text-xl sm:text-2xl font-black text-white leading-tight">0</p>
+          <p id="poster-stat-total" class="text-lg sm:text-2xl font-black text-white leading-tight">0</p>
         </div>
       </div>
-      <div class="premium-card p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center text-lg shrink-0">✅</div>
+      <div class="premium-card p-3 sm:p-4 rounded-2xl flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/25 flex items-center justify-center text-base sm:text-lg shrink-0">✅</div>
         <div class="min-w-0">
           <p id="label-stat-utama" class="text-[10px] sm:text-[11px] text-emerald-400 uppercase font-bold tracking-wider truncate">Sudah Masuk</p>
-          <p id="poster-stat-masuk" class="text-xl sm:text-2xl font-black text-emerald-400 leading-tight">0</p>
+          <p id="poster-stat-masuk" class="text-lg sm:text-2xl font-black text-emerald-400 leading-tight">0</p>
         </div>
       </div>
-      <div class="premium-card p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/25 flex items-center justify-center text-lg shrink-0">⏳</div>
+      <div class="premium-card p-3 sm:p-4 rounded-2xl flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-rose-500/15 text-rose-400 border border-rose-500/25 flex items-center justify-center text-base sm:text-lg shrink-0">⏳</div>
         <div class="min-w-0">
           <p id="label-stat-baki" class="text-[10px] sm:text-[11px] text-rose-400 uppercase font-bold tracking-wider truncate">Belum Masuk</p>
-          <p id="poster-stat-belum" class="text-xl sm:text-2xl font-black text-rose-400 leading-tight">0</p>
+          <p id="poster-stat-belum" class="text-lg sm:text-2xl font-black text-rose-400 leading-tight">0</p>
         </div>
       </div>
-      <div class="premium-card p-3.5 sm:p-4 rounded-2xl flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center text-lg shrink-0">📊</div>
+      <div class="premium-card p-3 sm:p-4 rounded-2xl flex items-center gap-2.5 sm:gap-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-500/15 text-amber-400 border border-amber-500/25 flex items-center justify-center text-base sm:text-lg shrink-0">📊</div>
         <div class="min-w-0">
           <p class="text-[10px] sm:text-[11px] text-amber-400 uppercase font-bold tracking-wider truncate">Peratus</p>
-          <p id="poster-stat-peratus" class="text-xl sm:text-2xl font-black text-amber-400 leading-tight">0%</p>
+          <p id="poster-stat-peratus" class="text-lg sm:text-2xl font-black text-amber-400 leading-tight">0%</p>
         </div>
       </div>
     </section>
 
-    <!-- SUSUN ATUR UTAMA -->
-    <main class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+    <!-- SUSUN ATUR UTAMA (contents pada HP supaya Imbasan = order-1 dan Warden = order-4; grid pada Laptop dikekalkan) -->
+    <main class="contents lg:grid lg:grid-cols-12 lg:gap-6 lg:items-start">
 
-      <!-- ZONA 1: PENGIMBAS UTAMA -->
-      <section id="seksyen-imbasan" class="lg:col-span-7 premium-card-gold rounded-2xl sm:rounded-3xl overflow-hidden">
-        <div class="p-4 sm:p-5 bg-slate-900/90 border-b border-slate-800 space-y-3">
+      <!-- ZONA 1: PENGIMBAS UTAMA (order-1 pada HP supaya terus nampak kamera tanpa scroll) -->
+      <section id="seksyen-imbasan" class="order-1 lg:order-none lg:col-span-7 premium-card-gold rounded-2xl sm:rounded-3xl overflow-hidden">
+        <div class="p-3 sm:p-5 bg-slate-900/90 border-b border-slate-800 space-y-2.5 sm:space-y-3">
           <div class="flex items-center justify-between gap-2">
             <div>
-              <h2 id="tajuk-mod-pengimbas" class="text-sm sm:text-base font-black tracking-wide uppercase text-white flex items-center gap-2">
+              <h2 id="tajuk-mod-pengimbas" class="text-xs sm:text-base font-black tracking-wide uppercase text-white flex items-center gap-1.5 sm:gap-2">
                 <span>📥</span> SCAN MASUK ASRAMA
               </h2>
-              <p class="text-[11px] text-slate-400">Pilih arah pergerakan sebelum mengimbas kad pelajar</p>
+              <p class="hidden sm:block text-[11px] text-slate-400">Pilih arah pergerakan sebelum mengimbas kad pelajar</p>
             </div>
             <span id="badge-arah-semasa" class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
               Mod Masuk
             </span>
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
-            <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="min-h-[44px] py-2.5 px-3 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 cursor-pointer transition-all flex items-center justify-center gap-2">
+          <div class="grid grid-cols-2 gap-2 sm:gap-2.5">
+            <button id="tab-masuk" onclick="setModPergerakan('MASUK')" class="min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2">
               <span>📥</span> SCAN MASUK
             </button>
-            <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="min-h-[44px] py-2.5 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-2">
+            <button id="tab-keluar" onclick="setModPergerakan('KELUAR')" class="min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2">
               <span>📤</span> SCAN KELUAR
             </button>
           </div>
         </div>
 
-        <div class="p-4 sm:p-5 space-y-4">
+        <div class="p-3 sm:p-5 space-y-3 sm:space-y-4">
           <div id="notifikasi-badge" class="hidden text-center py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-lg transition-all"></div>
 
-          <div id="kad-imbasan-terakhir" class="hidden p-3.5 bg-slate-900/95 rounded-2xl border border-emerald-500/30 flex items-center justify-between gap-3">
+          <div id="kad-imbasan-terakhir" class="hidden p-3 sm:p-3.5 bg-slate-900/95 rounded-2xl border border-emerald-500/30 flex items-center justify-between gap-3">
             <div class="min-w-0 space-y-0.5">
               <p class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Imbasan Terakhir Direkod</p>
-              <p id="terakhir-nama-id" class="font-black text-white text-sm truncate">-</p>
+              <p id="terakhir-nama-id" class="font-black text-white text-xs sm:text-sm truncate">-</p>
               <p id="terakhir-butiran" class="text-[11px] text-slate-300 truncate">-</p>
             </div>
             <span id="terakhir-masa" class="text-xs font-mono font-bold bg-slate-950 px-2.5 py-1.5 rounded-xl text-amber-300 border border-slate-800 shrink-0">-</span>
@@ -238,29 +240,29 @@
 
           <!-- SUIS KAEDAH IMBASAN -->
           <div class="bg-slate-950/70 p-1 rounded-xl border border-slate-800 grid grid-cols-3 gap-1">
-            <button type="button" id="subtab-kamera" onclick="pilihKaedahImbas('KAMERA')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all">
+            <button type="button" id="subtab-kamera" onclick="pilihKaedahImbas('KAMERA')" class="min-h-[36px] sm:min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all">
               📷 Kamera
             </button>
-            <button type="button" id="subtab-alat" onclick="pilihKaedahImbas('ALAT')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
+            <button type="button" id="subtab-alat" onclick="pilihKaedahImbas('ALAT')" class="min-h-[36px] sm:min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
               🔫 Alat Scan
             </button>
-            <button type="button" id="subtab-manual" onclick="pilihKaedahImbas('MANUAL')" class="min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
+            <button type="button" id="subtab-manual" onclick="pilihKaedahImbas('MANUAL')" class="min-h-[36px] sm:min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all">
               ⌨️ Taip ID
             </button>
           </div>
 
           <!-- PANEL 1: KAMERA HP / WEBCAM -->
-          <div id="panel-kaedah-kamera" class="space-y-3">
+          <div id="panel-kaedah-kamera" class="space-y-2.5 sm:space-y-3">
             <div class="relative w-full rounded-2xl overflow-hidden bg-slate-950 border border-amber-500/25 p-2">
-              <div id="reader" class="w-full min-h-[200px] relative bg-slate-900/60 flex items-center justify-center"></div>
-              <div class="grid grid-cols-3 gap-2 mt-2.5">
-                <button type="button" onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+              <div id="reader" class="w-full min-h-[210px] sm:min-h-[200px] relative bg-slate-900/60 flex items-center justify-center"></div>
+              <div class="grid grid-cols-3 gap-2 mt-2 sm:mt-2.5">
+                <button type="button" onclick="mulakanKamera()" class="min-h-[42px] bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 px-2 sm:px-3 rounded-xl text-xs transition-all cursor-pointer">
                   ▶ Buka Kamera
                 </button>
-                <button type="button" onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                <button type="button" onclick="tukarKamera()" class="min-h-[42px] bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2 px-2 sm:px-3 rounded-xl text-xs transition-all cursor-pointer">
                   🔄 Tukar
                 </button>
-                <button type="button" onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-3 rounded-xl text-xs transition-all cursor-pointer">
+                <button type="button" onclick="tutupKamera()" class="min-h-[42px] bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold py-2 px-2 sm:px-3 rounded-xl text-xs transition-all cursor-pointer">
                   ⏹ Tutup
                 </button>
               </div>
@@ -314,25 +316,25 @@
           </div>
 
           <!-- REKOD SALAHLAKU -->
-          <div class="p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800/90 space-y-2.5">
+          <div class="p-3 sm:p-3.5 bg-slate-900/60 rounded-2xl border border-slate-800/90 space-y-2 sm:space-y-2.5">
             <div class="flex items-center justify-between">
               <p class="text-[11px] font-bold text-rose-400 uppercase tracking-wider">⚠️ Catatan Salahlaku (Pilihan)</p>
               <button type="button" onclick="resetSalahlaku()" class="text-[10px] text-slate-400 hover:text-slate-200 underline cursor-pointer">Set Semula</button>
             </div>
             <div class="grid grid-cols-2 gap-2 text-xs">
-              <label class="min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
+              <label class="min-h-[38px] sm:min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
                 <input type="checkbox" name="kesalahan" value="Tak Pakai Kasut" class="w-4 h-4 rounded accent-rose-500">
                 <span class="text-slate-200 font-medium">Tak Pakai Kasut</span>
               </label>
-              <label class="min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
+              <label class="min-h-[38px] sm:min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
                 <input type="checkbox" name="kesalahan" value="Tak Pakai Batik" class="w-4 h-4 rounded accent-rose-500">
                 <span class="text-slate-200 font-medium">Tak Pakai Batik</span>
               </label>
-              <label class="min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
+              <label class="min-h-[38px] sm:min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
                 <input type="checkbox" name="kesalahan" value="Tak Pakai Stokin" class="w-4 h-4 rounded accent-rose-500">
                 <span class="text-slate-200 font-medium">Tak Pakai Stokin</span>
               </label>
-              <label class="min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
+              <label class="min-h-[38px] sm:min-h-[40px] flex items-center gap-2 bg-slate-950/80 px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl border border-slate-800 cursor-pointer hover:border-rose-500/40 transition-all select-none">
                 <input type="checkbox" name="kesalahan" value="Hilang Kad" class="w-4 h-4 rounded accent-rose-500">
                 <span class="text-slate-200 font-medium">Hilang Kad</span>
               </label>
@@ -341,8 +343,8 @@
         </div>
       </section>
 
-      <!-- ZONA 2: PEMANTAUAN WARDEN & RINGKASAN -->
-      <aside id="seksyen-warden" class="lg:col-span-5 space-y-4">
+      <!-- ZONA 2: PEMANTAUAN WARDEN & RINGKASAN (order-4 pada HP supaya di bawah sekali, kanan pada Laptop) -->
+      <aside id="seksyen-warden" class="order-4 lg:order-none lg:col-span-5 space-y-4">
         <div class="premium-card p-4 sm:p-5 rounded-2xl sm:rounded-3xl space-y-3">
           <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
             <h3 class="text-xs font-black text-amber-400 uppercase tracking-widest">Panel Kawalan & Portal</h3>
@@ -442,7 +444,7 @@
       </aside>
     </main>
 
-    <footer class="hidden lg:flex pt-4 border-t border-slate-800/80 items-center justify-between text-xs text-slate-400">
+    <footer class="order-5 lg:order-none hidden lg:flex pt-4 border-t border-slate-800/80 items-center justify-between text-xs text-slate-400">
       <p class="font-semibold text-slate-300">"Imbas Sekarang, Kehadiran Direkod!" • Asrama Harmoni, Pelajar Berdisiplin</p>
       <p>📍 UNIT PENGURUSAN ASRAMA SMKA TOK BACHOK</p>
     </footer>
@@ -675,10 +677,10 @@
         const b = document.getElementById(tabs[k].btn);
         const p = document.getElementById(tabs[k].panel);
         if (k === mod) {
-          b.className = "min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all";
+          b.className = "min-h-[36px] sm:min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold bg-amber-500 text-slate-950 cursor-pointer transition-all";
           p.classList.remove('hidden');
         } else {
-          b.className = "min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all";
+          b.className = "min-h-[36px] sm:min-h-[38px] py-1.5 px-2 rounded-lg text-[11px] sm:text-xs font-bold text-slate-400 hover:text-white cursor-pointer transition-all";
           p.classList.add('hidden');
         }
       });
@@ -837,14 +839,14 @@
       const badge = document.getElementById('badge-arah-semasa');
 
       if (arah === 'MASUK') {
-        btnMasuk.className = "min-h-[44px] py-2.5 px-3 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 cursor-pointer transition-all flex items-center justify-center gap-2";
-        btnKeluar.className = "min-h-[44px] py-2.5 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-2";
+        btnMasuk.className = "min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-black text-xs bg-emerald-600 text-white shadow-lg shadow-emerald-600/25 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2";
+        btnKeluar.className = "min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2";
         tajuk.innerHTML = "<span>📥</span> SCAN MASUK ASRAMA";
         badge.innerText = "Mod Masuk";
         badge.className = "px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
       } else {
-        btnKeluar.className = "min-h-[44px] py-2.5 px-3 rounded-xl font-black text-xs bg-rose-600 text-white shadow-lg shadow-rose-600/25 cursor-pointer transition-all flex items-center justify-center gap-2";
-        btnMasuk.className = "min-h-[44px] py-2.5 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-2";
+        btnKeluar.className = "min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-black text-xs bg-rose-600 text-white shadow-lg shadow-rose-600/25 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2";
+        btnMasuk.className = "min-h-[40px] sm:min-h-[44px] py-2 px-3 rounded-xl font-bold text-xs bg-slate-800/90 text-slate-300 border border-slate-700 hover:bg-slate-800 cursor-pointer transition-all flex items-center justify-center gap-1.5 sm:gap-2";
         tajuk.innerHTML = "<span>📤</span> SCAN KELUAR ASRAMA";
         badge.innerText = "Mod Keluar";
         badge.className = "px-2.5 py-1 rounded-full text-[10px] font-black uppercase bg-rose-500/20 text-rose-300 border border-rose-500/30";
